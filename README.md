@@ -14,7 +14,8 @@ The game is started by executing "python crs_dots.py" in the "src" directory.  T
 
 Processing game results:
 Executing the game creates a new results file, usually stored in the "../gmres" or "../test_gmres" directory.  Examples of results files can be found in the "test_gmres" directory.
-Example Game Results File:
+#Example Game Results File:
+```
 # c:\Users\raysm\workspace\python\crs_dots\gmres\dotsgame_20190905_125457.gmres
 # On: September 05, 2019
 
@@ -29,10 +30,12 @@ game(name="dots", nplayer=2, nrow=2, ncol=2, nmove=12, ts="20190905_125458")
 moves([(1,1,2), (2,2,3), (1,1,2), (2,1,1), (1,2,2), (2,2,1), (1,2,1),
 (2,1,1), (2,3,1), (2,2,2), (1,1,3), (1,3,2)])
 results((1,2), (2,2))
-
+```
 
 Loading and simple analysis of game results files is done by executing "crs_dots_load.py" in the "src" directory.
+
 Example crs_dots_load.py output:
+```
  Creating Log File Name: C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_load_20190905_130004.sllog
  loadTraceFlags: game_results,game,adding_list,SkipFile
  crs_dots_load.py --results_dir=../test_gmres
@@ -84,5 +87,5 @@ Example crs_dots_load.py output:
  ----------------------------------------------------------------------
  Saving properties file C:\Users\raysm\workspace\python\crs_dots\crs_dots_load.properties
  Closing log file C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_load_20190905_130004.sllog
-
+```
 
