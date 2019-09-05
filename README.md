@@ -5,7 +5,7 @@ In addition to making a fun game, our goal is to develop / demonstrate machine l
 
 ## The Dots game:
 I appologize if others have a different game in mind.  The following is the game as I've seen and played it.
-The playing board is created by creating a rectangular array of dots, the connection of adjacent dots create squares.  A 10 by 10 grid is created by 11 dots accross and 11 dots down, providing, upon completion an array of 10 columns of squares horrizontaly by 10 rows of squares vertically.
+The playing board is created by creating a rectangular array of dots, the connection of adjacent dots create squares.  A 10 by 10 grid is created by 11 dots accross and 11 dots down, providing, upon completion an array of 10 columns of squares horrizontaly by 10 rows of squares vertically.  Please open the file "dots_screen_shots.docx" for a quick view of the game in action.
 
 The game is usually played by two players with alternating moves.  Each move consists of creating a new horizontal or vertical line connecting adjacent dots.  When a player completes one or two squares with their move, they mark the completed square(s) and must take an and additional move.  When all the squares created, the game is completed.  It is considered a win for the player if their number of squares created exceeds their opponent.  If the number of squares of both players is identical it is a tie game.
 
