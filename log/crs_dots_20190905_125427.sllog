@@ -1,0 +1,23 @@
+ 20190905_125427 Creating Log File Name: c:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20190905_125427.sllog
+ 20190905_125427 loadTraceFlags: set_window_size,button,pgm_stack,in_stroke,region_rect,add_part,display,part_check_ok,dbg,part_track_uncleared,edge_unselected,show_id,part_info,memory,enter,on_motion,is_over,part_info_over,edge_highlighted,no_blink,blink_on_first,get_parts,highlight,motion,down,selected,blink,edge_selected,leave,execute,set_window_size(,score,player,select_copy,execute_print,execute_select,execute_stack,execute_part_change,move,track_move_edge,keybd,running_loop,player_trace,new_edge,square_completion,complete_test,square,annotate_square,message,show_move,get_color,regno,play_strategy,copy,region_few_corners,nolegalmoves,flush_outputs,controls,list_moves
+ 20190905_125427 crs_dots.py --nx=2
+
+ 20190905_125427 args: Namespace(btmove=1.0, cmd_file_name=None, ew_display=7, ew_select=7, ew_standoff=8, height=600, loop=False, loop_after=5, min_xlen=10, nx=2, ny=5, play_level=None, playing=None, results_dir=None, results_files=True, run_game=False, show_id=False, show_players=True, show_score=True, speed_step=-1, src_lst=True, stroke_move=False, stx_lst=True, trace='', undo_len=200, width=600)
+
+ 20190905_125427 Game Results File c:\Users\raysm\workspace\python\crs_dots\gmres\dotsgame_20190905_125427.gmres
+ 20190905_125427 SelectControlWindow.__init__ 1
+ 20190905_125427 SelectControlWindow.__init__ 2
+ 20190905_125427 SelectControlWindow.__init__ 3
+ 20190905_125427 
+Loop 1
+ 20190905_125427 Memory Used: 36 MB, Change: 35.61 MB
+ 20190905_125427 SelectControlWindow.__init__ 3
+ 20190905_125427 SelectArea.add_add_down_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001988CDACC50>>
+ 20190905_125427 SelectArea after add_down_click_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001988CDACC50>>
+ 20190905_125427 board.area.down_click_call: <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001988CDACC50>>
+ 20190905_125427 reset_score
+ 20190905_125427 PlayerControl
+ 20190905_125439 Closing windows
+ 20190905_125439 Closeing results file c:\Users\raysm\workspace\python\crs_dots\gmres\dotsgame_20190905_125427.gmres
+ 20190905_125439 Saving properties file c:\Users\raysm\workspace\python\crs_dots\crs_dots.properties
+ 20190905_125439 Closing log file c:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20190905_125427.sllog

@@ -1,0 +1,82 @@
+ 20190905_125341 Creating Log File Name: C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20190905_125341.sllog
+ 20190905_125341 loadTraceFlags: set_window_size,button,pgm_stack,in_stroke,region_rect,add_part,display,part_check_ok,dbg,part_track_uncleared,edge_unselected,show_id,part_info,memory,enter,on_motion,is_over,part_info_over,edge_highlighted,no_blink,blink_on_first,get_parts,highlight,motion,down,selected,blink,edge_selected,leave,execute,set_window_size(,score,player,select_copy,execute_print,execute_select,execute_stack,execute_part_change,move,track_move_edge,keybd,running_loop,player_trace,new_edge,square_completion,complete_test,square,annotate_square,message,show_move,get_color,regno,play_strategy,copy,region_few_corners,nolegalmoves,flush_outputs,controls,list_moves
+ 20190905_125341 crs_dots.py --nx=2 --ny=2 --run_game=true --loop=true --loop_after=0 --results_dir=..\test_gmres
+
+ 20190905_125341 args: Namespace(btmove=1.0, cmd_file_name=None, ew_display=7, ew_select=7, ew_standoff=8, height=600, loop=True, loop_after=0.0, min_xlen=10, nx=2, ny=2, play_level=None, playing=None, results_dir='..\\test_gmres', results_files=True, run_game=True, show_id=False, show_players=True, show_score=True, speed_step=-1, src_lst=True, stroke_move=False, stx_lst=True, trace='', undo_len=200, width=600)
+
+ 20190905_125341 Game Results File C:\Users\raysm\workspace\python\crs_dots\test_gmres\dotsgame_20190905_125341.gmres
+ 20190905_125341 SelectControlWindow.__init__ 1
+ 20190905_125341 SelectControlWindow.__init__ 2
+ 20190905_125341 SelectControlWindow.__init__ 3
+ 20190905_125341 
+Loop 1
+ 20190905_125341 Memory Used: 36 MB, Change: 35.81 MB
+ 20190905_125341 SelectControlWindow.__init__ 3
+ 20190905_125341 SelectArea.add_add_down_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001DAC2218748>>
+ 20190905_125341 SelectArea after add_down_click_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001DAC2218748>>
+ 20190905_125341 board.area.down_click_call: <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001DAC2218748>>
+ 20190905_125341 reset_score
+ 20190905_125341 PlayerControl
+ 20190905_125341 Game file version("ver01_rel01")
+ 20190905_125342 end of game 1
+ 20190905_125342 Starting New Game
+ 20190905_125343 end of game 2
+ 20190905_125343 Starting New Game
+ 20190905_125344 end of game 3
+ 20190905_125344 Starting New Game
+ 20190905_125347 end of game 4
+ 20190905_125347 Starting New Game
+ 20190905_125348 end of game 5
+ 20190905_125348 Starting New Game
+ 20190905_125349 end of game 6
+ 20190905_125349 Starting New Game
+ 20190905_125349 end of game 7
+ 20190905_125349 Starting New Game
+ 20190905_125351 end of game 8
+ 20190905_125351 Starting New Game
+ 20190905_125352 end of game 9
+ 20190905_125352 Starting New Game
+ 20190905_125353 end of game 10
+ 20190905_125353 Starting New Game
+ 20190905_125354 end of game 11
+ 20190905_125354 Starting New Game
+ 20190905_125355 end of game 12
+ 20190905_125355 Starting New Game
+ 20190905_125355 end of game 13
+ 20190905_125355 Starting New Game
+ 20190905_125356 end of game 14
+ 20190905_125356 Starting New Game
+ 20190905_125357 end of game 15
+ 20190905_125357 Starting New Game
+ 20190905_125358 end of game 16
+ 20190905_125358 Starting New Game
+ 20190905_125359 end of game 17
+ 20190905_125359 Starting New Game
+ 20190905_125400 end of game 18
+ 20190905_125400 Starting New Game
+ 20190905_125400 end of game 19
+ 20190905_125400 Starting New Game
+ 20190905_125401 end of game 20
+ 20190905_125401 Starting New Game
+ 20190905_125402 end of game 21
+ 20190905_125402 Starting New Game
+ 20190905_125403 end of game 22
+ 20190905_125403 Starting New Game
+ 20190905_125404 end of game 23
+ 20190905_125404 Starting New Game
+ 20190905_125404 end of game 24
+ 20190905_125404 Starting New Game
+ 20190905_125405 end of game 25
+ 20190905_125405 Starting New Game
+ 20190905_125406 end of game 26
+ 20190905_125406 Starting New Game
+ 20190905_125407 end of game 27
+ 20190905_125407 Starting New Game
+ 20190905_125408 end of game 28
+ 20190905_125408 Starting New Game
+ 20190905_125409 end of game 29
+ 20190905_125409 Starting New Game
+ 20190905_125409 Closing windows
+ 20190905_125409 Closeing results file C:\Users\raysm\workspace\python\crs_dots\test_gmres\dotsgame_20190905_125341.gmres
+ 20190905_125409 Saving properties file C:\Users\raysm\workspace\python\crs_dots\crs_dots.properties
+ 20190905_125409 Closing log file C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20190905_125341.sllog

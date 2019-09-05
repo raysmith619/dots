@@ -1,0 +1,436 @@
+ 20190905_125457 Creating Log File Name: c:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20190905_125457.sllog
+ 20190905_125457 loadTraceFlags: set_window_size,button,pgm_stack,in_stroke,region_rect,add_part,display,part_check_ok,dbg,part_track_uncleared,edge_unselected,show_id,part_info,memory,enter,on_motion,is_over,part_info_over,edge_highlighted,no_blink,blink_on_first,get_parts,highlight,motion,down,selected,blink,edge_selected,leave,execute,set_window_size(,score,player,select_copy,execute_print,execute_select,execute_stack,execute_part_change,move,track_move_edge,keybd,running_loop,player_trace,new_edge,square_completion,complete_test,square,annotate_square,message,show_move,get_color,regno,play_strategy,copy,region_few_corners,nolegalmoves,flush_outputs,controls,list_moves
+ 20190905_125457 crs_dots.py --nx=2 --run_game=true
+
+ 20190905_125457 args: Namespace(btmove=1.0, cmd_file_name=None, ew_display=7, ew_select=7, ew_standoff=8, height=600, loop=False, loop_after=5, min_xlen=10, nx=2, ny=5, play_level=None, playing=None, results_dir=None, results_files=True, run_game=True, show_id=False, show_players=True, show_score=True, speed_step=-1, src_lst=True, stroke_move=False, stx_lst=True, trace='', undo_len=200, width=600)
+
+ 20190905_125457 Game Results File c:\Users\raysm\workspace\python\crs_dots\gmres\dotsgame_20190905_125457.gmres
+ 20190905_125457 SelectControlWindow.__init__ 1
+ 20190905_125457 SelectControlWindow.__init__ 2
+ 20190905_125457 SelectControlWindow.__init__ 3
+ 20190905_125457 
+Loop 1
+ 20190905_125457 Memory Used: 36 MB, Change: 35.54 MB
+ 20190905_125457 SelectControlWindow.__init__ 3
+ 20190905_125457 SelectArea.add_add_down_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001CD9F87CB70>>
+ 20190905_125457 SelectArea after add_down_click_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001CD9F87CB70>>
+ 20190905_125457 board.area.down_click_call: <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001CD9F87CB70>>
+ 20190905_125457 reset_score
+ 20190905_125457 PlayerControl
+ 20190905_125457 Game file version("ver01_rel01")
+ 20190905_125458 end of game 1
+ 20190905_125458 Starting New Game
+ 20190905_125459 end of game 2
+ 20190905_125459 Starting New Game
+ 20190905_125500 end of game 3
+ 20190905_125500 Starting New Game
+ 20190905_125500 end of game 4
+ 20190905_125500 Starting New Game
+ 20190905_125501 end of game 5
+ 20190905_125501 Starting New Game
+ 20190905_125502 end of game 6
+ 20190905_125502 Starting New Game
+ 20190905_125503 end of game 7
+ 20190905_125503 Starting New Game
+ 20190905_125504 end of game 8
+ 20190905_125504 Starting New Game
+ 20190905_125506 end of game 9
+ 20190905_125506 Starting New Game
+ 20190905_125507 end of game 10
+ 20190905_125507 Starting New Game
+ 20190905_125507 end of game 11
+ 20190905_125507 Starting New Game
+ 20190905_125508 end of game 12
+ 20190905_125508 Starting New Game
+ 20190905_125509 end of game 13
+ 20190905_125509 Starting New Game
+ 20190905_125510 end of game 14
+ 20190905_125510 Starting New Game
+ 20190905_125511 end of game 15
+ 20190905_125511 Starting New Game
+ 20190905_125511 end of game 16
+ 20190905_125511 Starting New Game
+ 20190905_125512 end of game 17
+ 20190905_125512 Starting New Game
+ 20190905_125513 end of game 18
+ 20190905_125513 Starting New Game
+ 20190905_125514 end of game 19
+ 20190905_125514 Starting New Game
+ 20190905_125516 end of game 20
+ 20190905_125516 Starting New Game
+ 20190905_125517 end of game 21
+ 20190905_125517 Starting New Game
+ 20190905_125517 end of game 22
+ 20190905_125517 Starting New Game
+ 20190905_125518 end of game 23
+ 20190905_125518 Starting New Game
+ 20190905_125519 end of game 24
+ 20190905_125519 Starting New Game
+ 20190905_125520 end of game 25
+ 20190905_125520 Starting New Game
+ 20190905_125521 end of game 26
+ 20190905_125521 Starting New Game
+ 20190905_125522 end of game 27
+ 20190905_125522 Starting New Game
+ 20190905_125524 end of game 28
+ 20190905_125524 Starting New Game
+ 20190905_125525 end of game 29
+ 20190905_125525 Starting New Game
+ 20190905_125525 end of game 30
+ 20190905_125525 Starting New Game
+ 20190905_125526 end of game 31
+ 20190905_125526 Starting New Game
+ 20190905_125527 end of game 32
+ 20190905_125527 Starting New Game
+ 20190905_125528 end of game 33
+ 20190905_125528 Starting New Game
+ 20190905_125529 end of game 34
+ 20190905_125529 Starting New Game
+ 20190905_125529 end of game 35
+ 20190905_125529 Starting New Game
+ 20190905_125530 end of game 36
+ 20190905_125530 Starting New Game
+ 20190905_125533 end of game 37
+ 20190905_125533 Starting New Game
+ 20190905_125534 end of game 38
+ 20190905_125534 Starting New Game
+ 20190905_125534 end of game 39
+ 20190905_125534 Starting New Game
+ 20190905_125535 end of game 40
+ 20190905_125535 Starting New Game
+ 20190905_125536 end of game 41
+ 20190905_125536 Starting New Game
+ 20190905_125537 end of game 42
+ 20190905_125537 Starting New Game
+ 20190905_125537 end of game 43
+ 20190905_125537 Starting New Game
+ 20190905_125538 end of game 44
+ 20190905_125538 Starting New Game
+ 20190905_125539 end of game 45
+ 20190905_125539 Starting New Game
+ 20190905_125540 end of game 46
+ 20190905_125540 Starting New Game
+ 20190905_125540 end of game 47
+ 20190905_125540 Starting New Game
+ 20190905_125541 end of game 48
+ 20190905_125541 Starting New Game
+ 20190905_125542 end of game 49
+ 20190905_125542 Starting New Game
+ 20190905_125543 end of game 50
+ 20190905_125543 Starting New Game
+ 20190905_125544 end of game 51
+ 20190905_125544 Starting New Game
+ 20190905_125545 end of game 52
+ 20190905_125545 Starting New Game
+ 20190905_125545 end of game 53
+ 20190905_125545 Starting New Game
+ 20190905_125546 end of game 54
+ 20190905_125546 Starting New Game
+ 20190905_125547 end of game 55
+ 20190905_125547 Starting New Game
+ 20190905_125547 end of game 56
+ 20190905_125547 Starting New Game
+ 20190905_125548 end of game 57
+ 20190905_125548 Starting New Game
+ 20190905_125549 end of game 58
+ 20190905_125549 Starting New Game
+ 20190905_125550 end of game 59
+ 20190905_125550 Starting New Game
+ 20190905_125551 end of game 60
+ 20190905_125551 Starting New Game
+ 20190905_125551 end of game 61
+ 20190905_125551 Starting New Game
+ 20190905_125552 end of game 62
+ 20190905_125552 Starting New Game
+ 20190905_125553 end of game 63
+ 20190905_125553 Starting New Game
+ 20190905_125554 end of game 64
+ 20190905_125554 Starting New Game
+ 20190905_125555 end of game 65
+ 20190905_125555 Starting New Game
+ 20190905_125555 end of game 66
+ 20190905_125555 Starting New Game
+ 20190905_125556 end of game 67
+ 20190905_125556 Starting New Game
+ 20190905_125557 end of game 68
+ 20190905_125557 Starting New Game
+ 20190905_125558 end of game 69
+ 20190905_125558 Starting New Game
+ 20190905_125558 end of game 70
+ 20190905_125558 Starting New Game
+ 20190905_125559 end of game 71
+ 20190905_125559 Starting New Game
+ 20190905_125600 end of game 72
+ 20190905_125600 Starting New Game
+ 20190905_125601 end of game 73
+ 20190905_125601 Starting New Game
+ 20190905_125602 end of game 74
+ 20190905_125602 Starting New Game
+ 20190905_125602 end of game 75
+ 20190905_125602 Starting New Game
+ 20190905_125603 end of game 76
+ 20190905_125603 Starting New Game
+ 20190905_125604 end of game 77
+ 20190905_125604 Starting New Game
+ 20190905_125605 end of game 78
+ 20190905_125605 Starting New Game
+ 20190905_125606 end of game 79
+ 20190905_125606 Starting New Game
+ 20190905_125606 end of game 80
+ 20190905_125606 Starting New Game
+ 20190905_125607 end of game 81
+ 20190905_125607 Starting New Game
+ 20190905_125608 end of game 82
+ 20190905_125608 Starting New Game
+ 20190905_125609 end of game 83
+ 20190905_125609 Starting New Game
+ 20190905_125610 end of game 84
+ 20190905_125610 Starting New Game
+ 20190905_125610 end of game 85
+ 20190905_125610 Starting New Game
+ 20190905_125611 end of game 86
+ 20190905_125611 Starting New Game
+ 20190905_125612 end of game 87
+ 20190905_125612 Starting New Game
+ 20190905_125613 end of game 88
+ 20190905_125613 Starting New Game
+ 20190905_125613 end of game 89
+ 20190905_125613 Starting New Game
+ 20190905_125614 end of game 90
+ 20190905_125614 Starting New Game
+ 20190905_125615 end of game 91
+ 20190905_125615 Starting New Game
+ 20190905_125616 end of game 92
+ 20190905_125616 Starting New Game
+ 20190905_125617 end of game 93
+ 20190905_125617 Starting New Game
+ 20190905_125617 end of game 94
+ 20190905_125617 Starting New Game
+ 20190905_125618 end of game 95
+ 20190905_125618 Starting New Game
+ 20190905_125619 end of game 96
+ 20190905_125619 Starting New Game
+ 20190905_125620 end of game 97
+ 20190905_125620 Starting New Game
+ 20190905_125620 end of game 98
+ 20190905_125620 Starting New Game
+ 20190905_125621 end of game 99
+ 20190905_125621 Starting New Game
+ 20190905_125622 end of game 100
+ 20190905_125622 Starting New Game
+ 20190905_125623 end of game 101
+ 20190905_125623 Starting New Game
+ 20190905_125623 end of game 102
+ 20190905_125623 Starting New Game
+ 20190905_125624 end of game 103
+ 20190905_125624 Starting New Game
+ 20190905_125625 end of game 104
+ 20190905_125625 Starting New Game
+ 20190905_125626 end of game 105
+ 20190905_125626 Starting New Game
+ 20190905_125627 end of game 106
+ 20190905_125627 Starting New Game
+ 20190905_125627 end of game 107
+ 20190905_125627 Starting New Game
+ 20190905_125628 end of game 108
+ 20190905_125628 Starting New Game
+ 20190905_125629 end of game 109
+ 20190905_125629 Starting New Game
+ 20190905_125630 end of game 110
+ 20190905_125630 Starting New Game
+ 20190905_125630 end of game 111
+ 20190905_125630 Starting New Game
+ 20190905_125631 end of game 112
+ 20190905_125631 Starting New Game
+ 20190905_125632 end of game 113
+ 20190905_125632 Starting New Game
+ 20190905_125633 end of game 114
+ 20190905_125633 Starting New Game
+ 20190905_125634 end of game 115
+ 20190905_125634 Starting New Game
+ 20190905_125634 end of game 116
+ 20190905_125634 Starting New Game
+ 20190905_125635 end of game 117
+ 20190905_125635 Starting New Game
+ 20190905_125636 end of game 118
+ 20190905_125636 Starting New Game
+ 20190905_125637 end of game 119
+ 20190905_125637 Starting New Game
+ 20190905_125638 end of game 120
+ 20190905_125638 Starting New Game
+ 20190905_125638 end of game 121
+ 20190905_125638 Starting New Game
+ 20190905_125639 end of game 122
+ 20190905_125639 Starting New Game
+ 20190905_125640 end of game 123
+ 20190905_125640 Starting New Game
+ 20190905_125641 end of game 124
+ 20190905_125641 Starting New Game
+ 20190905_125641 end of game 125
+ 20190905_125641 Starting New Game
+ 20190905_125642 end of game 126
+ 20190905_125642 Starting New Game
+ 20190905_125643 end of game 127
+ 20190905_125643 Starting New Game
+ 20190905_125644 end of game 128
+ 20190905_125644 Starting New Game
+ 20190905_125645 end of game 129
+ 20190905_125645 Starting New Game
+ 20190905_125645 end of game 130
+ 20190905_125645 Starting New Game
+ 20190905_125646 end of game 131
+ 20190905_125646 Starting New Game
+ 20190905_125647 end of game 132
+ 20190905_125647 Starting New Game
+ 20190905_125648 end of game 133
+ 20190905_125648 Starting New Game
+ 20190905_125648 end of game 134
+ 20190905_125648 Starting New Game
+ 20190905_125649 end of game 135
+ 20190905_125649 Starting New Game
+ 20190905_125650 end of game 136
+ 20190905_125650 Starting New Game
+ 20190905_125651 end of game 137
+ 20190905_125651 Starting New Game
+ 20190905_125652 end of game 138
+ 20190905_125652 Starting New Game
+ 20190905_125652 end of game 139
+ 20190905_125652 Starting New Game
+ 20190905_125653 end of game 140
+ 20190905_125653 Starting New Game
+ 20190905_125654 end of game 141
+ 20190905_125654 Starting New Game
+ 20190905_125655 end of game 142
+ 20190905_125655 Starting New Game
+ 20190905_125655 end of game 143
+ 20190905_125655 Starting New Game
+ 20190905_125656 end of game 144
+ 20190905_125656 Starting New Game
+ 20190905_125657 end of game 145
+ 20190905_125657 Starting New Game
+ 20190905_125658 end of game 146
+ 20190905_125658 Starting New Game
+ 20190905_125658 end of game 147
+ 20190905_125658 Starting New Game
+ 20190905_125659 end of game 148
+ 20190905_125659 Starting New Game
+ 20190905_125700 end of game 149
+ 20190905_125700 Starting New Game
+ 20190905_125701 end of game 150
+ 20190905_125701 Starting New Game
+ 20190905_125702 end of game 151
+ 20190905_125702 Starting New Game
+ 20190905_125702 end of game 152
+ 20190905_125702 Starting New Game
+ 20190905_125703 end of game 153
+ 20190905_125703 Starting New Game
+ 20190905_125704 end of game 154
+ 20190905_125704 Starting New Game
+ 20190905_125705 end of game 155
+ 20190905_125705 Starting New Game
+ 20190905_125706 end of game 156
+ 20190905_125706 Starting New Game
+ 20190905_125706 end of game 157
+ 20190905_125706 Starting New Game
+ 20190905_125707 end of game 158
+ 20190905_125707 Starting New Game
+ 20190905_125708 end of game 159
+ 20190905_125708 Starting New Game
+ 20190905_125709 end of game 160
+ 20190905_125709 Starting New Game
+ 20190905_125709 end of game 161
+ 20190905_125709 Starting New Game
+ 20190905_125710 end of game 162
+ 20190905_125710 Starting New Game
+ 20190905_125711 end of game 163
+ 20190905_125711 Starting New Game
+ 20190905_125712 end of game 164
+ 20190905_125712 Starting New Game
+ 20190905_125713 end of game 165
+ 20190905_125713 Starting New Game
+ 20190905_125713 end of game 166
+ 20190905_125713 Starting New Game
+ 20190905_125714 end of game 167
+ 20190905_125714 Starting New Game
+ 20190905_125715 end of game 168
+ 20190905_125715 Starting New Game
+ 20190905_125716 end of game 169
+ 20190905_125716 Starting New Game
+ 20190905_125716 end of game 170
+ 20190905_125716 Starting New Game
+ 20190905_125717 end of game 171
+ 20190905_125717 Starting New Game
+ 20190905_125718 end of game 172
+ 20190905_125718 Starting New Game
+ 20190905_125719 end of game 173
+ 20190905_125719 Starting New Game
+ 20190905_125719 end of game 174
+ 20190905_125719 Starting New Game
+ 20190905_125720 end of game 175
+ 20190905_125720 Starting New Game
+ 20190905_125721 end of game 176
+ 20190905_125721 Starting New Game
+ 20190905_125722 end of game 177
+ 20190905_125722 Starting New Game
+ 20190905_125723 end of game 178
+ 20190905_125723 Starting New Game
+ 20190905_125723 end of game 179
+ 20190905_125723 Starting New Game
+ 20190905_125724 end of game 180
+ 20190905_125724 Starting New Game
+ 20190905_125725 end of game 181
+ 20190905_125725 Starting New Game
+ 20190905_125726 end of game 182
+ 20190905_125726 Starting New Game
+ 20190905_125727 end of game 183
+ 20190905_125727 Starting New Game
+ 20190905_125727 end of game 184
+ 20190905_125727 Starting New Game
+ 20190905_125728 end of game 185
+ 20190905_125728 Starting New Game
+ 20190905_125729 end of game 186
+ 20190905_125729 Starting New Game
+ 20190905_125730 end of game 187
+ 20190905_125730 Starting New Game
+ 20190905_125730 end of game 188
+ 20190905_125730 Starting New Game
+ 20190905_125731 end of game 189
+ 20190905_125731 Starting New Game
+ 20190905_125732 end of game 190
+ 20190905_125732 Starting New Game
+ 20190905_125733 end of game 191
+ 20190905_125733 Starting New Game
+ 20190905_125734 end of game 192
+ 20190905_125734 Starting New Game
+ 20190905_125734 end of game 193
+ 20190905_125734 Starting New Game
+ 20190905_125735 end of game 194
+ 20190905_125735 Starting New Game
+ 20190905_125736 end of game 195
+ 20190905_125736 Starting New Game
+ 20190905_125737 end of game 196
+ 20190905_125737 Starting New Game
+ 20190905_125738 end of game 197
+ 20190905_125738 Starting New Game
+ 20190905_125738 end of game 198
+ 20190905_125738 Starting New Game
+ 20190905_125739 end of game 199
+ 20190905_125739 Starting New Game
+ 20190905_125740 end of game 200
+ 20190905_125740 Starting New Game
+ 20190905_125741 end of game 201
+ 20190905_125741 Starting New Game
+ 20190905_125741 end of game 202
+ 20190905_125741 Starting New Game
+ 20190905_125742 end of game 203
+ 20190905_125742 Starting New Game
+ 20190905_125743 end of game 204
+ 20190905_125743 Starting New Game
+ 20190905_125744 end of game 205
+ 20190905_125744 Starting New Game
+ 20190905_125745 end of game 206
+ 20190905_125745 Starting New Game
+ 20190905_125745 Closing windows
+ 20190905_125745 Closeing results file c:\Users\raysm\workspace\python\crs_dots\gmres\dotsgame_20190905_125457.gmres
+ 20190905_125745 Saving properties file c:\Users\raysm\workspace\python\crs_dots\crs_dots.properties
+ 20190905_125745 Closing log file c:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20190905_125457.sllog

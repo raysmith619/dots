@@ -1,0 +1,54 @@
+ 20190905_125836 Creating Log File Name: C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_load_20190905_125836.sllog
+ 20190905_125836 loadTraceFlags: game_results,game,adding_list,SkipFile
+ 20190905_125836 crs_dots_load.py --results_dir=../test_gmres
+
+ 20190905_125836 args: Namespace(ncol=None, nrow=None, results_dir='../test_gmres', results_files=True, test_file=None, trace='')
+
+ 20190905_125836 Files loaded from directory: ../test_gmres
+ 20190905_125836 End loading file ../test_gmres\dotsgame_20190903_171814.gmres     ngame=397 nrow=2 ncol=2
+ 20190905_125836 End loading file ../test_gmres\dotsgame_20190903_172456.gmres     ngame=17 nrow=2 ncol=2
+ 20190905_125837 End loading file ../test_gmres\dotsgame_20190903_172541.gmres     ngame=1280 nrow=6 ncol=6
+ 20190905_125837 End loading file ../test_gmres\dotsgame_20190904_101744.gmres     ngame=4 nrow=6 ncol=6
+ 20190905_125837 End loading file ../test_gmres\dotsgame_20190904_104735.gmres     ngame=2 nrow=20 ncol=20
+ 20190905_125838 End loading file ../test_gmres\dotsgame_20190904_105054.gmres     ngame=95 nrow=20 ncol=20
+ 20190905_125838 End loading file ../test_gmres\dotsgame_20190904_123154.gmres     ngame=434 nrow=10 ncol=10
+ 20190905_125839 End loading file ../test_gmres\dotsgame_20190904_140326.gmres     ngame=122 nrow=10 ncol=10
+ 20190905_125840 End loading file ../test_gmres\dotsgame_20190904_143304.gmres     ngame=701 nrow=10 ncol=10
+ 20190905_125840 End loading file ../test_gmres\dotsgame_20190904_201625.gmres     ngame=262 nrow=15 ncol=15
+ 20190905_125845 End loading file ../test_gmres\dotsgame_20190904_231003.gmres     ngame=1349 nrow=15 ncol=15
+ 20190905_125845 End loading file ../test_gmres\dotsgame_20190905_105059.gmres     ngame=23 nrow=7 ncol=7
+ 20190905_125846 End loading file ../test_gmres\dotsgame_20190905_105743.gmres     ngame=985 nrow=7 ncol=7
+ 20190905_125846 End loading file ../test_gmres\dotsgame_20190905_125341.gmres     ngame=29 nrow=2 ncol=2
+ 20190905_125846 End loading file ../test_gmres\dotsgame_20190905_125457.gmres     ngame=206 nrow=2 ncol=2
+ 20190905_125846 End loading 15 files
+ 20190905_125846 5906 games in 15 files
+ 20190905_125846  Game Statistics by number of rows, cols
+ 20190905_125846 rows cols Games
+ 20190905_125846    2    2   649
+ 20190905_125846    6    6  1284
+ 20190905_125846    7    7  1008
+ 20190905_125846   10   10  1257
+ 20190905_125846   15   15  1611
+ 20190905_125846   20   20    97
+ 20190905_125846  Detailed Game Statistics by number of rows, cols
+ 20190905_125846 rows cols games  pl   win(%   ) [(%sqs)]  loss(%   ) [(%sqs)]  tie (%   ) [(%sqs)]  
+ 20190905_125846    2    2   649   1   295(45.5) [(84.7)]  109(16.8) [(14.4)]  245(37.8) [(50.0)]
+ 20190905_125846    2    2   649   2   109(16.8) [(85.6)]  295(45.5) [(15.3)]  245(37.8) [(50.0)]
+ 20190905_125846 ----------------------------------------------------------------------
+ 20190905_125846    6    6  1284   1   623(48.5) [(62.8)]  568(44.2) [(37.2)]   93( 7.2) [(50.0)]
+ 20190905_125846    6    6  1284   2   568(44.2) [(62.8)]  623(48.5) [(37.2)]   93( 7.2) [(50.0)]
+ 20190905_125846 ----------------------------------------------------------------------
+ 20190905_125846    7    7  1008   1   524(52.0) [(60.8)]  484(48.0) [(40.1)]    0( 0.0) [( 0.0)]
+ 20190905_125846    7    7  1008   2   484(48.0) [(59.9)]  524(52.0) [(39.2)]    0( 0.0) [( 0.0)]
+ 20190905_125846 ----------------------------------------------------------------------
+ 20190905_125846   10   10  1257   1   593(47.2) [(58.4)]  611(48.6) [(41.3)]   53( 4.2) [(50.0)]
+ 20190905_125846   10   10  1257   2   611(48.6) [(58.7)]  593(47.2) [(41.6)]   53( 4.2) [(50.0)]
+ 20190905_125846 ----------------------------------------------------------------------
+ 20190905_125846   15   15  1611   1   826(51.3) [(55.9)]  785(48.7) [(44.3)]    0( 0.0) [( 0.0)]
+ 20190905_125846   15   15  1611   2   785(48.7) [(55.7)]  826(51.3) [(44.1)]    0( 0.0) [( 0.0)]
+ 20190905_125846 ----------------------------------------------------------------------
+ 20190905_125846   20   20    97   1    54(55.7) [(54.7)]   42(43.3) [(45.0)]    1( 1.0) [(50.0)]
+ 20190905_125846   20   20    97   2    42(43.3) [(55.0)]   54(55.7) [(45.3)]    1( 1.0) [(50.0)]
+ 20190905_125846 ----------------------------------------------------------------------
+ 20190905_125846 Saving properties file C:\Users\raysm\workspace\python\crs_dots\crs_dots_load.properties
+ 20190905_125846 Closing log file C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_load_20190905_125836.sllog

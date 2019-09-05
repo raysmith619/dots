@@ -1,0 +1,15 @@
+ 20190905_124841 Creating Log File Name: C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_load_20190905_124841.sllog
+ 20190905_124841 loadTraceFlags: game_results,game,adding_list,SkipFile
+ 20190905_124841 crs_dots_load.py 
+
+ 20190905_124841 args: Namespace(ncol=None, nrow=None, results_dir=None, results_files=True, test_file=None, trace='')
+
+ 20190905_124841 Files loaded from directory: ..\gmres
+ 20190905_124841 End loading 0 files
+ 20190905_124841 0 games in 0 files
+ 20190905_124841  Game Statistics by number of rows, cols
+ 20190905_124841 rows cols Games
+ 20190905_124841  Detailed Game Statistics by number of rows, cols
+ 20190905_124841 rows cols games  pl   win(%   ) [(%sqs)]  loss(%   ) [(%sqs)]  tie (%   ) [(%sqs)]  
+ 20190905_124841 Saving properties file C:\Users\raysm\workspace\python\crs_dots\crs_dots_load.properties
+ 20190905_124841 Closing log file C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_load_20190905_124841.sllog
