@@ -36,6 +36,8 @@ command_stream = None
 game_control = None
 def pgm_exit():
     ActiveCheck.clear_active()  # Disable activities
+    if rF is not None:
+        rF.end_file()
     quit()
     SlTrace.lg("Properties File: %s"% SlTrace.getPropPath())
     SlTrace.lg("Log File: %s"% SlTrace.getLogPath())
@@ -78,6 +80,9 @@ min_xlen = 10       # Minimum xlen(pixels) and ylen
 nx = 5              # Number of x divisions
 ny = nx             # Number of y divisions
 playing = None      # If present comma separated list of playing (labels)
+play_level = None   # If present comma separated list of playing levels
+results_dir = None  # Results directory None -> default
+results_files = True # True - produce results files
 run_game = False	# Run game upon starting
 show_id = False     # Display component id numbers
 show_players = True # Display players info/control
@@ -87,7 +92,6 @@ stroke_move = False # Support stroke move for touch screens
 width = 600         # Window width
 height = width      # Window height
 board_change = True # True iff board needs redrawing
-results_files =True # True - produce results files
 
 
 
@@ -128,8 +132,10 @@ parser.add_argument('--loop_after', type=float, dest='loop_after', default=loop_
 parser.add_argument('--min_xlen=', type=int, dest='min_xlen', default=min_xlen)
 parser.add_argument('--nx=', type=int, dest='nx', default=nx)
 parser.add_argument('--ny=', type=int, dest='ny', default=ny)
+parser.add_argument('--play_level=', dest='play_level', default=play_level)
 parser.add_argument('--playing=', dest='playing', default=playing)
 parser.add_argument('--results_files', type=str2bool, dest='results_files', default=results_files)
+parser.add_argument('--results_dir', dest='results_dir', default=results_dir)
 parser.add_argument('--run_game', type=str2bool, dest='run_game', default=run_game)
 parser.add_argument('--show_id', type=str2bool, dest='show_id', default=show_id)
 parser.add_argument('--show_players', type=str2bool, dest='show_players', default=show_players)
@@ -152,7 +158,9 @@ min_xlen = args.min_xlen
 nx = args.nx
 ny = args.ny
 nsq = nx * ny
+play_level = args.play_level
 playing = args.playing
+results_dir = args.results_dir
 results_files = args.results_files
 run_game = args.run_game
 show_id = args.show_id
@@ -366,7 +374,8 @@ def end_game():
     if sp.restart_game:
         mw.after(0, new_game)
     elif loop and not sp.game_stopped:
-        SlTrace.lg("Restarting game after %.0f seconds" % loop_after)
+        if loop_after > 0:
+            SlTrace.lg("Restarting game after %.0f seconds" % loop_after)
         sp.game_count_down(wait_time=loop_after,inc=1)
         mw.after(0, new_game)
         ###new_game()
@@ -410,9 +419,6 @@ def set_dots_button():
         
         
         
-    rects =  []
-    rects_rows = []         # So we can pass row, col
-    rects_cols = []
     min_xlen = app.get_component_val("figure_size", "min", min_xlen)
     min_xlen = float(min_xlen)
     min_xlen = str(min_xlen)
@@ -623,7 +629,7 @@ def pause_cmd():
         sp.pause_cmd()
 
 if results_files:
-    rF = DotsGameFile()
+    rF = DotsGameFile(file_dir=results_dir)
     SlTrace.lg("Game Results File %s" % rF.file_path)
     
 if cmd_file_name is not None:
@@ -632,6 +638,8 @@ if cmd_file_name is not None:
                                  src_lst=src_lst, stx_lst=stx_lst)
 
 player_control = PlayerControl(title="Player Control", display=True)
+if play_level is not None:
+    player_control.set_play_level(play_level)
 if playing is not None:
     player_control.set_playing(playing)
 game_control = SelectGameControl(title="Game Control", display=True)

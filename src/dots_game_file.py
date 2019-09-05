@@ -34,6 +34,7 @@ Support for the saving and loading of dots game results
     results((player,nsquare)[, (player,nsquare)]*)
     
     """
+import sys, traceback
 import re
 import os
 from pathlib import Path
@@ -43,22 +44,37 @@ from datetime import date
 from select_trace import SlTrace
 from select_error import SelectError
     
+###dC = None               # Global reference, set before game files read
 class DotsGameFile:
+    """ The hook from commands expressed via python command files to 
+    the frame worker
+    """
+    version_str = "ver01_rel01"
     
-    def __init__(self, file_dir=r"..\gmres", file_prefix="dotsgame",
+    
+    def __init__(self, file_dir=None, file_prefix="dotsgame",
                  file_ext="gmres"):
         """ Setup games file output
         :file_dir: file directory default=..\gmres
         :file_prefix: file prefix default: dotsgame
         :file_ext: file extension default: gmres
         """
+        if file_dir is None:
+            file_dir=r"..\gmres"
         self.file_dir = file_dir
         self.file_prefix = file_prefix 
         self.file_ext = file_ext 
         self.moves = []
         self.open_output()
-    
-    
+        self.nfile = 0          # Number of files written
+        self.nfile_error = 0    # Number of file errors
+        self.ngame = 0          # Number of games written
+        self.ngame_error = 0    # Number pf game errors
+        self.preamble = r"""
+from dots_game_file import *
+"""
+         
+        
     def open_output(self, file_name=None):
         """ Open games file output
         :file_name:  output file name, base name if not absolute
@@ -99,8 +115,8 @@ class DotsGameFile:
         """
         if game_name is not None:
             self.game_name = game_name
-        if nplayer is not None:
-            self.nplayer = nplayer
+        self.nplayer = nplayer
+        self.game_results = nplayer*[0]
         if nrow is not None:
             self.nrow = nrow
         if ncol is not None:
@@ -108,7 +124,9 @@ class DotsGameFile:
         self.move_no = 0              # Track number of moves
         self.moves = []             # Collect move tuples (player, row, col)
         self.game_ts = SlTrace.getTs()
-        
+        if self.ngame == 0:
+            SlTrace.lg(r"""Game file version("%s")""" % self.version_str)
+            print(r"""version("%s")""" % self.version_str, file=self.fout)
     
     def next_move(self, player=None, row=None, col=None):
         """ Store next move tuple
@@ -129,40 +147,64 @@ class DotsGameFile:
         self.moves.append((player,row,col))
 
 
-    def end_game(self, results=[]):
+    def end_game(self, results=None):
         """ Process whole game
-        :results: list of reslt tuples (player, nsquare)
+        :results: list of result tuples (player, nsquare)
         """
         if len(self.moves) == 0:
             return              # No moves - no game
         
-        print("game(name=%s, nplayer=%s, nrow=%d, ncol=%d, nmoves=%d, ts=%s)"
+        if results is not None:
+            for result in results:
+                player_num = result[0]
+                if player_num > len(self.game_results):
+                    SlTrace.lg("end_game result player_num:%d > number_of players:%d - ignored"
+                               % (player_num, len(self.game_results)))
+                    continue
+                
+                self.game_results[player_num-1] = result[1]
+
+            
+        print("""game(name="%s", nplayer=%s, nrow=%d, ncol=%d, nmove=%d, ts="%s")"""
               % (self.game_name, self.nplayer, self.nrow, self.ncol,
                  len(self.moves), self.game_ts), 
               file=self.fout)
         max_line_len = 70
-        line_str = "moves("            
+        line_str = "moves(["            
         for i in range(len(self.moves)):
             move = self.moves[i]
-            if i > 0:
-                move_str = ", "
-            else:
-                move_str = ""
-            move_str += "(%d,%d,%d)" % (move[0], move[1], move[2])
+            move_str = "(%d,%d,%d)" % (move[0], move[1], move[2])
             if len(line_str) + len(move_str) + 1 > max_line_len:
+                if i > 0:
+                    line_str += ","
+                SlTrace.lg(line_str, "list_moves")
                 print(line_str, file=self.fout)
-                line_str = ""
-            line_str += move_str
-            if i >= len(self.moves)-1:
-                line_str += ")"   # extra line separation
-                print(line_str, file=self.fout)
+                if not line_str.endswith(",") and not line_str.endswith("["):
+                    SlTrace.lg("Possible problem: line_str:%s" % line_str, to_stdout=True)
+                line_str = move_str
+            else:
+                if i > 0:
+                    move_str = ", " + move_str
+                line_str += move_str
+        line_str += "])"
+        SlTrace.lg(line_str, "list_moves")
+        print(line_str, file=self.fout)
                 
-        print("results(", end="", file=self.fout)
-        for result in results:
-            print("(%d,%d)" % (result[0], result[1]), end="", file=self.fout)
-        print(")\n", file=self.fout)
-
-
+        results_str = ""
+        for i in range(len(self.game_results)):
+            result = self.game_results[i]
+            if results_str == "":
+                results_str = "results("
+            else:
+                results_str += ", "
+            results_str += "(%d,%d)" % (i+1, result)
+        results_str += ")\n"
+        print(results_str, file=self.fout)
+        self.ngame += 1
+        if SlTrace.trace("flush_outputs"):
+            self.fout.flush()
+        
+        
     def end_file(self):
         """ Close results file
         """
@@ -170,28 +212,20 @@ class DotsGameFile:
             self.fout.close()
             SlTrace.lg("Closeing results file %s" % self.file_path)
             self.fout = None
- 
- 
-    def load_game_file(self, file_name=None):
-        """ load file bames
-        :file_name: path to file
+            self.nfile += 1
+
+
+    def results_update(self, player_num=None, nsquare=None):
+        """ Update player's results
+        :player_num: player order in game:1 (first),...
+        :nsquare: Number of additional squares
         """
+        if player_num > len(self.game_results):
+            SlTrace.lg("player num:%s is out of range(1-%d) - ignored"
+                       % (player_num, len(self.game_results)))
+            return
         
-
-    def load_game_files(self, file_pat=None):
-        """ Load games
-        :file_pat:  Additional filter (rex) pattern default: All
-        """
-        for root, dirs, files in os.walk(self.file_dir):
-            for file in files:
-                if file_pat is not None and not re.match(file_pat, file):
-                    continue
-                file_name = os.path.join(root, file)
-                self.load_game_file(file_name) 
-
-
-            
-    
+        self.game_results[player_num-1] += nsquare
     """
     Process 
     """
@@ -214,26 +248,31 @@ class DotsGameFile:
             preamble += "\n"
         compile_str = preamble
         try:
-            fin = open(inPath)
+            fin = open(file_name)
             compile_str += fin.read()
+            fin.close()
         except Exception as ex:
             SlTrace.lg("input file %s failed %s" % (file_name, str(ex)))
             return False
-        
-        try:
-            code = compile(f.read(), inPath, 'exec')
-        except Exception as e:
-            tbstr = traceback.extract_stack()
-            SlTrace.lg("Compile Error in %s\n    %s)"
-                    % (inPath, str(e)))
-            return False
+        tmp_file = r"..\dots_tmp_file.py"
+        ftout = open(tmp_file, "w")
+        print(compile_str, file=ftout)
+        ftout.close()
+        with open(tmp_file) as ftin:
+            try:
+                code = compile(ftin.read(), tmp_file, 'exec')
+            except Exception as e:
+                tbstr = traceback.extract_stack()
+                SlTrace.lg("Compile Error in %s\n    (%s)\n    %s)"
+                        % (tmp_file, file_name, str(e)))
+                return False
         try:
             exec(code)
         except Exception as e:
             etype, evalue, tb = sys.exc_info()
             tbs = traceback.extract_tb(tb)
-            SlTrace.lg("Execution Error in %s\n%s)"
-                    % (inPath, str(e)))
+            SlTrace.lg("Execution Error in %s\n   (%s)\n    %s)"
+                    % (tmp_file, file_name, str(e)))
             inner_cmds = False
             for tbfr in tbs:         # skip bottom (in dots_commands.py)
                 tbfmt = 'File "%s", line %d, in %s' % (tbfr.filename, tbfr.lineno, tbfr.name)
@@ -244,9 +283,52 @@ class DotsGameFile:
             return False
         return True
                 
-                    
+
+    """
+    Basic game file loading functions
+    """
+    def game(self, name=None, nplayer=2,
+                nrow=None, ncol=None, nmove=None, ts=None):
+        """ Start processing of game
+        """
+        SlTrace("game(name=%s, nplayer=%d, nrow=%d, ncol=%d, nmove=%d, ts=%s)"
+                % (name, nplayer, nrow, ncol, nmove, ts), "game")
+        self.moves = []
+        
+        
+    def moves(self, moves):
+        """ Add next set of moves, game or part of game
+        :moves: list of  move  tuples (player number, row(1,..., col(1...)
+        """
+        self.moves.extend(moves)
+
+    def game_results(self, *results):
+        """ End current game's input, specifying results
+        :results: comma separated list of result tuples (player_no, nsquares)
+        """
+        self.game_results = results
+        self.ngame += 1
+        move_no = 0
+        if SlTrace.trace("game_results"):
+            for move in self.moves:
+                move_no += 1
+                SlTrace.lg("%3d: move(player=%d, row=%d, col=%d)" %
+                            (move_no, move[0], move[1], move[2]))
+        results_str = ""
+        for result in self.results:
+            if results_str == "":
+                results_str = "game_results: "
+            else:
+                results_str += ", "
+                
+            results_str += (" player=%d, squares=%d" %
+                        (result[0], result[1]))
+        SlTrace.lg(results_str)
+
+        
 if __name__ == "__main__":
     rF = DotsGameFile(file_dir=r"..\test_gmres")
+
     rF.start_game(game_name="test1", nplayer=2, nrow=7, ncol=7)
     rF.next_move(1,2,2)
     rF.next_move(2,2,3)
@@ -259,5 +341,6 @@ if __name__ == "__main__":
     rF.next_move(2,2,4)
     rF.next_move(1,3,5)
     rF.next_move(2,3,6)
-    rF.end_game([(1,2), (2,5)])
-    rF.end_file()        
+    rF.end_game([(1,2), (3,4)])
+    rF.end_file()
+    SlTrace.lg("End of Test")        

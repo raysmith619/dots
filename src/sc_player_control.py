@@ -273,12 +273,36 @@ class PlayerControl(SelectControlWindow):
         """
         self.cur_player = player
 
+
+    def set_play_level(self, play_level=None):
+        """ Set players' level via
+        comma separated string
+        :play_level: comma separated string of playing player's Labels
+        """
+        players = self.get_players(all=True)
+        play_levels = [x.strip() for x in playing.split(',')]
+        def_level = "2"
+        if len(play_levels) == 0:
+            SlTrace.lg("Setting to default level: {}".format(def_level)) 
+            play_levels = def_level        # Default
+        player_idx = -1
+        for player in players:
+            player_idx += 1
+            if player_idx < len(play_levels):
+                player_level = play_levels[player_idx]
+            else:
+                player_level = play_levels[-1]  # Use last level
+            plevel = int(player_level)
+            playing_var = player.ctls_vars["level"]
+            playing_var.set(plevel)
+
+
     def set_playing(self, playing=None):
         """ Set players playing via
         comma separated string
         :playing: comma separated string of playing player's Labels
         """
-        players = self.get_players(all=True)
+        players = self.get_players()        # Get playing
         if playing is None:
             player_str = ""
             for player in players:
@@ -314,6 +338,19 @@ class PlayerControl(SelectControlWindow):
         return self.cur_player
 
 
+    def get_player_num(self):
+        """ Get current player's order number, starting with 1 for first play
+        """
+        cur_player = self.get_player()
+        cur_player_position = cur_player.position
+        ck_position = self.get_first_position()
+        player_num = 1      # Bump until found
+        while player_num <= self.get_num_playing():
+            if cur_player_position == ck_position:
+                return player_num
+            player_num += 1
+            ck_position = self.get_next_position(ck_position)
+        raise SelectError("get_player_num can't find player")
 
   
     def get_player_prop_key(self, player):

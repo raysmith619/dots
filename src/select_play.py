@@ -135,7 +135,9 @@ class SelectPlay:
         self.show_ties = show_ties
         self.running = False     # Initially not running
         self.run = False         # Initially not running
-
+        self.ngame = 0
+        
+        
     def running_loop(self, run_check_ms=None):
         """ Run game (loop) untill self.running set false
         :run_check_ms: loop checking time default: current checking time
@@ -555,7 +557,16 @@ class SelectPlay:
             self.score_window.delete_window()
     
     
-    def update_score(self, move_no=None, players=None):
+    def update_score(self, move_no=None, players=None, edge=None):
+        """ Update score
+            Update results_file if appropriate
+        """
+        if self.results_file is not None:
+            row = edge.row
+            col = edge.col
+            pln = self.get_player_num()
+            self.results_file.next_move(player=pln, row=row, col=col)
+        
         if self.mw is None:
             return
         
@@ -1145,8 +1156,8 @@ class SelectPlay:
         
         legal_moves = self.get_legal_moves()
         if len(legal_moves) == 0:
-            self.end_game("NO more legal moves!")
-            return False       
+            SlTrace.lg("NO more legal moves!", "nolegalmoves")
+            ###return False       
         
         if self.new_move:
             self.announce_player("start_move")
@@ -1186,7 +1197,8 @@ class SelectPlay:
         """ End the game
         :msg: message /reason
         """
-        SlTrace.lg("end of game")
+        self.ngame += 1
+        SlTrace.lg("end of game %d" % self.ngame)
         self.flush_cmds()
         self.score_game()
         scmd = self.get_cmd("end_of_game")
@@ -1197,6 +1209,8 @@ class SelectPlay:
         self.do_cmd()
         self.pause_cmd()
         self.running = False        # Stop this game
+        if self.results_file is not None:
+            self.results_file.end_game()
         ###if self.on_end is not None:
         ###    ###self.on_end()
         ###    self.mw.after(0, self.on_end)
@@ -1318,6 +1332,12 @@ class SelectPlay:
         SlTrace.lg("start_game", "execute")
         self.set_move_no(0)
         self.get_cmd("start_game", flush=True)
+        if self.results_file is not None:
+            nplaying = self.player_control.get_num_playing()
+            self.results_file.start_game(game_name="dots",
+                    nplayer=nplaying, nrow=self.board.nrows,
+                    ncol=self.board.ncols)
+            
         self.add_message("It's A New Game",
                          time_sec=1)
         ###self.set_move_no(1)
@@ -1406,7 +1426,7 @@ class SelectPlay:
         scmd.add_prev_parts(edge)               # Save previous edge state 
         self.mark_edge(edge, prev_player, move_no=scmd.move_no)
         self.add_new_parts(edge)
-        self.update_score(self.next_move_no(), prev_player)
+        self.update_score(self.next_move_no(), prev_player, edge)
         self.do_cmd()                               # move complete
         if SlTrace.trace("selected"):
             self.list_selected("After new_edge")
@@ -1417,6 +1437,7 @@ class SelectPlay:
         next_player = prev_player                    # Change if appropriate
         regions = []
         if self.is_square_complete(edge, regions):
+            self.update_results_score(edge, regions)
             self.add_prev_parts(edge)
             edge.highlight_clear(display=False)          # ??? Should we just set flag??
             self.completed_square(edge, regions)
@@ -1466,6 +1487,11 @@ class SelectPlay:
         """ Get current player to move
         """
         return self.player_control.get_player()
+    
+    def get_player_num(self):
+        """ Get current player to move's number 1,2 in order of play
+        """
+        return self.player_control.get_player_num()
 
         
     
@@ -1598,6 +1624,18 @@ class SelectPlay:
         scmd.add_prev_score(player, prev_score)
         scmd.add_new_score(player, new_score)
         self.update_score_window()
+
+
+    def update_results_score(self, edge, regions):
+        """ Update results for possible saving to results data base
+        :edge: causing action - currently ignored
+        :regions: square(s) completed
+        """
+        if self.results_file is None:
+            return                      # No update
+        
+        pln = self.get_player_num()
+        self.results_file.results_update(player_num=pln, nsquare=len(regions))
     
     
     def update_score_from_cmd(self, new_score, prev_score):
