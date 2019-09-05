@@ -3,18 +3,19 @@ Dots (complete the squares) Game
 
 In addition to making a fun game, our goal is to develop / demonstrate machine learning.  Initially we plan to produce a game playing platform which facilitates the automated playing of many games, producing a collection of game results upon which machine learning can learn how to play the game effectively.
 
-The Dots game:
+## The Dots game:
 I appologize if others have a different game in mind.  The following is the game as I've seen and played it.
 The playing board is created by creating a rectangular array of dots, the connection of adjacent dots create squares.  A 10 by 10 grid is created by 11 dots accross and 11 dots down, providing, upon completion an array of 10 columns of squares horrizontaly by 10 rows of squares vertically.
 
 The game is usually played by two players with alternating moves.  Each move consists of creating a new horizontal or vertical line connecting adjacent dots.  When a player completes one or two squares with their move, they mark the completed square(s) and must take an and additional move.  When all the squares created, the game is completed.  It is considered a win for the player if their number of squares created exceeds their opponent.  If the number of squares of both players is identical it is a tie game.
 
-Running the game:
+## Running the game:
 The game is started by executing "python crs_dots.py" in the "src" directory.  The setup of the game windows and settings is specified by the crs_dots.properties file.
 
-Processing game results:
+## Processing game results:
 Executing the game creates a new results file, usually stored in the "../gmres" or "../test_gmres" directory.  Examples of results files can be found in the "test_gmres" directory.
-#Example Game Results File:
+
+### Example Game Results File:
 ```
 # c:\Users\raysm\workspace\python\crs_dots\gmres\dotsgame_20190905_125457.gmres
 # On: September 05, 2019
@@ -34,7 +35,7 @@ results((1,2), (2,2))
 
 Loading and simple analysis of game results files is done by executing "crs_dots_load.py" in the "src" directory.
 
-Example crs_dots_load.py output:
+## Example crs_dots_load.py output:
 ```
  Creating Log File Name: C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_load_20190905_130004.sllog
  loadTraceFlags: game_results,game,adding_list,SkipFile
