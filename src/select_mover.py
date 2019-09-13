@@ -225,6 +225,7 @@ class SelectMover(object):
         :parts: list of parts to be displayed
                 default: all parts
         """
+        
         self.sel_area.display(parts=parts)
         
 

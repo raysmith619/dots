@@ -9,7 +9,119 @@ from select_trace import SlTrace
 from select_error import SelectError
 from select_area import SelectArea
 from select_part import SelectPart
+from select_region import SelectRegion
+from select_edge import SelectEdge
 from canvas_tracked import CanvasTracked
+import numpy as np
+
+
+"""
+Dots Square / Edge numbering
+Squares are numbered row, col starting at 1,1 in upper left
+Edges, bordering a square are numbered as follows:
+
+    Lve_row = sq_row          (Left vertical edge)
+    Lve_col = sq_col
+    
+    Rve_row = sq_row          (Right vertical edge)
+    Rve_col = sq_col + 1
+     
+    The_row = sq_row          (Top horizontal edge)
+    The_col = sq_col
+    
+    Bhe_row = sq_row + 1      (Botom horizontal edge)
+    Bhe_col = sq_col
+
+"""
+class DotsShadow:
+    """ Shadow of Dots structure to facilitate testing speed when display is not required
+    """
+    def __init__(self, nrows=None, ncols=None):
+        self.nrows = nrows
+        self.ncols = ncols
+        self.squares = np.zeros([nrows, ncols])
+        self.lines = np.zeros([nrows+1, ncols+1, 2])     # row, col, [horiz=0, vert=1]
+
+        self.squares_obj =  np.zeros([nrows, ncols], dtype=SelectRegion)
+        self.lines_obj = np.zeros([nrows+1, ncols+1, 2], dtype=SelectEdge)     # row, col, [horiz=0, vert=1]
+        self.nopen_line = nrows*(ncols+1)
+
+
+    def get_legal_moves(self):
+        """ Return list of legal moves
+        Initially we will minimize changes by returning a list compatible with
+        the current SelectDots.get_legal_moves
+        """
+        legals = []
+        for nr in range(0, self.nrows+1):
+            for nc in range(0, self.ncols+1):
+                if nc < self.ncols:
+                    if self.lines[nr, nc, 0] == 0:
+                        legals.append(self.lines_obj[nr, nc, 0])    # Horizontal till last
+                
+                if nr < self.nrows:
+                    if self.lines[nr, nc, 1] == 0:
+                        legals.append(self.lines_obj[nr, nc, 1])    # Vertical till last row
+        return legals
+    
+        
+
+
+    def set_part(self, part):
+        """ Add reference to actual part for reference / conversion
+        :part: Part to add to shadow
+        """
+        row = part.row 
+        col =  part.col
+        if part.is_region():
+            self.squares_obj[row-1,col-1] = part 
+        elif part.is_edge():
+            if part.sub_type() == 'h':
+                self.lines_obj[row-1, col-1, 0] = part
+            elif part:
+                self.lines_obj[row-1, col-1, 1] = part
+
+    def turn_on(self, part=None, player=None, move_no=None):
+        """ Shadow part turn on operation to facilitate speed when display is not required
+        :part: part to turn on
+        :player: who made operation
+        :move_no: current move number
+        """
+        pn = player.play_num
+        row = part.row 
+        col = part.col
+        sub_type = part.sub_type()
+        if part.is_edge():
+            if sub_type == 'h':
+                self.lines[row-1, col-1, 0] = pn
+            else:
+                self.lines[row-1, col-1, 1] = pn
+        elif part.is_region():
+            self.squares[row-1, col-1] = pn
+        else:
+            raise SelectError("turn_on Can't shadow part type {} at row={:d} col={;d}"
+                              .format(part, row, col))
+
+    def turn_off(self, part=None):
+        """ Shadow part turn on operation to facilitate speed when display is not required
+        :part: part to turn on
+        :player: who made operation
+        :move_no: current move number
+        """
+        row = part.row 
+        col = part.col
+        sub_type = part.sub_type()
+        if part.is_edge():
+            if sub_type == 'h':
+                self.lines[row-1, col-1, 0] = 0
+            else:
+                self.lines[row-1, col-1, 1] = 0
+        elif part.is_region():
+            self.squares[row-1, col-1] = 0
+        else:
+            raise SelectError("turn_off Can't shadow part type {} at row={:d} col={;d}"
+                              .format(part, row, col))
+
 
 class SelectDots(object):
     """
@@ -18,7 +130,9 @@ class SelectDots(object):
 
 
     ###@profile    
-    def __init__(self, frame, mw=None, nrows=10,
+    def __init__(self, frame, mw=None,
+                  display_game=True,
+                  nrows=10,
                   ncols=None,
                   width=None, height=None, tbmove=.1,
                   stroke_checking=False,
@@ -38,6 +152,8 @@ class SelectDots(object):
                   edge_visible=True):
         """
         :frame: - frame within we are placed
+        :display_game: display game updates default: True
+                       False - skip display updates, where possible
         :nrows: number of rows of squares default: 10
         :ncols: number of columns of squares default: rows
         :width: window width
@@ -57,6 +173,7 @@ class SelectDots(object):
                         default:1
         :edge_visible: edge visible default: True
         """
+        self.display_game = display_game
         self.frame = frame
         self.canvas = None
         self.mw = mw
@@ -94,11 +211,20 @@ class SelectDots(object):
         self.stroke_checking = stroke_checking
         self.area = None        # Set non None when created
         self.setup_area()
+
+
+    def setup_shadow(self):
+        """ Setup shadow which can be used to speedup testing
+        if display or immediate display is not required
+        """
+        self.shadow = DotsShadow(nrows=self.nrows, ncols=self.ncols)
+            
         
-    
+            
     def setup_area(self):
         """ Setup / resetup board setting
         """
+        self.setup_shadow()           # Shadow used to speed testing
         new_area = False            # Indicate reset
         if self.canvas is not None:
             self.canvas.destroy()
@@ -109,12 +235,15 @@ class SelectDots(object):
                  bg="white")
         self.canvas.pack()
         
-        self.area = SelectArea(self.canvas, mw=self.mw, tbmove=self.tbmove,
+        self.area = SelectArea(self.canvas, mw=self.mw,
+                               board=self,
+                               display_game=self.display_game,
+                               tbmove=self.tbmove,
                                stroke_checking=self.stroke_checking,
                                check_mod=self.check_mod,
                                down_click_call=self.down_click_call,
                                highlight_limit=self.highlight_limit)
-
+        
         rects =  []
         rects_rows = []         # So we can pass row, col
         rects_cols = []
@@ -165,13 +294,18 @@ class SelectDots(object):
                             invisible_region=not self.region_visible,
                             invisible_edge=not self.edge_visible,
                             edge_width=self.edge_width)
+        ####if not self.display_game:
+        ####    return
+        
         for part in self.area.get_parts():
+            self.shadow.set_part(part)                  # Add to shadow data
             if self.do_corners and part.is_corner():
                 part.set(display_shape="circle",
                            display_size=self.corner_width,
                            color="blue")
                 if new_area:
-                    part.display()
+                    if self.display_game:
+                        part.display()
             elif self.do_edges and part.is_edge():
                 part.set(edge_width_select=50,
                            edge_width_display=self.edge_width,
@@ -222,6 +356,8 @@ class SelectDots(object):
     def get_legal_moves(self):
         """  Get edges that would be legal moves
         """
+        return self.shadow.get_legal_moves()
+    
         edges = self.get_parts(pt_type="edge")
         moves = []
         for edge in edges:
@@ -379,7 +515,11 @@ class SelectDots(object):
         
             
     def display(self):
-            self.area.display()
+        
+        if not self.area.display_game:
+            return
+
+        self.area.display()
 
 
     def destroy(self):
@@ -433,7 +573,8 @@ class SelectDots(object):
         for part in parts:
             d_part = self.area.get_part(id=part.part_id)
             if d_part is None:
-                raise SelectError("insert_parts: No part(id=%d) found %s"
+                if self.display_game:
+                    raise SelectError("insert_parts: No part(id=%d) found %s"
                                    % (part.part_id, part))
                 continue
             self.set_part(part)

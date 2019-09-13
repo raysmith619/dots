@@ -6,6 +6,8 @@ import time
 from datetime import datetime  
 from datetime import timedelta
 import copy  
+import cProfile, pstats, io         # profiling support
+###from pstats import SortKey
 
 from select_fun import *
 from select_trace import SlTrace
@@ -27,6 +29,9 @@ from gr_input import gr_input
 
 class SelectPlay:
     def __init__(self, board=None, mw=None,
+                 display_game=True,
+                 profile_running=False,
+                 numgame=None,
                  player_control=None,
                  game_control=None,
                  results_file=None,
@@ -47,6 +52,15 @@ class SelectPlay:
         """ Setup play
         :board: playing board (SelectDots)
         :mw: Instance of Tk, if one, else created here
+        :numgame: if present, limit play to numgame games
+                default: no limit
+        :display_game: display game play on screen
+                    Set False to reduce execution time for
+                    execution which does not need/want
+                    screen display of game progress
+                    default: True
+        :profile_running: profile running_loop
+                    default: False
         :start_run: Start running default: True
         :run_check_ms: Time for running loop check
                 default = 10mec
@@ -63,6 +77,9 @@ class SelectPlay:
         :src_lst: True - list source as run
         :stx_lst: True - list command stream as run
         """
+        self.display_game = display_game
+        self.numgame = numgame
+        self.profile_running = profile_running
         self.playing = True     # Hack to suppress activity on exit event
         if score_window is None:
             score_window = ScoreWindow()
@@ -137,6 +154,10 @@ class SelectPlay:
         self.run = False         # Initially not running
         self.ngame = 0
         
+        if self.profile_running:
+            self.pr = cProfile.Profile()
+            self.pr.enable()
+        
         
     def running_loop(self, run_check_ms=None):
         """ Run game (loop) untill self.running set false
@@ -144,14 +165,22 @@ class SelectPlay:
         """
         if self.board.area.down_click_call is None:
             raise SelectError("board.area.down_click_call is not set")
-
+        if self.numgame is not None and self.ngame >= self.numgame:
+            SlTrace.lg("running_loop: ngame={:d} > numgame {:d}".
+                       format(self.ngame, self.numgame))
+            self.running = False
+            self.run = False
+            return
+ 
         self.running = True     # Still in game
         self.run = True         # progressing (not paused)
         self.first_time = True 
+        self.game_start_ts = SlTrace.getTs(6)
         self.game_control_updates()
         if run_check_ms is not None:
             self.run_check_ms = run_check_ms
         BlinkerMultiState.enable()
+        
         while self.running:
             SlTrace.lg("running_loop", "running_loop")
             if ActiveCheck.not_active():
@@ -168,6 +197,10 @@ class SelectPlay:
                     break
                 SlTrace.lg("running_loop self.running and self.run", "running_loop")
                 if self.first_time:
+                    if self.numgame is not None and self.ngame > self.numgame:
+                        self.running = False
+                        self.run = False
+                        break
                     self.start_game()
                     self.first_time = False
                 else:
@@ -181,7 +214,7 @@ class SelectPlay:
                 
         SlTrace.lg("running_loop after loop", "running_loop")
         BlinkerMultiState.disable()
-                
+                                
         if self.on_end is not None:
             SlTrace.lg("running_loop doing on_end", "running_loop")
             self.mw.after(0, self.on_end)       # After run processing
@@ -537,11 +570,18 @@ class SelectPlay:
         if self.mw is None:
             return
         
+        if not self.display_game:
+            return
+        
         for message in messages:
             self.do_message(message)
     
     
     def show_score_window(self):
+               
+        if not self.sel_area.display_game:
+            return
+
         if self.mw is None:
             return
         if self.score_window is None:
@@ -569,6 +609,9 @@ class SelectPlay:
         
         if self.mw is None:
             return
+
+        if not self.display_game:
+            return
         
         if self.score_window is None:
             return
@@ -579,6 +622,10 @@ class SelectPlay:
     def update_score_window(self):
         """ Update score window based on current states
         """
+
+        if not self.display_game:
+            return
+
         if self.score_window is not None:
             self.score_window.update_window()
         
@@ -589,7 +636,10 @@ class SelectPlay:
         """
         if not self.mw.winfo_exists():
             return
-        
+
+        if not self.display_game:
+            return
+                
         self.waiting_for_message = True
         if message is None:
             message = self.cur_message
@@ -638,6 +688,11 @@ class SelectPlay:
                 default: leave message there till next message
         :cmd: Add to cmd if one open
         """
+        
+        if not self.display_game:
+            return
+        
+        
         SlTrace.lg("do_message(%s)" % (message.text), "execute")
         if not self.run:
             return
@@ -1198,7 +1253,9 @@ class SelectPlay:
         :msg: message /reason
         """
         self.ngame += 1
-        SlTrace.lg("end of game %d" % self.ngame)
+        self.game_end_ts = SlTrace.getTs(6)
+        SlTrace.lg("end of game {:d}   {:.2f}".format(self.ngame,
+                         SlTrace.ts_diff(ts1=self.game_start_ts, ts2=self.game_end_ts)))
         self.flush_cmds()
         self.score_game()
         scmd = self.get_cmd("end_of_game")
@@ -1574,7 +1631,7 @@ class SelectPlay:
             player.set_played(0)
             player.set_ties(0)
         self.player_control.set_ctls()
-        if self.score_window is not None:
+        if self.display_game and self.score_window is not None:
             self.score_window.update_window()
 
 

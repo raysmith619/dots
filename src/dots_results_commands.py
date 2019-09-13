@@ -57,6 +57,12 @@ language commands
 
 def version(version_str, **kwargs):
     return DotsResultsCommands.get_loader().version(version_str, **kwargs)
+
+def history(history_str, **kwargs):
+    return DotsResultsCommands.get_loader().history(history_str, **kwargs)
+
+def pgm_info(info_str, **kwargs):
+    return DotsResultsCommands.get_loader().pgm_info(info_str, **kwargs)
     
     
 def game(*args, **kwargs):

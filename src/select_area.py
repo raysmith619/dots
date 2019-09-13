@@ -34,7 +34,10 @@ class SelectArea(object):
         SlTrace.lg("SelectArea __deepcopy__", "copy")
         return self
    
-    def __init__(self, canvas, mw=None, image=None, rects=None,
+    def __init__(self, canvas, mw=None,
+                board=None,
+                display_game=True,
+                image=None, rects=None,
                 show_moved=False, show_id=False,
                 stroke_checking=False,
                 highlight_limit=None,
@@ -46,6 +49,9 @@ class SelectArea(object):
         Rectangular selected/ing region,
         :canvas: Canvas containing the region
         :mw: Master/Parent widget, if one
+        :board: playing board (SelectDots)
+        :display_game: avoid display if False to minimize delays
+                    default: True
         :image: displayed in frame    Not necessary/used
         :rects: single, or list of Rectangles (upper left x,y), (lower right x,y)
                 each being a region
@@ -61,6 +67,8 @@ class SelectArea(object):
                     allowed
                     default = 1
         """
+        self.board = board
+        self.display_game = display_game
         self.parts = []          # Parts of scene, corners, edges, regions
         self.parts_by_id = {}    # By part id
         self.parts_by_loc = {}      # By type, location: 
@@ -158,11 +166,12 @@ class SelectArea(object):
                         off_color=off_color,
                         color=color, row=row, col=col)
         self.regions.append(sr)         # Add region
-        self.add_part(sr)       
-        rec_ps[0] = (ulX, ulY)
-        rec_ps[1] = (lrX, ulY) 
-        rec_ps[2] = (lrX, lrY)
-        rec_ps[3] = (ulX, lrY)
+        self.add_part(sr)
+        edge_row_cols = 4*[(0,0)]          # row,col   tuples for square perimeter       
+        rec_ps[0] = (ulX, ulY); edge_row_cols[0] = (row, col)   # Top horz edge 
+        rec_ps[1] = (lrX, ulY); edge_row_cols[1] = (row, col+1)  # Right vert edge  
+        rec_ps[2] = (lrX, lrY); edge_row_cols[2] = (row+1, col)  # Botom horz edge
+        rec_ps[3] = (ulX, lrY); edge_row_cols[3] = (row, col)    # Left vert edge
         for pi1 in range(0, 3+1):
             pi2 = pi1 + 1
             if pi2 >= len(rec_ps):
@@ -170,7 +179,12 @@ class SelectArea(object):
             pt1 = rec_ps[pi1]
             pt2 = rec_ps[pi2]
             if do_edges:
+                edge_row_col = edge_row_cols[pi1]
+                edge_row = edge_row_col[0]
+                edge_col = edge_row_col[1]
                 self.add_edge(sr, pt1, pt2,
+                            row=edge_row,
+                            col=edge_col,
                             draggable_edge=draggable_edge,
                             draggable_corner=draggable_corner,
                             invisible_edge=invisible_edge,
@@ -179,6 +193,8 @@ class SelectArea(object):
                             invisible_corner=invisible_corner)
 
     def add_edge(self, region, pt1, pt2,
+                 row=None,
+                 col=None,
                  do_corners=True,
                  draggable_edge=True,
                  draggable_corner=True,
@@ -187,10 +203,14 @@ class SelectArea(object):
                  invisible_corner=False):
         """ Add edge handles to region
         Also adds corner handles
+        :row: edge row 
+        :col: edge column
         """
         edge = self.get_edge_with(pt1, pt2)
         if edge is None:
             edge = SelectEdge(self, rect=[pt1,pt2],
+                            row=row,
+                            col=col,
                             draggable=draggable_edge,
                             edge_width=edge_width,
                             invisible=invisible_edge)
@@ -400,6 +420,10 @@ class SelectArea(object):
         :parts: list of parts to display
                 default: all  parts
         """
+        
+        if not self.display_game:
+            return
+        
         if parts is None:
             parts = self.parts
         SlTrace.lg("\ndisplay %d parts" % (len(parts)), "display")

@@ -54,6 +54,10 @@ class SelectEdge(SelectPart):
         We leave room for the corners at each end
         Highlight if appropriate
         """
+        
+        if not self.sel_area.display_game:
+            return
+
         if ActiveCheck.not_active():
             return
         

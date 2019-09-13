@@ -14,12 +14,16 @@ from datetime import date
 
 from select_trace import SlTrace
 from select_error import SelectError
-from dots_results_commands import version,game,moves,results,SkipFile
+from dots_results_commands import history,pgm_info,version,game,moves,results,SkipFile
 
 class DotsGame:
 
-    def __init__(self, name=None, nplayer=2, nrow=None, ncol=None, nmove=None, ts=None):
+    def __init__(self, name=None,
+                 game_no=0, time=0.,
+                 nplayer=2, nrow=None, ncol=None, nmove=None, ts=None):
         self.name = name
+        self.game_no = game_no
+        self.time = time
         self.nplayer = nplayer
         self.nrow = nrow
         self.ncol = ncol
@@ -28,7 +32,6 @@ class DotsGame:
         self.game_moves = []
         self.results = []
         self.games = []
-        
         
 class DotsGameLoad:
     """ The hook from commands expressed via python command files to 
@@ -40,6 +43,7 @@ class DotsGameLoad:
     def __init__(self, file_dir=None, file_prefix="dotsgame",
                  nrow=None,
                  ncol=None,
+                 max_file_size=7e6,     # Files bigger will be split
                  file_ext="gmres",
                  test_file=None):
         """ Setup games file output
@@ -48,10 +52,13 @@ class DotsGameLoad:
         :ncol: if present, restrict games to ncol default: load all
         :nrow: if present, restrict games to nrow default: ncol
                 Assume, for restriction, all games in file are the same nrow,ncol
+        :max_file_size: Maximum file size, bigger files will be split
+                    File text before first "game" line will be prepended to each
         :file_prefix: file prefix default: dotsgame
         :file_ext: file extension default: gmres
         :test_file: if present, just load this file
         """
+        self.max_file_size = max_file_size
         if file_dir is None:
             file_dir = r"..\gmres"
         if nrow is not None or ncol is not None:
@@ -69,27 +76,98 @@ class DotsGameLoad:
         self.nfile = 0
         self.games = []
         self.loader = None
-        self.nfgame = 0         # Number games in file
-    
+        self.history_str = None
+        self.pgm_info_str = None
     
     def load_game_file(self, file_name=None):
         """ load game results
         :file_name: path to file
         """
+        self.fgames = []
         self.skip_file = False      # True if skipping rest of file
         self.cur_gm = None
         self.nfgame = 0         # Number of games in file
-        if self.procFilePyPlus(file_name=file_name):
+        self.ts1 = None         # Timestamp for first game
+        self.tsend = None       # timestamp for last game
+        file_size = os.path.getsize(file_name)
+        if file_size > self.max_file_size:
+            SlTrace.lg("%s must be split (%d bytes)"% (file_name, file_size))
+            res = self.split_load_game_file(file_name=file_name)
+        else:
+            res = self.procFilePyPlus(file_name=file_name)
+        if res:
             self.nfile += 1  # Count if successful
         else:
             self.nfile_error += 1
+        if self.history_str is not None:
+            SlTrace.lg("\npgm history {}".format(self.history_str))
+        if self.pgm_info_str is not None:
+            SlTrace.lg("run_info {}".format(self.pgm_info_str))
         
         sum_str = " - skipped"
         if self.cur_gm is not None:
-            sum_str = ("     ngame=%d nrow=%d ncol=%d"
-                % (self.nfgame, self.cur_gm.nrow, self.cur_gm.ncol))
-        SlTrace.lg("End loading file %s%s" % (file_name, sum_str))
-            
+            nsq_pgm = self.cur_gm.nrow * self.cur_gm.ncol
+            tmin = tmax = self.fgames[0].time
+            ttot = 0.
+            for gm in self.fgames:
+                ttot += gm.time
+                if gm.time < tmin:
+                    tmin = gm.time
+                if gm.time > tmax:
+                    tmax = gm.time
+            tavg = ttot/len(self.fgames)
+            tsqavg = tavg/nsq_pgm
+            sum_str = ("     ngame=%d nrow=%d ncol=%d gmavg=%.3f sec (min=%.3f max=%.3f) sqavg=%.3f sec"
+                % (self.nfgame, self.cur_gm.nrow, self.cur_gm.ncol, tavg, tmin, tmax, tsqavg))
+        SlTrace.lg("    file %s%s" % (file_name, sum_str))
+    
+    
+    def split_load_game_file(self, file_name=None):
+        """ load game results, splitting file into self.max_file_size parts,
+        placing prefix of portion from beginning to before first "game" line
+        :file_name: path to file
+        """
+        preamble = ""
+        with open(file_name) as fin:
+            while True:
+                line = fin.readline()
+                if not line.endswith("\n"):
+                    SlTrace.lg("{} Premature EOF"
+                               .format(file_name))
+                    return False
+                if line.startswith("game("):
+                    break
+                preamble += line
+            npart = 0           # Count split parts
+            more_base_file = True
+            while more_base_file:         # Process splits
+                compile_str = preamble
+                if line is not None:
+                    compile_str += line
+                    line = None
+                while True:
+                    line = fin.readline()
+                    if not line.endswith("\n"):
+                        more_base_file = False               # EOF
+                        break
+                    if line.startswith("game("):
+                        if len(compile_str) > self.max_file_size:
+                            break
+                    compile_str += line
+                tmp_file = r"..\dots_tmp_load_file.py"
+                with open(tmp_file, "w") as ftout:
+                    print(compile_str, file=ftout)
+
+                if self.procFilePyPlus(file_name=tmp_file):
+                    npart += 1      # Count parts
+                else:
+                    SlTrace.lg("split failed")
+                    return False
+                compile_str += line     # Add in first game line        
+
+        SlTrace.lg("End loading split file {} {:d} parts "
+                   .format(file_name, npart))
+        return True    
         
     
     def load_game_files(self, file_pat=None):
@@ -136,9 +214,10 @@ class DotsGameLoad:
     """
 
     
-    def procFilePyPlus(self, file_name=None):
+    def procFilePyPlus(self, file_name=None, prefix=None):
         """ Process python code file, with prefix text
         :inFile: input file name
+        :prefix: optional string to prefix file for compile
         """
         if not os.path.isabs(file_name):
             file_name = os.path.abspath(os.path.join(self.file_dir, file_name))
@@ -146,9 +225,12 @@ class DotsGameLoad:
         if not path.is_file():
             SlTrace.lg("file_name {} was not found".format(file_name))
             return False
-        
-        compile_str = r"""
-"""
+        compile_str = ""
+        if prefix is not None:
+            compile_str = prefix
+            if not prefix.endswith("\n"):
+                compile_str += "\n"         # Insure ending newline
+
         try:
             fin = open(file_name)
             compile_str += fin.read()
@@ -192,15 +274,29 @@ class DotsGameLoad:
             return self.loader.version(version_str)
             
         self.version_str = version_str
+    
+    
+    def history(self, history_str):
+        if self.loader is not None:
+            return self.loader.history(history_str)
+            
+        self.history_str = history_str
+    
+    
+    def pgm_info(self, info_str):
+        if self.loader is not None:
+            return self.loader.pgm_info(info_str)
+            
+        self.pgm_info_str = info_str
         
     
-    def game(self, name=None, nplayer=2,
+    def game(self, name=None, game_no=0, time=0, nplayer=2,
                 nrow=None, ncol=None, nmove=None, ts=None):
         """ Start processing of game
         :returns:  False if not processing this game
         """
         if self.loader is not None:
-            return self.loader.game(name=name, nplayer=nplayer,
+            return self.loader.game(name=name, game_no=0, time=0, nplayer=nplayer,
                 nrow=nrow, ncol=ncol, nmove=nmove, ts=ts)
 
         if self.skip_file:
@@ -217,11 +313,14 @@ class DotsGameLoad:
                 self.skip_file = True   # Optimize
                 raise SkipFile("skipping file")
                         
-        SlTrace.lg("game(name=%s, nplayer=%d, nrow=%d, ncol=%d, nmoves=%d, ts=%s)"
-                % (name, nplayer, nrow, ncol, nmove, ts), "game")
-        gm = DotsGame(name=name, nplayer=nplayer, nrow=nrow, ncol=ncol, nmove=nmove, ts=ts)
+        SlTrace.lg("game(name=%s, game_no=%d, time=%.3f, nplayer=%d, nrow=%d, ncol=%d, nmoves=%d, ts=%s)"
+                % (name, game_no, time, nplayer, nrow, ncol, nmove, ts), "game")
+        gm = DotsGame(name=name, game_no=game_no, time=time, nplayer=nplayer, nrow=nrow, ncol=ncol, nmove=nmove, ts=ts)
         self.cur_gm = gm         # Current game
         self.nfgame += 1        # Count game
+        if self.nfgame == 1:
+            self.ts1 = ts
+        self.tsend = ts         # last (most recent
         return True
     
     def moves(self, *moves):
@@ -261,6 +360,7 @@ class DotsGameLoad:
         self.cur_gm.results = res
         gm = self.cur_gm
         self.games.append(gm)            # Add to loaded games
+        self.fgames.append(gm)            # Add to file's count
         if SlTrace.trace("game_results"):
             move_no = 0
             for move in gm.game_moves:
@@ -278,9 +378,36 @@ class DotsGameLoad:
 
 if __name__ == "__main__":
     from dots_results_commands import DotsResultsCommands
+    file_dir = r"..\test_gmres"
+    test_file = None
+    do_test_gmres = False
+    do_test_file = False
+    do_test_err1_file = True
     
-    rC = DotsResultsCommands()
-    rF = DotsGameLoad(file_dir=r"..\test_gmres")
-    rC.set_loader(rF)
-    rF.load_game_files()
-    SlTrace.lg("%d games in %d files" % (rF.get_num_games(), rF.get_num_files()))        
+    if do_test_err1_file:
+        test_file = r"..\dots_load_file_err1.gmres"
+        rC = DotsResultsCommands()
+        rF = DotsGameLoad(file_dir=file_dir, test_file=test_file)
+        rC.set_loader(rF)
+        rF.load_game_files()
+        SlTrace.lg("%d games in %d files" % (rF.get_num_games(), rF.get_num_files()))
+    
+    if do_test_file:
+        max_file_size = 15000
+        file_dir = r"..\gmres"
+        test_file = r".\t2.gmres"
+        rC = DotsResultsCommands()
+        rF = DotsGameLoad(file_dir=file_dir, test_file=test_file,
+                          max_file_size=max_file_size)
+        rC.set_loader(rF)
+        rF.load_game_files()
+        SlTrace.lg("%d games in %d files" % (rF.get_num_games(), rF.get_num_files()))
+        
+    if do_test_gmres:
+        file_dir = r"..\test_gmres"
+        rC = DotsResultsCommands()
+        rF = DotsGameLoad(file_dir=file_dir, test_file=test_file)
+        rC.set_loader(rF)
+        rF.load_game_files()
+        SlTrace.lg("%d games in %d files" % (rF.get_num_games(), rF.get_num_files()))
+            

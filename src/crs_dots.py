@@ -9,6 +9,7 @@ import time
 import traceback
 from tkinter import *    
 import argparse
+import cProfile, pstats, io         # profiling support
 
 import  gc
 import tracemalloc
@@ -29,8 +30,9 @@ from sc_player_control import PlayerControl
 from sc_score_window import ScoreWindow
 from dots_game_file import DotsGameFile
 
-rF = None               # Games Results file if any
-loop_no = 0           # Label loop number, starting at 1
+history = "shadow_get_legal_moves"       # History of program
+rF = None                   # Games Results file if any
+loop_no = 0                 # Label loop number, starting at 1
 sp = None
 command_stream = None
 game_control = None
@@ -77,6 +79,7 @@ stx_lst = True                # List Stream Trace cmd
 loop = False        # Repeat game after end after waiting interval
 loop_after = 5      # If looping, delay in seconds
 min_xlen = 10       # Minimum xlen(pixels) and ylen
+numgame = None        # if not None, Quit after numgames
 nx = 5              # Number of x divisions
 ny = nx             # Number of y divisions
 playing = None      # If present comma separated list of playing (labels)
@@ -98,10 +101,13 @@ board_change = True # True iff board needs redrawing
 
 base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 SlTrace.setLogName(base_name)
-SlTrace.lg("%s %s\n" % (os.path.basename(sys.argv[0]), " ".join(sys.argv[1:])))
+pgm_info = "%s %s\n" % (os.path.basename(sys.argv[0]), " ".join(sys.argv[1:]))
+SlTrace.lg(pgm_info)
 ###SlTrace.setTraceFlag("get_next_val", 1)
 """ Flags for setup """
-btmove = 1.         #  Seconds between moves
+btmove = 1.             #  Seconds between moves
+display_game = True     # True - display game as played, else suppress display
+profile_running = False # True - run cprofile over running_loop
 ew_display = 7
 ew_select = 7
 ew_standoff = 8
@@ -114,6 +120,7 @@ undo_len=200           # Undo length (Note: includes message mcd
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--btmove', type=float, dest='btmove', default=btmove)
+parser.add_argument('--display_game', type=str2bool, dest='display_game', default=display_game)
 parser.add_argument('--ew_display', type=int, dest='ew_display', default=ew_display)
 parser.add_argument('--ew_select', type=int, dest='ew_select', default=ew_select)
 parser.add_argument('--ew_standoff', type=int, dest='ew_standoff', default=ew_standoff)
@@ -130,10 +137,12 @@ parser.add_argument('-x', '--stx_lst', action='store_true', default=stx_lst,
 parser.add_argument('--loop', type=str2bool, dest='loop', default=loop)
 parser.add_argument('--loop_after', type=float, dest='loop_after', default=loop_after)
 parser.add_argument('--min_xlen=', type=int, dest='min_xlen', default=min_xlen)
+parser.add_argument('--numgame=', type=int, dest='numgame', default=numgame)
 parser.add_argument('--nx=', type=int, dest='nx', default=nx)
 parser.add_argument('--ny=', type=int, dest='ny', default=ny)
 parser.add_argument('--play_level=', dest='play_level', default=play_level)
 parser.add_argument('--playing=', dest='playing', default=playing)
+parser.add_argument('--profile_running', type=str2bool, dest='profile_running', default=profile_running)
 parser.add_argument('--results_files', type=str2bool, dest='results_files', default=results_files)
 parser.add_argument('--results_dir', dest='results_dir', default=results_dir)
 parser.add_argument('--run_game', type=str2bool, dest='run_game', default=run_game)
@@ -147,19 +156,22 @@ parser.add_argument('--undo_len', type=int, dest='undo_len', default=undo_len)
 parser.add_argument('--width=', type=int, dest='width', default=width)
 parser.add_argument('--height=', type=int, dest='height', default=height)
 args = parser.parse_args()             # or die "Illegal options"
-SlTrace.lg("args: %s\n" % args)
-
+SlTrace.lg("args: {}\n".format(args))
+SlTrace.lg("history: {}".format(history))
 first_set_app = True        # Set False after first
 btmove = args.btmove
 cmd_file_name = args.cmd_file_name
+display_game = args.display_game
 loop = args.loop
 loop_after = args.loop_after
 min_xlen = args.min_xlen
+numgame = args.numgame
 nx = args.nx
 ny = args.ny
 nsq = nx * ny
 play_level = args.play_level
 playing = args.playing
+profile_running = args.profile_running
 results_dir = args.results_dir
 results_files = args.results_files
 run_game = args.run_game
@@ -226,7 +238,7 @@ def check_mod(part, mod_type=None, desc=None):
     """ called before and after each part modificatiom
     """
     if sp is not None:
-    	sp.check_mod(part, mod_type=mod_type, desc=desc)
+        sp.check_mod(part, mod_type=mod_type, desc=desc)
 app = None                  # Application window ref
 board_frame = None
 msg_main_frame = None       # Message enclosing frame
@@ -370,13 +382,28 @@ def redo():
 def end_game():
     if ActiveCheck.not_active():
         return  # We're at the end
+    
+    if numgame is not None and sp.ngame >= numgame:
+        if sp.profile_running:
+            sp.pr.disable()
+            s = io.StringIO()
+            sortby = 'cumulative'
+            ps = pstats.Stats(sp.pr, stream=s).sort_stats(sortby)
+            ps.print_stats()
+            SlTrace.lg(s.getvalue())
 
+        SlTrace.lg("end_game:  game={:d}".
+                   format(sp.ngame))
+        pl_str = "s" if numgame != 1 else ""
+        SlTrace.lg("Ending program after {:d} game{}".format(numgame, pl_str))
+        pgm_exit()
+        
     if sp.restart_game:
         mw.after(0, new_game)
     elif loop and not sp.game_stopped:
         if loop_after > 0:
             SlTrace.lg("Restarting game after %.0f seconds" % loop_after)
-        sp.game_count_down(wait_time=loop_after,inc=1)
+            sp.game_count_down(wait_time=loop_after,inc=1)
         mw.after(0, new_game)
         ###new_game()
 
@@ -462,19 +489,25 @@ def set_dots_button():
         msg_frame.pack(side="bottom")
         board_change = False
     if sqs is None:
-        sqs = SelectDots(board_frame, mw=mw, nrows=ny, ncols=nx,
-                            width=width, height=height,
-                            check_mod=check_mod)
+        sqs = SelectDots(board_frame, mw=mw,
+                        display_game=display_game,
+                        nrows=ny, ncols=nx,
+                        width=width, height=height,
+                        check_mod=check_mod)
         sqs.display()
             
     if sp is None:
         if command_stream is not None:
             command_stream.reset()      # Reset stream
         sp = SelectPlay(board=sqs, msg_frame=msg_frame,
+                        display_game=display_game,
                         results_file=rF,
-                        mw=mw, start_run=False, game_control=game_control,
+                        mw=mw, start_run=False,
+                        numgame=numgame,
+                        game_control=game_control,
                         cmd_stream=command_stream,
                         player_control=player_control,
+                        profile_running=profile_running,
                         on_exit=pgm_exit,
                         on_end=end_game,
                         move_first=1, before_move=before_move,
@@ -629,7 +662,7 @@ def pause_cmd():
         sp.pause_cmd()
 
 if results_files:
-    rF = DotsGameFile(file_dir=results_dir)
+    rF = DotsGameFile(file_dir=results_dir, history=history, pgm_info=pgm_info)
     SlTrace.lg("Game Results File %s" % rF.file_path)
     
 if cmd_file_name is not None:

@@ -42,6 +42,10 @@ class SelectRegion(SelectPart):
         c1x,c1y,c3x,c3y = self.get_rect()
         if self.color is None:
             self.color= "light gray"
+        
+        if not self.sel_area.display_game:
+            return
+        
         self.color_bg_tag = self.sel_area.canvas.create_rectangle(
                                     c1x, c1y, c3x, c3y,
                                     width=self.region_width,
@@ -139,6 +143,10 @@ class SelectRegion(SelectPart):
         :region: Corner handle
         :Returns: object tag for deletion
         """
+        
+        if not self.sel_area.display_game:
+            return
+
         if self.invisible and not self.centered_text:   # hack to show
             return
         

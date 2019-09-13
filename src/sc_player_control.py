@@ -217,10 +217,12 @@ class PlayerControl(SelectControlWindow):
         prev_player = self.cur_player
         if self.cur_player is None:
             next_position = self.get_first_position()
+            next_player_num = 1
         else:
             next_position = self.get_next_position(self.cur_player.position)
+            next_player_num = self.cur_player.play_num + 1
         player = self.get_player(next_position)
-        
+        player.play_num = next_player_num
         
         if player is None:
             raise SelectError("No player playing with next position: %d"

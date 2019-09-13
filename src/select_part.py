@@ -1610,6 +1610,7 @@ class SelectPart(object):
         self.move_no = move_no
         if self.check_mod is not None:
             self.check_mod(self, mod_type=SelectPart.MOD_AFTER, desc="turn_off")
+        self.sel_area.board.shadow.turn_off(part=self)
         if display:
             self.display()
 
@@ -1627,6 +1628,7 @@ class SelectPart(object):
             player = self.get_player()
         self.player = player
         self.move_no = move_no
+        self.sel_area.board.shadow.turn_on(part=self, player=player, move_no=move_no)
         if display:
             ###self.sel_area.move_announce()
             self.display()

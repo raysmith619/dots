@@ -303,13 +303,48 @@ class SlTrace:
                     % (abs_logName, tbstr), str(e))
 
     @classmethod
-    def getTs(cls):
+    def getTs(cls, dp=0):
         """
         Get / generate time stamp Format: YYYYMMDD_HHMMSS
+        :dp: seconds decimal places default: 0
         """
         tsfmt = "%Y%m%d_%H%M%S"
+        if dp > 0:
+            tsfmt = "%Y%m%d_%H%M%S_%f"
         ts = datetime.now().strftime(tsfmt)
+        if dp > 0:
+            if dp >= 6:
+                pass        # Whole string
+            else:
+                ts = ts[:dp-6]      # remove portion of _[dddddd]
         return ts
+
+    @classmethod
+    def ts_to_datetime(cls, ts):
+        """ Convert time stamp to datetime object
+        :ts: time stamp "%Y%m%d_%H%M%S" or "%Y%m%d_%H%M%S_%f"
+        :returns: datetime object
+        """
+        tsfmt = "%Y%m%d_%H%M%S"
+        base_len = 15           # No "_dddddd"
+        if len(ts) > base_len:
+            ddig = base_len - len(ts) -1        # omit "_" separator
+            tsfmt += "_%f"          # Get decimal fraction
+            ts += ddig * "0"        # get 6 digits of uSec
+        dtobj = datetime.strptime(ts, tsfmt)
+        return dtobj
+    
+    @classmethod
+    def ts_diff(cls, ts1=None, ts2=None):
+        """ Time, in seconds, between first time (ts1) and second time
+        :ts1: first time stamp
+        :ts2: second time stamp
+        :returns: difference in seconds (float)
+        """
+        t1 = cls.ts_to_datetime(ts1)    
+        t2 = cls.ts_to_datetime(ts2)
+        diff = (t2-t1).total_seconds()
+        return diff
 
 
     @classmethod

@@ -33,6 +33,10 @@ class SelectCorner(SelectPart):
         """ Display corner on inside upper left corner
         """
         SlTrace.lg("%s: %s at %s" % (self.part_type, self, str(self.loc)), "display")
+        
+        if not self.sel_area.display_game:
+            return
+
         self.display_clear()
         if self.is_highlighted():
             """ Highlight given corner

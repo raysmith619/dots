@@ -39,6 +39,7 @@ import re
 import os
 from pathlib import Path
 from datetime import date
+from datetime import datetime
 
 
 from select_trace import SlTrace
@@ -52,13 +53,17 @@ class DotsGameFile:
     version_str = "ver01_rel01"
     
     
-    def __init__(self, file_dir=None, file_prefix="dotsgame",
+    def __init__(self, pgm_info=None, history=None, file_dir=None, file_prefix="dotsgame",
                  file_ext="gmres"):
         """ Setup games file output
+        :pgm_info: program information string - args etc.
+        :history: history of program, e.g. featurs
         :file_dir: file directory default=..\gmres
         :file_prefix: file prefix default: dotsgame
         :file_ext: file extension default: gmres
         """
+        self.history = history
+        self.pgm_info = pgm_info
         if file_dir is None:
             file_dir=r"..\gmres"
         self.file_dir = file_dir
@@ -68,6 +73,7 @@ class DotsGameFile:
         self.open_output()
         self.nfile = 0          # Number of files written
         self.nfile_error = 0    # Number of file errors
+        self.game_no = 0        # Current game number, starting at 1
         self.ngame = 0          # Number of games written
         self.ngame_error = 0    # Number pf game errors
         self.preamble = r"""
@@ -101,8 +107,9 @@ from dots_game_file import *
             raise SelectError("No games files")
         print("# %s" % self.file_path, file=self.fout)
         today = date.today()
-        d2 = today.strftime("%B %d, %Y")
+        d2 = today.strftime("%B %d, %Y %H:%M")
         print("# On: %s\n" % d2, file=self.fout)
+        print("# pgm_info = {}".format(self.pgm_info), file=self.fout)
         print("", file=self.fout)
         
     
@@ -121,13 +128,18 @@ from dots_game_file import *
             self.nrow = nrow
         if ncol is not None:
             self.ncol = ncol
+        self.game_no += 1
         self.move_no = 0              # Track number of moves
         self.moves = []             # Collect move tuples (player, row, col)
-        self.game_ts = SlTrace.getTs()
+        self.time_beg = datetime.now()
+
+        self.game_ts = SlTrace.getTs(dp=4)
         if self.ngame == 0:
             SlTrace.lg(r"""Game file version("%s")""" % self.version_str)
             print(r"""version("%s")""" % self.version_str, file=self.fout)
-    
+            print(r'''history(r"""%s""")''' % self.history, file=self.fout)
+            print(r'''pgm_info(r"""%s""")''' % self.pgm_info, file=self.fout)
+
     def next_move(self, player=None, row=None, col=None):
         """ Store next move tuple
         :player: player number 1,2,...
@@ -153,7 +165,9 @@ from dots_game_file import *
         """
         if len(self.moves) == 0:
             return              # No moves - no game
-        
+
+        self.time_end = datetime.now()
+        self.time = (self.time_end-self.time_beg).total_seconds()
         if results is not None:
             for result in results:
                 player_num = result[0]
@@ -165,8 +179,11 @@ from dots_game_file import *
                 self.game_results[player_num-1] = result[1]
 
             
-        print("""game(name="%s", nplayer=%s, nrow=%d, ncol=%d, nmove=%d, ts="%s")"""
-              % (self.game_name, self.nplayer, self.nrow, self.ncol,
+        print("""game(name="%s", game_no=%d, time=%.3f, nplayer=%s, nrow=%d, ncol=%d, nmove=%d, ts="%s")"""
+              % (self.game_name,
+                 self.game_no,
+                 self.time,
+                 self.nplayer, self.nrow, self.ncol,
                  len(self.moves), self.game_ts), 
               file=self.fout)
         max_line_len = 70
