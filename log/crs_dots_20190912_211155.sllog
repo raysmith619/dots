@@ -1,0 +1,865 @@
+ 20190912_211155 Creating Log File Name: C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20190912_211155.sllog
+ 20190912_211155 loadTraceFlags: set_window_size,button,pgm_stack,in_stroke,region_rect,add_part,display,part_check_ok,dbg,part_track_uncleared,edge_unselected,show_id,part_info,memory,enter,on_motion,is_over,part_info_over,edge_highlighted,no_blink,blink_on_first,get_parts,highlight,motion,down,selected,blink,edge_selected,leave,execute,set_window_size(,score,player,select_copy,execute_print,execute_select,execute_stack,execute_part_change,move,track_move_edge,keybd,running_loop,player_trace,new_edge,square_completion,complete_test,square,annotate_square,message,show_move,get_color,regno,play_strategy,copy,region_few_corners,nolegalmoves,flush_outputs,controls,list_moves
+ 20190912_211155 crs_dots.py --nx=8 --ny=8 --run_game=true --loop=true --loop_after=0 --results_dir=..\test_gmres --profile_running=True --numgame=100
+
+ 20190912_211155 args: Namespace(btmove=1.0, cmd_file_name=None, display_game=True, ew_display=7, ew_select=7, ew_standoff=8, height=600, loop=True, loop_after=0.0, min_xlen=10, numgame=100, nx=8, ny=8, play_level=None, playing=None, profile_running=True, results_dir='..\\test_gmres', results_files=True, run_game=True, show_id=False, show_players=True, show_score=True, speed_step=-1, src_lst=True, stroke_move=False, stx_lst=True, trace='', undo_len=200, width=600)
+
+ 20190912_211155 history: shadow_get_legal_moves
+ 20190912_211155 Game Results File C:\Users\raysm\workspace\python\crs_dots\test_gmres\dotsgame_20190912_211155.gmres
+ 20190912_211155 SelectControlWindow.__init__ 1
+ 20190912_211155 SelectControlWindow.__init__ 2
+ 20190912_211155 SelectControlWindow.__init__ 3
+ 20190912_211155 
+Loop 1
+ 20190912_211155 Memory Used: 46 MB, Change: 46.11 MB
+ 20190912_211155 SelectControlWindow.__init__ 3
+ 20190912_211155 SelectArea.add_add_down_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001D413C49748>>
+ 20190912_211155 SelectArea after add_down_click_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001D413C49748>>
+ 20190912_211155 board.area.down_click_call: <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x000001D413C49748>>
+ 20190912_211155 reset_score
+ 20190912_211155 PlayerControl
+ 20190912_211156 Game file version("ver01_rel01")
+ 20190912_211159 end of game 1   3.53
+ 20190912_211159 Starting New Game
+ 20190912_211203 end of game 2   3.34
+ 20190912_211203 Starting New Game
+ 20190912_211206 end of game 3   3.28
+ 20190912_211206 Starting New Game
+ 20190912_211210 end of game 4   3.25
+ 20190912_211210 Starting New Game
+ 20190912_211213 end of game 5   3.36
+ 20190912_211213 Starting New Game
+ 20190912_211217 end of game 6   3.25
+ 20190912_211217 Starting New Game
+ 20190912_211220 end of game 7   3.26
+ 20190912_211220 Starting New Game
+ 20190912_211224 end of game 8   3.45
+ 20190912_211224 Starting New Game
+ 20190912_211228 end of game 9   3.58
+ 20190912_211228 Starting New Game
+ 20190912_211232 end of game 10   3.34
+ 20190912_211232 Starting New Game
+ 20190912_211236 end of game 11   3.58
+ 20190912_211236 Starting New Game
+ 20190912_211239 end of game 12   3.39
+ 20190912_211239 Starting New Game
+ 20190912_211243 end of game 13   3.28
+ 20190912_211243 Starting New Game
+ 20190912_211247 end of game 14   3.53
+ 20190912_211247 Starting New Game
+ 20190912_211250 end of game 15   3.34
+ 20190912_211250 Starting New Game
+ 20190912_211254 end of game 16   3.51
+ 20190912_211254 Starting New Game
+ 20190912_211258 end of game 17   3.41
+ 20190912_211258 Starting New Game
+ 20190912_211301 end of game 18   3.30
+ 20190912_211301 Starting New Game
+ 20190912_211305 end of game 19   3.23
+ 20190912_211305 Starting New Game
+ 20190912_211308 end of game 20   3.37
+ 20190912_211308 Starting New Game
+ 20190912_211312 end of game 21   3.36
+ 20190912_211312 Starting New Game
+ 20190912_211315 end of game 22   3.19
+ 20190912_211315 Starting New Game
+ 20190912_211319 end of game 23   3.36
+ 20190912_211319 Starting New Game
+ 20190912_211323 end of game 24   3.34
+ 20190912_211323 Starting New Game
+ 20190912_211326 end of game 25   3.20
+ 20190912_211326 Starting New Game
+ 20190912_211330 end of game 26   3.41
+ 20190912_211330 Starting New Game
+ 20190912_211333 end of game 27   3.33
+ 20190912_211333 Starting New Game
+ 20190912_211337 end of game 28   3.20
+ 20190912_211337 Starting New Game
+ 20190912_211340 end of game 29   3.44
+ 20190912_211340 Starting New Game
+ 20190912_211344 end of game 30   3.39
+ 20190912_211344 Starting New Game
+ 20190912_211348 end of game 31   3.22
+ 20190912_211348 Starting New Game
+ 20190912_211351 end of game 32   3.39
+ 20190912_211351 Starting New Game
+ 20190912_211355 end of game 33   3.33
+ 20190912_211355 Starting New Game
+ 20190912_211358 end of game 34   3.25
+ 20190912_211358 Starting New Game
+ 20190912_211402 end of game 35   3.36
+ 20190912_211402 Starting New Game
+ 20190912_211406 end of game 36   3.30
+ 20190912_211406 Starting New Game
+ 20190912_211409 end of game 37   3.22
+ 20190912_211409 Starting New Game
+ 20190912_211413 end of game 38   3.41
+ 20190912_211413 Starting New Game
+ 20190912_211416 end of game 39   3.56
+ 20190912_211416 Starting New Game
+ 20190912_211420 end of game 40   3.59
+ 20190912_211420 Starting New Game
+ 20190912_211424 end of game 41   3.45
+ 20190912_211424 Starting New Game
+ 20190912_211428 end of game 42   3.47
+ 20190912_211428 Starting New Game
+ 20190912_211432 end of game 43   3.42
+ 20190912_211432 Starting New Game
+ 20190912_211435 end of game 44   3.30
+ 20190912_211435 Starting New Game
+ 20190912_211439 end of game 45   3.50
+ 20190912_211439 Starting New Game
+ 20190912_211443 end of game 46   3.94
+ 20190912_211443 Starting New Game
+ 20190912_211447 end of game 47   3.31
+ 20190912_211447 Starting New Game
+ 20190912_211450 end of game 48   3.30
+ 20190912_211450 Starting New Game
+ 20190912_211454 end of game 49   3.44
+ 20190912_211454 Starting New Game
+ 20190912_211458 end of game 50   3.36
+ 20190912_211458 Starting New Game
+ 20190912_211501 end of game 51   3.44
+ 20190912_211501 Starting New Game
+ 20190912_211505 end of game 52   3.67
+ 20190912_211505 Starting New Game
+ 20190912_211509 end of game 53   3.30
+ 20190912_211509 Starting New Game
+ 20190912_211512 end of game 54   3.36
+ 20190912_211512 Starting New Game
+ 20190912_211516 end of game 55   3.53
+ 20190912_211516 Starting New Game
+ 20190912_211520 end of game 56   3.37
+ 20190912_211520 Starting New Game
+ 20190912_211524 end of game 57   3.22
+ 20190912_211524 Starting New Game
+ 20190912_211527 end of game 58   3.50
+ 20190912_211527 Starting New Game
+ 20190912_211531 end of game 59   3.23
+ 20190912_211531 Starting New Game
+ 20190912_211534 end of game 60   3.16
+ 20190912_211534 Starting New Game
+ 20190912_211538 end of game 61   3.39
+ 20190912_211538 Starting New Game
+ 20190912_211541 end of game 62   3.25
+ 20190912_211541 Starting New Game
+ 20190912_211545 end of game 63   3.42
+ 20190912_211545 Starting New Game
+ 20190912_211549 end of game 64   3.55
+ 20190912_211549 Starting New Game
+ 20190912_211553 end of game 65   3.34
+ 20190912_211553 Starting New Game
+ 20190912_211556 end of game 66   3.31
+ 20190912_211556 Starting New Game
+ 20190912_211600 end of game 67   3.36
+ 20190912_211600 Starting New Game
+ 20190912_211604 end of game 68   3.44
+ 20190912_211604 Starting New Game
+ 20190912_211607 end of game 69   3.19
+ 20190912_211607 Starting New Game
+ 20190912_211611 end of game 70   3.34
+ 20190912_211611 Starting New Game
+ 20190912_211614 end of game 71   3.31
+ 20190912_211614 Starting New Game
+ 20190912_211618 end of game 72   3.23
+ 20190912_211618 Starting New Game
+ 20190912_211621 end of game 73   3.36
+ 20190912_211621 Starting New Game
+ 20190912_211625 end of game 74   3.34
+ 20190912_211625 Starting New Game
+ 20190912_211628 end of game 75   3.19
+ 20190912_211629 Starting New Game
+ 20190912_211632 end of game 76   3.41
+ 20190912_211632 Starting New Game
+ 20190912_211636 end of game 77   3.31
+ 20190912_211636 Starting New Game
+ 20190912_211639 end of game 78   3.23
+ 20190912_211639 Starting New Game
+ 20190912_211643 end of game 79   3.44
+ 20190912_211643 Starting New Game
+ 20190912_211647 end of game 80   3.37
+ 20190912_211647 Starting New Game
+ 20190912_211650 end of game 81   3.23
+ 20190912_211650 Starting New Game
+ 20190912_211654 end of game 82   3.31
+ 20190912_211654 Starting New Game
+ 20190912_211657 end of game 83   3.37
+ 20190912_211657 Starting New Game
+ 20190912_211701 end of game 84   3.23
+ 20190912_211701 Starting New Game
+ 20190912_211704 end of game 85   3.42
+ 20190912_211704 Starting New Game
+ 20190912_211708 end of game 86   3.36
+ 20190912_211708 Starting New Game
+ 20190912_211712 end of game 87   3.20
+ 20190912_211712 Starting New Game
+ 20190912_211715 end of game 88   3.34
+ 20190912_211715 Starting New Game
+ 20190912_211719 end of game 89   3.39
+ 20190912_211719 Starting New Game
+ 20190912_211722 end of game 90   3.23
+ 20190912_211722 Starting New Game
+ 20190912_211726 end of game 91   3.31
+ 20190912_211726 Starting New Game
+ 20190912_211730 end of game 92   3.36
+ 20190912_211730 Starting New Game
+ 20190912_211733 end of game 93   3.25
+ 20190912_211733 Starting New Game
+ 20190912_211737 end of game 94   3.36
+ 20190912_211737 Starting New Game
+ 20190912_211740 end of game 95   3.31
+ 20190912_211740 Starting New Game
+ 20190912_211744 end of game 96   3.25
+ 20190912_211744 Starting New Game
+ 20190912_211748 end of game 97   3.39
+ 20190912_211748 Starting New Game
+ 20190912_211751 end of game 98   3.31
+ 20190912_211751 Starting New Game
+ 20190912_211755 end of game 99   3.23
+ 20190912_211755 Starting New Game
+ 20190912_211758 end of game 100   3.36
+ 20190912_211758          285391153 function calls (285195765 primitive calls) in 363.395 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000  362.893  362.893 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:555(mainloop)
+        1    0.073    0.073  362.893  362.893 {method 'mainloop' of '_tkinter.tkapp' objects}
+19974/309    0.049    0.000  362.820    1.174 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1697(__call__)
+19096/299    0.070    0.000  362.819    1.213 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:744(callit)
+      100    0.134    0.001  336.196    3.362 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:162(running_loop)
+    14500    0.104    0.000  332.683    0.023 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1205(start_move)
+    14500    0.239    0.000  293.133    0.020 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1052(auto_play)
+    14400    1.025    0.000  290.050    0.020 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1116(auto_play_positive)
+    57900    0.315    0.000  233.531    0.004 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:997(do_cmd)
+    14400    0.579    0.000  224.703    0.016 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1460(new_edge)
+    57900    0.334    0.000  221.775    0.004 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:180(do_cmd)
+    57900    1.407    0.000  219.579    0.004 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:371(execute)
+    43500    0.391    0.000  166.997    0.004 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:330(display_update)
+    34961    0.727    0.000  146.172    0.004 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:52(display)
+1093334/1089862  110.671    0.000  111.074    0.000 {method 'call' of '_tkinter.tkapp' objects}
+   241766    1.612    0.000  103.648    0.000 C:\Users\raysm\workspace\python\crs_dots\src\canvas_tracked.py:48(create_rectangle)
+    34961    1.082    0.000   91.774    0.003 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:199(display_indicator)
+   241766    0.873    0.000   89.551    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\traceback.py:196(extract_stack)
+   241766   12.016    0.000   88.538    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\traceback.py:313(extract)
+  1488932    2.899    0.000   61.736    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\linecache.py:53(checkcache)
+  1488939   58.640    0.000   58.640    0.000 {built-in method nt.stat}
+   107461    0.120    0.000   52.655    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1175(update_idletasks)
+    43500    0.068    0.000   44.389    0.001 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:566(display_messages)
+    27222    0.757    0.000   44.321    0.002 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:685(do_message)
+    14500    0.233    0.000   37.495    0.003 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:452(announce_player)
+  1058400    0.574    0.000   34.606    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1421(is_square_complete)
+  1058400    0.652    0.000   34.032    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:436(is_square_complete)
+  1058400    3.590    0.000   33.380    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:273(is_square_complete)
+   813527    0.456    0.000   28.253    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1431(square_complete_distance)
+   813527    0.559    0.000   27.797    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:448(square_complete_distance)
+   813527    5.482    0.000   27.238    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:299(square_complete_distance)
+      100    0.000    0.000   27.102    0.271 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1618(reset)
+      100    0.001    0.000   27.101    0.271 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:552(reset)
+      100    0.141    0.001   27.100    0.271 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:224(setup_area)
+       99    0.001    0.000   26.618    0.269 C:\Users\raysm\workspace\python\crs_dots\src\crs_dots.py:642(new_game)
+  2206209   10.772    0.000   24.727    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:489(__str__)
+    77084    0.099    0.000   23.265    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1475(configure)
+    77084    0.356    0.000   23.166    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1463(_configure)
+  5376450    2.737    0.000   22.359    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:561(trace)
+345683/192361    1.942    0.000   20.795    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_fun.py:9(select_copy)
+     6400    0.144    0.000   20.401    0.003 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:140(add_rect)
+  4243939    1.996    0.000   19.703    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:200(lg)
+    27222    0.129    0.000   19.665    0.001 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:632(wait_message)
+  5376248    2.089    0.000   19.622    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:577(traceLevel)
+    27321    0.244    0.000   19.497    0.001 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2299(destroy)
+    27221    0.108    0.000   19.464    0.001 C:\Users\raysm\workspace\python\crs_dots\src\select_message.py:28(destroy)
+  5376248    5.291    0.000   17.534    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:426(getLevel)
+   264366    1.429    0.000   16.480    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2467(_create)
+    25600    0.133    0.000   16.476    0.001 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:195(add_edge)
+    76661    0.891    0.000   14.272    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:219(copy)
+  3758268    8.129    0.000   12.207    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_region.py:322(is_complete)
+   241766    0.247    0.000   12.142    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2496(create_rectangle)
+     6400    0.114    0.000   11.458    0.002 C:\Users\raysm\workspace\python\crs_dots\src\select_region.py:139(display)
+     6261    0.082    0.000   11.326    0.002 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1578(completed_square)
+  5376248    4.359    0.000   11.194    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:470(recordTraceFlag)
+    19200    0.180    0.000   10.946    0.001 C:\Users\raysm\workspace\python\crs_dots\src\select_region.py:33(__init__)
+     1023    0.006    0.000   10.840    0.011 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1190(auto_play_random)
+    49861    0.112    0.000    9.666    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:622(update_score_window)
+    49862    1.261    0.000    9.556    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_score_window.py:282(update_window)
+     6261    0.046    0.000    9.235    0.001 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:364(annotate_squares)
+    25600    0.222    0.000    9.075    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:225(add_corners)
+   237822    1.117    0.000    8.915    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:402(get_rect)
+  3861140    2.847    0.000    8.567    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\traceback.py:279(line)
+     6400    0.041    0.000    7.788    0.001 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:703(do_centered_text)
+     6400    0.113    0.000    7.698    0.001 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:713(do_a_centered_text)
+    27061    0.069    0.000    7.571    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:248(add_prev_parts)
+   396094    2.848    0.000    7.099    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1312(_options)
+  1480542    4.526    0.000    7.030    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1410(get_edges)
+   475644    0.796    0.000    6.436    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:450(get_corner)
+    25600    2.542    0.000    6.333    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:596(get_edge_with)
+    20800    0.028    0.000    6.090    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:963(add_new_parts)
+    20800    0.049    0.000    6.062    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:234(add_new_parts)
+    12661    0.017    0.000    5.608    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:956(add_prev_parts)
+  4538345    2.338    0.000    5.604    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:355(sub_type)
+    14400    0.108    0.000    5.267    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:885(cmd_select)
+    44423    0.042    0.000    5.185    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1201(get_legal_moves)
+    43100    2.170    0.000    5.168    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:568(get_corner_part)
+    44423    0.054    0.000    5.143    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:356(get_legal_moves)
+    44423    4.782    0.000    5.089    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:50(get_legal_moves)
+ 32251660    4.931    0.000    4.931    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1373(is_edge)
+  3432254    3.749    0.000    4.865    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_corner.py:137(get_rect)
+  3861140    2.560    0.000    4.838    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\linecache.py:15(getline)
+  5380805    2.886    0.000    4.691    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:593(setProperty)
+  1189110    1.535    0.000    4.653    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_corner.py:104(distance)
+     6400    0.010    0.000    4.250    0.001 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2499(create_text)
+    14400    0.032    0.000    4.217    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:749(mark_edge)
+    14400    0.076    0.000    4.169    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1618(turn_on)
+  1679254    1.337    0.000    4.095    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1178(get_center_size)
+    57900    0.049    0.000    4.090    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1172(update)
+    28800    0.038    0.000    3.997    0.000 C:\Users\raysm\workspace\python\crs_dots\src\crs_dots.py:236(check_mod)
+    28800    0.095    0.000    3.959    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:843(check_mod)
+  2342175    1.535    0.000    3.800    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1345(sub_type_desc)
+    64161    0.201    0.000    3.519    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:787(get_cmd)
+    27222    0.059    0.000    3.422    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2966(__init__)
+  4776167    3.414    0.000    3.414    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:389(edge_dxy)
+    27322    0.252    0.000    3.382    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2283(__init__)
+  2263770    3.374    0.000    3.374    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_loc.py:98(__str__)
+    57900    0.380    0.000    3.319    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:51(__init__)
+   360083    1.052    0.000    3.249    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\copy.py:66(copy)
+  2261831    1.174    0.000    3.218    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1553(is_selected)
+ 15062974    2.983    0.000    2.983    0.000 {built-in method builtins.isinstance}
+    51200    1.883    0.000    2.769    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:260(has_corner)
+    20661    0.034    0.000    2.749    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:163(blink)
+    20661    0.096    0.000    2.710    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:181(blink_multi)
+  1831700    1.446    0.000    2.654    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1168(get_points)
+ 26152383    2.450    0.000    2.450    0.000 {method 'append' of 'list' objects}
+   597942    0.852    0.000    2.222    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:59(_stringify)
+  5376248    2.150    0.000    2.150    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:527(getTraceFlagKey)
+   105561    1.675    0.000    2.096    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:288(__init__)
+   348005    0.519    0.000    2.092    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:275(part_check)
+    57900    0.756    0.000    2.083    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:94(__str__)
+    57361    0.438    0.000    2.062    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:770(display_clear)
+  2261831    1.547    0.000    2.045    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:333(is_selected)
+  1871927    1.569    0.000    1.922    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1393(get_adjacents)
+  3861140    1.573    0.000    1.906    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\linecache.py:37(getlines)
+   115700    0.130    0.000    1.899    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:96(copy)
+  3861140    1.485    0.000    1.838    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\linecache.py:147(lazycache)
+  5380805    1.806    0.000    1.806    0.000 C:\Users\raysm\workspace\python\crs_dots\src\java_properties.py:60(setProperty)
+    20661    0.221    0.000    1.794    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_blinker_state.py:80(blink_on_first)
+ 14040984    1.792    0.000    1.792    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1589(is_turned_on)
+  4102906    1.751    0.000    1.751    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\traceback.py:286(walk_stack)
+ 13230161    1.744    0.000    1.744    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1368(is_corner)
+   500500    1.041    0.000    1.690    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:93(_cnfmerge)
+     6261    0.072    0.000    1.685    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1669(update_score_squares)
+    14400    0.033    0.000    1.683    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:859(add_prev_mods)
+    14400    0.032    0.000    1.659    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:868(add_new_mods)
+   342396    0.256    0.000    1.596    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:339(set)
+      100    0.002    0.000    1.498    0.015 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1384(start_game)
+    78261    0.165    0.000    1.457    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:44(__init__)
+14535979/14535972    1.447    0.000    1.447    0.000 {built-in method builtins.len}
+     6400    0.019    0.000    1.395    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1469(get_top_edge)
+   342404    1.340    0.000    1.340    0.000 {method 'globalsetvar' of '_tkinter.tkapp' objects}
+  3861140    1.338    0.000    1.338    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\traceback.py:239(__init__)
+    19200    0.021    0.000    1.337    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:333(is_above)
+     6400    0.017    0.000    1.316    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1452(get_right_edge)
+   209766    0.715    0.000    1.315    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:207(part_tag)
+     6400    0.016    0.000    1.311    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1435(get_botom_edge)
+     6400    0.016    0.000    1.306    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1418(get_left_edge)
+  3708476    1.269    0.000    1.269    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:597(get_edge_width)
+    19200    0.020    0.000    1.266    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:322(is_right)
+  1195884    1.265    0.000    1.265    0.000 {method 'search' of '_sre.SRE_Pattern' objects}
+    19200    0.020    0.000    1.263    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:344(is_below)
+    19200    0.019    0.000    1.258    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:311(is_left)
+   206761    0.568    0.000    1.247    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\copy.py:292(_reconstruct)
+    20561    0.390    0.000    1.180    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_blinker_state.py:146(stop)
+   830672    1.006    0.000    1.006    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:228(__str__)
+   475644    0.219    0.000    0.987    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1089(get_corners)
+    38400    0.339    0.000    0.980    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_region.py:260(get_rect)
+    14400    0.084    0.000    0.953    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:313(execute_cmd_select)
+    14400    0.078    0.000    0.947    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:600(update_score)
+  1831700    0.931    0.000    0.931    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:368(get_nodes)
+  5714454    0.911    0.000    0.911    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1404(get_connecteds)
+   206883    0.129    0.000    0.893    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1601(trace_scores)
+  3861140    0.882    0.000    0.882    0.000 {method 'strip' of 'str' objects}
+    28900    0.038    0.000    0.867    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:157(set_new_player)
+  3130867    0.837    0.000    0.837    0.000 {built-in method builtins.hasattr}
+     8100    0.120    0.000    0.830    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_corner.py:32(display)
+    72000    0.183    0.000    0.827    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:1295(add_part)
+   163332    0.196    0.000    0.822    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:982(winfo_exists)
+    20661    0.197    0.000    0.820    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_blinker_state.py:30(__init__)
+    28900    0.028    0.000    0.800    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:162(set_prev_player)
+   123366    0.213    0.000    0.790    0.000 C:\Users\raysm\workspace\python\crs_dots\src\canvas_tracked.py:58(delete)
+   475644    0.589    0.000    0.769    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1093(get_parts)
+    57900    0.428    0.000    0.743    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:224(save_command)
+   173700    0.109    0.000    0.740    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:328(cmd_stack_print)
+    49960    0.131    0.000    0.724    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:732(after)
+    14400    0.163    0.000    0.700    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_score_window.py:309(update_score)
+   668338    0.692    0.000    0.692    0.000 {built-in method builtins.getattr}
+   123966    0.119    0.000    0.604    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2564(itemcget)
+   905465    0.600    0.000    0.600    0.000 {method 'update' of 'dict' objects}
+  3704300    0.592    0.000    0.592    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:76(is_point_equal)
+   123366    0.092    0.000    0.577    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2509(delete)
+    27322    0.061    0.000    0.574    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2122(pack_configure)
+    14400    0.017    0.000    0.510    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1579(select_set)
+    57900    0.080    0.000    0.510    0.000 C:\Users\raysm\workspace\python\crs_dots\src\crs_dots.py:358(after_move)
+    14400    0.047    0.000    0.494    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:1036(select_set)
+   206761    0.493    0.000    0.493    0.000 {method '__reduce_ex__' of 'object' objects}
+      100    0.002    0.000    0.475    0.005 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1251(end_game)
+    57900    0.084    0.000    0.463    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:553(display_print)
+  3861140    0.455    0.000    0.455    0.000 {method 'add' of 'set' objects}
+    39458    0.096    0.000    0.445    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_blinker_state.py:53(is_blinking)
+    14500    0.016    0.000    0.425    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:942(set_prev_player)
+    57900    0.321    0.000    0.421    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command.py:24(__init__)
+    43500    0.073    0.000    0.407    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:353(display_order)
+    14500    0.016    0.000    0.391    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:935(set_new_player)
+  2241370    0.366    0.000    0.366    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:959(is_highlighted)
+   309761    0.245    0.000    0.365    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1543(get_player)
+    28700    0.117    0.000    0.344    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:1011(select_clear)
+   241766    0.344    0.000    0.344    0.000 C:\Users\raysm\workspace\python\crs_dots\src\canvas_tracked.py:167(new_track_no)
+     8100    0.017    0.000    0.314    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_corner.py:28(__init__)
+  1531603    0.313    0.000    0.313    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1378(is_region)
+    76661    0.206    0.000    0.308    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\copy.py:134(deepcopy)
+    98761    0.120    0.000    0.306    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:293(get_part)
+    21360    0.180    0.000    0.300    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1354(_register)
+    57900    0.054    0.000    0.300    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:200(cmd_stack_print)
+    29000    0.139    0.000    0.299    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1016(auto_play_pause)
+    57900    0.043    0.000    0.298    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:203(display_print)
+    43500    0.197    0.000    0.298    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:434(display_order)
+   230400    0.135    0.000    0.295    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1511(add_connected)
+   225380    0.192    0.000    0.292    0.000 C:\Users\raysm\workspace\python\crs_dots\src\active_check.py:52(not_active)
+    27322    0.260    0.000    0.291    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2250(_setup)
+    57900    0.045    0.000    0.289    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:562(select_print)
+   813604    0.276    0.000    0.276    0.000 {built-in method builtins.min}
+    57900    0.035    0.000    0.274    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:207(select_print)
+    43500    0.053    0.000    0.265    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1718(insert_parts)
+    27222    0.094    0.000    0.252    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:445(get_width)
+  1189110    0.239    0.000    0.239    0.000 {built-in method math.sqrt}
+   729344    0.232    0.000    0.232    0.000 {built-in method _tkinter._flatten}
+    14300    0.017    0.000    0.219    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1572(select_clear)
+   206761    0.158    0.000    0.214    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\copyreg.py:87(__newobj__)
+     8139    0.012    0.000    0.213    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1537(get_next_player)
+    20661    0.021    0.000    0.209    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1548(get_player_num)
+     8140    0.059    0.000    0.201    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:211(get_next_player)
+    43500    0.082    0.000    0.199    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1711(remove_parts)
+    14500    0.027    0.000    0.198    0.000 C:\Users\raysm\workspace\python\crs_dots\src\crs_dots.py:350(before_move)
+     8100    0.006    0.000    0.195    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2490(create_oval)
+    57400    0.051    0.000    0.195    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:444(get_part)
+    20661    0.075    0.000    0.188    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:343(get_player_num)
+    98761    0.109    0.000    0.185    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:337(get_part)
+   748226    0.176    0.000    0.176    0.000 {method 'get' of 'dict' objects}
+    43500    0.057    0.000    0.172    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command.py:163(get_changed)
+    64362    0.064    0.000    0.169    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:825(get_last_cmd)
+    87000    0.065    0.000    0.166    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:397(set_changed)
+     8100    0.005    0.000    0.161    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2487(create_line)
+    27222    0.101    0.000    0.159    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:480(add_message)
+   121141    0.092    0.000    0.158    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:111(get_score)
+    49963    0.128    0.000    0.157    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:365(get_players)
+     6400    0.048    0.000    0.152    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\font.py:68(__init__)
+    43500    0.059    0.000    0.151    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:568(insert_parts)
+344823/344822    0.148    0.000    0.151    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:325(get_player)
+   230400    0.146    0.000    0.146    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1528(is_connected)
+  1164680    0.143    0.000    0.143    0.000 {built-in method builtins.callable}
+   115700    0.114    0.000    0.142    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:245(set_changed)
+    28100    0.048    0.000    0.136    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1158(winfo_width)
+    14400    0.052    0.000    0.136    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1075(adjust_level_to_stay_even)
+    51200    0.101    0.000    0.132    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:347(is_first_corner)
+    14400    0.021    0.000    0.128    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\random.py:217(randint)
+   114324    0.077    0.000    0.120    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:135(get_wins)
+   114324    0.074    0.000    0.119    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:146(get_played)
+   160922    0.115    0.000    0.115    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:513(get_part)
+    43500    0.105    0.000    0.115    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:268(get_changed)
+   105561    0.111    0.000    0.111    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1557(set_edge_width)
+    28900    0.044    0.000    0.109    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:547(enable_moves)
+    14400    0.037    0.000    0.107    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\random.py:173(randrange)
+    19095    0.040    0.000    0.107    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:591(deletecommand)
+    64362    0.075    0.000    0.105    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:294(get_last_command)
+    28900    0.068    0.000    0.105    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:634(set)
+    14400    0.102    0.000    0.102    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:878(clear_mods)
+   225380    0.099    0.000    0.099    0.000 C:\Users\raysm\workspace\python\crs_dots\src\active_check.py:38(is_active)
+   470246    0.099    0.000    0.099    0.000 {method 'getint' of '_tkinter.tkapp' objects}
+     6261    0.021    0.000    0.099    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1686(update_results_score)
+    14400    0.073    0.000    0.097    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:84(turn_on)
+   373305    0.092    0.000    0.092    0.000 {built-in method builtins.setattr}
+    18797    0.046    0.000    0.089    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_blinker_state.py:99(blink_on_next)
+   297022    0.088    0.000    0.088    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_loc.py:20(order_ul_lr)
+   429920    0.087    0.000    0.087    0.000 {method 'items' of 'dict' objects}
+    28900    0.051    0.000    0.082    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:70(set_part)
+   105561    0.079    0.000    0.079    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_position.py:8(__init__)
+   241766    0.078    0.000    0.078    0.000 {built-in method sys._getframe}
+    20800    0.055    0.000    0.077    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:600(set_part)
+    27321    0.066    0.000    0.074    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:581(destroy)
+   439529    0.071    0.000    0.071    0.000 {method 'values' of 'dict' objects}
+    21360    0.070    0.000    0.070    0.000 {method 'createcommand' of '_tkinter.tkapp' objects}
+    14400    0.044    0.000    0.070    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\random.py:223(_randbelow)
+    28900    0.061    0.000    0.070    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_loc.py:43(__init__)
+    28700    0.027    0.000    0.069    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command.py:149(set_changed)
+151267/151223    0.067    0.000    0.068    0.000 {method 'join' of 'str' objects}
+    28800    0.045    0.000    0.067    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1415(next_move_no)
+   121141    0.066    0.000    0.066    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:628(get_score)
+   115800    0.066    0.000    0.066    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:34(next_cmd_no)
+    28900    0.043    0.000    0.064    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:477(enable_moves)
+    24731    0.057    0.000    0.062    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:236(get_first_position)
+     6400    0.016    0.000    0.062    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:678(set_centered_text)
+   241766    0.062    0.000    0.062    0.000 {method 'reverse' of 'list' objects}
+    43500    0.043    0.000    0.061    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1573(set_player)
+      878    0.016    0.000    0.060    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1385(_substitute)
+      100    0.004    0.000    0.058    0.001 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1343(score_game)
+   105561    0.056    0.000    0.056    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_velocity.py:8(__init__)
+   105561    0.056    0.000    0.056    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_size.py:15(__init__)
+    14500    0.020    0.000    0.055    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1562(get_prev_player)
+   206761    0.055    0.000    0.055    0.000 {built-in method __new__ of type object at 0x000000006690C3F0}
+    27322    0.042    0.000    0.054    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2292(<listcomp>)
+    21341    0.052    0.000    0.052    0.000 {method 'deletecommand' of '_tkinter.tkapp' objects}
+    19200    0.052    0.000    0.052    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_centered_text.py:28(__str__)
+    13424    0.051    0.000    0.051    0.000 {built-in method now}
+   105561    0.051    0.000    0.051    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_rotation.py:8(__init__)
+    18834    0.040    0.000    0.050    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:250(get_next_position)
+    27222    0.049    0.000    0.049    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_message.py:20(__str__)
+    14400    0.016    0.000    0.047    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:301(get_selects)
+   213022    0.046    0.000    0.046    0.000 {built-in method builtins.issubclass}
+      100    0.023    0.000    0.046    0.000 C:\Users\raysm\workspace\python\crs_dots\src\dots_game_file.py:162(end_game)
+   114324    0.045    0.000    0.045    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:646(get_played)
+   114324    0.043    0.000    0.043    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:672(get_wins)
+     6400    0.026    0.000    0.043    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1487(add_centered_text)
+    14400    0.013    0.000    0.040    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:541(disable_moves)
+     6400    0.009    0.000    0.039    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\font.py:111(__del__)
+    43500    0.020    0.000    0.038    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1698(update_score_from_cmd)
+     6261    0.011    0.000    0.036    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1656(set_score)
+    43500    0.036    0.000    0.036    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:364(get_sel_area)
+      771    0.003    0.000    0.035    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_control_window.py:300(win_size_event)
+     6261    0.006    0.000    0.034    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_blinker_state.py:14(__deepcopy__)
+    27222    0.034    0.000    0.034    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_message.py:5(__init__)
+    25600    0.021    0.000    0.034    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1384(add_adjacent)
+    57700    0.034    0.000    0.034    0.000 {method 'pop' of 'list' objects}
+    31456    0.030    0.000    0.034    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:486(get_num_playing)
+    57361    0.033    0.000    0.033    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1355(clear_display_multi_tags)
+    14400    0.016    0.000    0.031    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:369(get_selects)
+    12724    0.017    0.000    0.031    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:117(set_score)
+     6400    0.026    0.000    0.030    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\font.py:49(_set)
+    14400    0.018    0.000    0.030    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1525(clear_redo)
+    64362    0.030    0.000    0.030    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:67(is_empty)
+    57900    0.029    0.000    0.029    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:56(get_prev_move_no)
+    14400    0.018    0.000    0.027    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:471(disable_moves)
+    14400    0.022    0.000    0.025    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:277(add_prev_selects)
+    14400    0.022    0.000    0.025    0.000 C:\Users\raysm\workspace\python\crs_dots\src\dots_game_file.py:143(next_move)
+    14400    0.020    0.000    0.025    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:263(add_new_selects)
+    21360    0.024    0.000    0.024    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1692(__init__)
+     9658    0.007    0.000    0.024    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1391(getint_event)
+    57900    0.024    0.000    0.024    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command.py:144(can_undo)
+    27222    0.024    0.000    0.024    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:439(get_canvas)
+    98021    0.024    0.000    0.024    0.000 {built-in method builtins.id}
+    63761    0.023    0.000    0.023    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:856(clear_centered_texts)
+    19095    0.022    0.000    0.022    0.000 {method 'remove' of 'list' objects}
+    28800    0.022    0.000    0.022    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:40(next_move_no)
+    20800    0.022    0.000    0.022    0.000 {method 'copy' of 'dict' objects}
+    20661    0.022    0.000    0.022    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:929(highlight_clear)
+    51640    0.022    0.000    0.022    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:273(set_player)
+    28900    0.021    0.000    0.021    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:833(enable_moves)
+    27222    0.016    0.000    0.021    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:166(add_message)
+      771    0.002    0.000    0.020    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_control_window.py:310(set_window_size)
+    24699    0.020    0.000    0.020    0.000 {method 'getrandbits' of '_random.Random' objects}
+     2507    0.013    0.000    0.019    0.000 {built-in method builtins.print}
+      100    0.001    0.000    0.019    0.000 C:\Users\raysm\workspace\python\crs_dots\src\canvas_tracked.py:16(__init__)
+    25600    0.009    0.000    0.018    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:251(rn)
+      100    0.000    0.000    0.018    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:2392(__init__)
+    57900    0.017    0.000    0.017    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:288(get_move_no)
+     3784    0.007    0.000    0.017    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_control_window.py:450(set_prop_val)
+    21360    0.016    0.000    0.016    0.000 {built-in method builtins.repr}
+     6400    0.015    0.000    0.015    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_centered_text.py:9(__init__)
+    58100    0.015    0.000    0.015    0.000 {method 'keys' of 'dict' objects}
+    14400    0.010    0.000    0.014    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:1054(get_selects)
+      100    0.000    0.000    0.014    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:337(ts_diff)
+    73800    0.014    0.000    0.014    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1340(sub_type)
+      200    0.001    0.000    0.014    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:322(ts_to_datetime)
+      502    0.001    0.000    0.013    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:305(getTs)
+    12724    0.013    0.000    0.013    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:618(set_score)
+      200    0.000    0.000    0.013    0.000 {built-in method strptime}
+    70400    0.013    0.000    0.013    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\copy.py:214(_deepcopy_atomic)
+    76661    0.013    0.000    0.013    0.000 {method 'copy' of 'list' objects}
+    14400    0.013    0.000    0.013    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:113(clear_redo)
+    19200    0.012    0.000    0.012    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_region.py:241(get_color)
+    20661    0.012    0.000    0.012    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:428(blinker_set)
+    27916    0.012    0.000    0.012    0.000 {method 'lower' of 'str' objects}
+    43500    0.012    0.000    0.012    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:534(remove_parts)
+    27061    0.012    0.000    0.012    0.000 {built-in method builtins.next}
+     6261    0.011    0.000    0.011    0.000 C:\Users\raysm\workspace\python\crs_dots\src\dots_game_file.py:235(results_update)
+      540    0.011    0.000    0.011    0.000 {method 'strftime' of 'datetime.date' objects}
+      100    0.002    0.000    0.010    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:37(__init__)
+    14400    0.010    0.000    0.010    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_edge.py:474(loc_key)
+    25600    0.010    0.000    0.010    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_part.py:1520(is_adjacent)
+      200    0.001    0.000    0.010    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:562(_strptime_datetime)
+      200    0.004    0.000    0.010    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:321(_strptime)
+      100    0.001    0.000    0.009    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_control_window.py:149(set_vals)
+    25600    0.009    0.000    0.009    0.000 {built-in method builtins.round}
+      700    0.002    0.000    0.009    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_control_window.py:155(set_val_from_ctl)
+    14400    0.008    0.000    0.008    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:827(disable_moves)
+      878    0.005    0.000    0.007    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1337(nametowidget)
+    20661    0.007    0.000    0.007    0.000 {built-in method builtins.iter}
+      100    0.004    0.000    0.007    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:501(get_parts)
+      404    0.006    0.000    0.006    0.000 {method 'flush' of '_io.TextIOWrapper' objects}
+      878    0.001    0.000    0.006    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1162(winfo_x)
+      400    0.000    0.000    0.006    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1209(bind)
+    14400    0.006    0.000    0.006    0.000 {method 'bit_length' of 'int' objects}
+    14400    0.006    0.000    0.006    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1009(complete_cmd)
+     6400    0.006    0.000    0.006    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_region.py:365(loc_key)
+     5014    0.003    0.000    0.006    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\encodings\cp1252.py:18(encode)
+      100    0.003    0.000    0.006    0.000 C:\Users\raysm\workspace\python\crs_dots\src\dots_game_file.py:116(start_game)
+      400    0.001    0.000    0.006    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1192(_bind)
+    14500    0.006    0.000    0.006    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1305(flush_cmds)
+      345    0.001    0.000    0.004    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:216(set_prop)
+      100    0.001    0.000    0.004    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:216(setup_shadow)
+     1270    0.002    0.000    0.004    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\enum.py:265(__call__)
+      107    0.001    0.000    0.004    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_window.py:112(win_size_event)
+       99    0.001    0.000    0.004    0.000 C:\Users\raysm\workspace\python\crs_dots\src\crs_dots.py:632(run_cmd)
+        6    0.000    0.000    0.004    0.001 C:\ProgramData\Anaconda3\envs\py36\lib\linecache.py:82(updatecache)
+      100    0.001    0.000    0.003    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:39(__init__)
+     5014    0.003    0.000    0.003    0.000 {built-in method _codecs.charmap_encode}
+     6261    0.003    0.000    0.003    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:292(add_prev_score)
+     6400    0.003    0.000    0.003    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\font.py:99(__str__)
+     2064    0.003    0.000    0.003    0.000 {method 'getboolean' of '_tkinter.tkapp' objects}
+      878    0.001    0.000    0.003    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1167(winfo_y)
+     8100    0.003    0.000    0.003    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_corner.py:174(loc_key)
+      400    0.002    0.000    0.002    0.000 {built-in method numpy.core.multiarray.zeros}
+        6    0.002    0.000    0.002    0.000 {method 'readlines' of '_io._IOBase' objects}
+        1    0.000    0.000    0.002    0.002 <frozen importlib._bootstrap>:966(_find_and_load)
+      100    0.001    0.000    0.002    0.000 C:\Users\raysm\workspace\python\crs_dots\src\crs_dots.py:382(end_game)
+        1    0.000    0.000    0.002    0.002 <frozen importlib._bootstrap>:936(_find_and_load_unlocked)
+      211    0.000    0.000    0.002    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\re.py:286(_compile)
+      100    0.000    0.000    0.002    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_stroke.py:11(__init__)
+      878    0.001    0.000    0.002    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:994(winfo_height)
+     1270    0.002    0.000    0.002    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\enum.py:515(__new__)
+        1    0.000    0.000    0.002    0.002 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1625(reset_score)
+      100    0.001    0.000    0.002    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_stroke.py:15(setup)
+      202    0.000    0.000    0.002    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:29(_getlang)
+     6261    0.002    0.000    0.002    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_play.py:300(add_new_score)
+     3784    0.002    0.000    0.002    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_control_window.py:460(set_val)
+        9    0.000    0.000    0.002    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\re.py:231(compile)
+        1    0.000    0.000    0.002    0.002 <frozen importlib._bootstrap>:651(_load_unlocked)
+        3    0.000    0.000    0.002    0.001 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:557(compile)
+        1    0.000    0.000    0.002    0.002 <frozen importlib._bootstrap_external>:672(exec_module)
+      100    0.000    0.000    0.002    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1313(game_control_updates)
+      700    0.002    0.000    0.002    0.000 {method 'globalgetvar' of '_tkinter.tkapp' objects}
+      202    0.000    0.000    0.002    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\locale.py:565(getlocale)
+      300    0.001    0.000    0.002    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:548(get)
+      428    0.001    0.000    0.002    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_window.py:171(set_prop_val)
+        1    0.000    0.000    0.002    0.002 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:273(compile)
+     2596    0.001    0.000    0.001    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_score_window.py:130(get_prop_key)
+      400    0.001    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:501(get)
+      202    0.000    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\re.py:169(match)
+      345    0.001    0.000    0.001    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:159(get_val)
+      419    0.001    0.000    0.001    0.000 {method 'match' of '_sre.SRE_Pattern' objects}
+      100    0.001    0.000    0.001    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_control_window.py:356(get_prop_val)
+      101    0.001    0.000    0.001    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:690(set_all_scores)
+        3    0.000    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:542(_code)
+      878    0.001    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:1376(_root)
+      878    0.001    0.000    0.001    0.000 {method 'split' of 'str' objects}
+     29/3    0.000    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:64(_compile)
+     1288    0.001    0.000    0.001    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_control_window.py:350(get_prop_key)
+      345    0.001    0.000    0.001    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:102(get_prop_key)
+        1    0.000    0.000    0.001    0.001 <frozen importlib._bootstrap>:211(_call_with_frames_removed)
+        1    0.000    0.000    0.001    0.001 {built-in method builtins.exec}
+        1    0.000    0.000    0.001    0.001 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:12(<module>)
+        1    0.000    0.000    0.001    0.001 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:185(__init__)
+      200    0.001    0.000    0.001    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1405(set_move_no)
+        6    0.000    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tokenize.py:448(open)
+        1    0.000    0.000    0.001    0.001 <frozen importlib._bootstrap_external>:743(get_code)
+      202    0.000    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\locale.py:462(_parse_localename)
+        1    0.000    0.000    0.001    0.001 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:595(set_ctls)
+        2    0.000    0.000    0.001    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:184(set_ctls)
+      202    0.000    0.000    0.001    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:153(set_played)
+        3    0.000    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:844(parse)
+       32    0.000    0.000    0.001    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:171(set_ctl_from_val)
+      200    0.000    0.000    0.001    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:123(get_ties)
+      202    0.001    0.000    0.001    0.000 {built-in method _locale.setlocale}
+     11/3    0.000    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:407(_parse_sub)
+     22/3    0.000    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:470(_parse)
+        1    0.001    0.001    0.001    0.001 <frozen importlib._bootstrap_external>:830(get_data)
+      186    0.000    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\enum.py:801(__and__)
+      202    0.000    0.000    0.001    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\locale.py:379(normalize)
+      200    0.000    0.000    0.000    0.000 {method 'groupdict' of '_sre.SRE_Match' objects}
+     1807    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:870(_find_spec)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1149(find_spec)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1117(_get_spec)
+        4    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:250(pattern)
+        6    0.000    0.000    0.000    0.000 {built-in method io.open}
+        5    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1233(find_spec)
+      100    0.000    0.000    0.000    0.000 {method 'format' of 'str' objects}
+      100    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:583(getProperty)
+       27    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:223(_compile_charset)
+        7    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:75(_path_stat)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:52(__init__)
+      200    0.000    0.000    0.000    0.000 {method 'total_seconds' of 'datetime.timedelta' objects}
+      200    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_blinker_state.py:21(enable)
+       95    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:141(set_wins)
+      100    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_blinker_state.py:25(disable)
+        6    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tokenize.py:355(detect_encoding)
+      428    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_window.py:141(get_prop_key)
+     1846    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:275(_tkerror)
+      200    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:654(get_ties)
+      100    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\java_properties.py:44(getProperty)
+       54    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\codecs.py:318(decode)
+      202    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:636(set_played)
+      202    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_trace.py:121(setupLogging)
+      200    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_command_manager.py:279(set_move_no)
+       11    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tokenize.py:379(read_or_stop)
+       11    0.000    0.000    0.000    0.000 {method 'readline' of '_io.BufferedReader' objects}
+       27    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:250(_optimize_charset)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:485(_compile_bytecode)
+       54    0.000    0.000    0.000    0.000 {built-in method _codecs.utf_8_decode}
+        1    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\crs_dots.py:618(show_players_window)
+        1    0.000    0.000    0.000    0.000 {built-in method marshal.loads}
+      100    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_mover.py:243(__init__)
+        6    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:231(__seqToRE)
+       95    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:680(set_wins)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:100(__calc_month)
+       99    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:323(run_cmd)
+      400    0.000    0.000    0.000    0.000 {method 'toordinal' of 'datetime.date' objects}
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:92(__calc_weekday)
+       26    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\calendar.py:58(__getitem__)
+    39/13    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:173(getwidth)
+       50    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:246(<genexpr>)
+      100    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:342(pause_cmd)
+      119    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:253(get)
+       16    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_player.py:129(set_ties)
+        8    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:96(closegroup)
+        8    0.000    0.000    0.000    0.000 {method 'sub' of '_sre.SRE_Pattern' objects}
+       14    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\calendar.py:77(__getitem__)
+       44    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\re.py:249(escape)
+      187    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:232(__next)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:102(<listcomp>)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:119(__calc_date_time)
+      200    0.000    0.000    0.000    0.000 {method 'end' of '_sre.SRE_Match' objects}
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:103(<listcomp>)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:95(<listcomp>)
+       25    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:57(_path_join)
+        1    0.000    0.000    0.000    0.000 {method 'read' of '_io.FileIO' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:564(module_from_spec)
+       85    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:163(__getitem__)
+        3    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:482(_compile_info)
+        8    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\re.py:324(_subx)
+        2    0.000    0.000    0.000    0.000 {built-in method builtins.__build_class__}
+       11    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tokenize.py:385(find_cookie)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:94(_path_isfile)
+       92    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:248(match)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:840(path_stats)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:85(_path_is_mode_type)
+        8    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\tkinter\__init__.py:543(set)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:263(cache_from_source)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:147(__enter__)
+        2    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\re.py:314(_compile_repl)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:504(_init_module_attrs)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:96(<listcomp>)
+       82    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:102(fixup)
+       10    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\enum.py:795(__or__)
+        2    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:876(parse_template)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:157(_get_module_lock)
+      200    0.000    0.000    0.000    0.000 {method 'weekday' of 'datetime.date' objects}
+       25    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:59(<listcomp>)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:63(_path_split)
+        8    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:84(opengroup)
+        3    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:828(fix_flags)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:430(_validate_bytecode_header)
+        6    0.000    0.000    0.000    0.000 {method 'seek' of '_io.BufferedReader' objects}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:403(cached)
+       49    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:171(append)
+       29    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:111(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:361(_get_cached)
+       36    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:285(tell)
+       16    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:662(set_ties)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:107(__calc_am_pm)
+       59    0.000    0.000    0.000    0.000 {method 'find' of 'bytearray' objects}
+        6    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\codecs.py:308(__init__)
+       91    0.000    0.000    0.000    0.000 {built-in method _sre.getlower}
+        8    0.000    0.000    0.000    0.000 {built-in method time.strftime}
+        3    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\copyreg.py:96(_slotnames)
+        3    0.000    0.000    0.000    0.000 {built-in method _thread.allocate_lock}
+        5    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:223(__init__)
+        6    0.000    0.000    0.000    0.000 {built-in method builtins.sorted}
+       67    0.000    0.000    0.000    0.000 {method 'replace' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1228(_get_spec)
+        5    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:294(_class_escape)
+        1    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:1555(get_players)
+        7    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:266(getuntil)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:58(__init__)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:376(_mk_bitmap)
+       22    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:81(groups)
+       22    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:159(__len__)
+       26    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:222(_verbose_message)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:524(spec_from_file_location)
+       12    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:342(_escape)
+       52    0.000    0.000    0.000    0.000 {method 'rstrip' of 'str' objects}
+       11    0.000    0.000    0.000    0.000 {method 'decode' of 'bytes' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:318(__exit__)
+        5    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:997(_handle_fromlist)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:164(__calc_timezone)
+       12    0.000    0.000    0.000    0.000 {method 'startswith' of 'str' objects}
+        6    0.000    0.000    0.000    0.000 {method 'startswith' of 'bytes' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:151(__exit__)
+        2    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:441(_get_charset_prefix)
+       50    0.000    0.000    0.000    0.000 {built-in method builtins.ord}
+        2    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:388(_simple)
+        3    0.000    0.000    0.000    0.000 {built-in method _sre.compile}
+       20    0.000    0.000    0.000    0.000 {method 'index' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:378(<listcomp>)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:78(acquire)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:103(release)
+        6    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\codecs.py:259(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:707(find_spec)
+      3/2    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:414(_get_literal_prefix)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:52(_r_long)
+        6    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_compile.py:539(isstring)
+        1    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_play.py:949(set_stroke_move)
+       16    0.000    0.000    0.000    0.000 {built-in method builtins.max}
+        5    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1080(_path_importer_cache)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:669(create_module)
+        3    0.000    0.000    0.000    0.000 {method 'get' of 'mappingproxy' objects}
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:885(addgroup)
+        2    0.000    0.000    0.000    0.000 {method 'rsplit' of 'str' objects}
+        3    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:76(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:176(cb)
+        2    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_control_window.py:78(set_play_control)
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:847(__exit__)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.any}
+        1    0.000    0.000    0.000    0.000 {built-in method _imp.is_builtin}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:780(find_spec)
+        1    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_dots.py:616(set_stroke_move)
+        9    0.000    0.000    0.000    0.000 {method 'rpartition' of 'str' objects}
+        5    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:37(_relax_case)
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:843(__enter__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:393(_check_name_wrapper)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:369(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\sc_player_control.py:142(control_display)
+        1    0.000    0.000    0.000    0.000 {built-in method _imp._fix_co_filename}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:800(__init__)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:140(<listcomp>)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:33(LocaleTime)
+        7    0.000    0.000    0.000    0.000 {method 'isidentifier' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:35(_new_module)
+        1    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:182(TimeRE)
+        5    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\_strptime.py:222(<genexpr>)
+        5    0.000    0.000    0.000    0.000 {built-in method _imp.release_lock}
+        4    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:321(<genexpr>)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:143(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:307(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:311(__enter__)
+        3    0.000    0.000    0.000    0.000 {method 'extend' of 'list' objects}
+        2    0.000    0.000    0.000    0.000 {built-in method builtins.chr}
+        5    0.000    0.000    0.000    0.000 {built-in method _imp.acquire_lock}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:416(parent)
+        2    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\sre_parse.py:167(__setitem__)
+        3    0.000    0.000    0.000    0.000 {built-in method nt.fspath}
+        1    0.000    0.000    0.000    0.000 {method 'translate' of 'bytearray' objects}
+        2    0.000    0.000    0.000    0.000 {built-in method from_bytes}
+        1    0.000    0.000    0.000    0.000 {built-in method _imp.is_frozen}
+        1    0.000    0.000    0.000    0.000 C:\Users\raysm\workspace\python\crs_dots\src\select_area.py:1078(set_stroke_move)
+        2    0.000    0.000    0.000    0.000 {built-in method _thread.get_ident}
+        2    0.000    0.000    0.000    0.000 C:\ProgramData\Anaconda3\envs\py36\lib\calendar.py:53(<lambda>)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:825(get_filename)
+        1    0.000    0.000    0.000    0.000 {method '__getitem__' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:424(has_location)
+
+
+
+ 20190912_211758 end_game:  game=100
+ 20190912_211758 Ending program after 100 games
+ 20190912_211758 Closeing results file C:\Users\raysm\workspace\python\crs_dots\test_gmres\dotsgame_20190912_211155.gmres
+ 20190912_211758 Saving properties file C:\Users\raysm\workspace\python\crs_dots\crs_dots.properties
+ 20190912_211758 Closing log file C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20190912_211155.sllog

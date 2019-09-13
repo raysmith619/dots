@@ -1,0 +1,47 @@
+ 20190912_163519 Creating Log File Name: C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20190912_163519.sllog
+ 20190912_163519 loadTraceFlags: set_window_size,button,pgm_stack,in_stroke,region_rect,add_part,display,part_check_ok,dbg,part_track_uncleared,edge_unselected,show_id,part_info,memory,enter,on_motion,is_over,part_info_over,edge_highlighted,no_blink,blink_on_first,get_parts,highlight,motion,down,selected,blink,edge_selected,leave,execute,set_window_size(,score,player,select_copy,execute_print,execute_select,execute_stack,execute_part_change,move,track_move_edge,keybd,running_loop,player_trace,new_edge,square_completion,complete_test,square,annotate_square,message,show_move,get_color,regno,play_strategy,copy,region_few_corners,nolegalmoves,flush_outputs,controls,list_moves
+ 20190912_163519 crs_dots.py --nx=8 --ny=8 --run_game=true --loop=true --loop_after=0 --results_dir=..\test_gmres --profile_running=True --numgame=100
+
+ 20190912_163519 args: Namespace(btmove=1.0, cmd_file_name=None, display_game=True, ew_display=7, ew_select=7, ew_standoff=8, height=600, loop=True, loop_after=0.0, min_xlen=10, numgame=100, nx=8, ny=8, play_level=None, playing=None, profile_running=True, results_dir='..\\test_gmres', results_files=True, run_game=True, show_id=False, show_players=True, show_score=True, speed_step=-1, src_lst=True, stroke_move=False, stx_lst=True, trace='', undo_len=200, width=600)
+
+ 20190912_163519 history: shadow_get_legal_moves
+ 20190912_163520 Game Results File C:\Users\raysm\workspace\python\crs_dots\test_gmres\dotsgame_20190912_163520.gmres
+ 20190912_163520 SelectControlWindow.__init__ 1
+ 20190912_163520 SelectControlWindow.__init__ 2
+ 20190912_163520 SelectControlWindow.__init__ 3
+ 20190912_163520 
+Loop 1
+ 20190912_163520 Memory Used: 61 MB, Change: 61.25 MB
+ 20190912_163520 SelectControlWindow.__init__ 3
+ 20190912_163520 SelectArea.add_add_down_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x00000205B0085A58>>
+ 20190912_163520 SelectArea after add_down_click_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x00000205B0085A58>>
+ 20190912_163520 board.area.down_click_call: <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x00000205B0085A58>>
+ 20190912_163520 reset_score
+ 20190912_163520 PlayerControl
+ 20190912_163521 Game file version("ver01_rel01")
+ 20190912_163657 end of game 1   95.37
+ 20190912_163657 Starting New Game
+ 20190912_163702 end of game 2   5.09
+ 20190912_163702 Starting New Game
+ 20190912_163708 end of game 3   5.20
+ 20190912_163708 Starting New Game
+ 20190912_163714 end of game 4   5.06
+ 20190912_163714 Starting New Game
+ 20190912_163720 end of game 5   5.14
+ 20190912_163720 Starting New Game
+ 20190912_163726 end of game 6   5.16
+ 20190912_163726 Starting New Game
+ 20190912_163732 end of game 7   5.20
+ 20190912_163732 Starting New Game
+ 20190912_163737 end of game 8   4.91
+ 20190912_163737 Starting New Game
+ 20190912_163744 end of game 9   5.03
+ 20190912_163744 Starting New Game
+ 20190912_163749 end of game 10   5.05
+ 20190912_163749 Starting New Game
+ 20190912_163755 end of game 11   5.14
+ 20190912_163755 Starting New Game
+ 20190912_163801 end of game 12   5.14
+ 20190912_163801 Starting New Game
+ 20190912_163807 end of game 13   5.25
+ 20190912_163807 Starting New Game

@@ -1,0 +1,56 @@
+ 20190912_212756 Creating Log File Name: C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_load_20190912_212756.sllog
+ 20190912_212756 loadTraceFlags: game_results,game,adding_list,SkipFile
+ 20190912_212756 crs_dots_load.py --results_dir=../test_gmres
+
+ 20190912_212756 args: Namespace(ncol=None, nrow=None, results_dir='../test_gmres', results_files=True, test_file=None, trace='')
+
+ 20190912_212756 Files loaded from directory: ../test_gmres
+ 20190912_212756     file ../test_gmres\dotsgame_20190912_123600.gmres     ngame=100 nrow=4 ncol=4 gmavg=0.146 sec (min=0.125 max=0.734) sqavg=0.009 sec
+ 20190912_212756     file ../test_gmres\dotsgame_20190912_124113.gmres     ngame=100 nrow=4 ncol=4 gmavg=1.062 sec (min=0.922 max=1.718) sqavg=0.066 sec
+ 20190912_212756     file ../test_gmres\dotsgame_20190912_132034.gmres     ngame=100 nrow=8 ncol=8 gmavg=0.934 sec (min=0.867 max=1.296) sqavg=0.015 sec
+ 20190912_212756 run_info crs_dots.py --nx=8 --ny=8 --run_game=true --loop=true --loop_after=0 --results_dir=..	est_gmres --display_game=False --profile_running=True --numgame=100
+ 20190912_212756     file ../test_gmres\dotsgame_20190912_133855.gmres     ngame=100 nrow=8 ncol=8 gmavg=0.950 sec (min=0.862 max=1.429) sqavg=0.015 sec
+ 20190912_212756 run_info crs_dots.py --nx=8 --ny=8 --run_game=true --loop=true --loop_after=0 --results_dir=..	est_gmres --display_game=True --profile_running=True --numgame=100
+
+ 20190912_212756     file ../test_gmres\dotsgame_20190912_142225.gmres     ngame=100 nrow=8 ncol=8 gmavg=4.872 sec (min=3.488 max=8.804) sqavg=0.076 sec
+ 20190912_212756 
+pgm history None
+ 20190912_212756 run_info crs_dots.py --nx=8 --ny=8 --run_game=true --loop=true --loop_after=0 --results_dir=..\test_gmres --display_game=False --profile_running=True --numgame=100
+
+ 20190912_212756     file ../test_gmres\dotsgame_20190912_152612.gmres     ngame=100 nrow=8 ncol=8 gmavg=0.955 sec (min=0.863 max=1.388) sqavg=0.015 sec
+ 20190912_212757 
+pgm history beginning
+ 20190912_212757 run_info crs_dots.py --nx=8 --ny=8 --run_game=true --loop=true --loop_after=0 --results_dir=..\test_gmres --display_game=False --profile_running=True --numgame=100
+
+ 20190912_212757     file ../test_gmres\dotsgame_20190912_154454.gmres     ngame=100 nrow=8 ncol=8 gmavg=0.959 sec (min=0.862 max=1.582) sqavg=0.015 sec
+ 20190912_212757 
+pgm history beginning
+ 20190912_212757 run_info crs_dots.py --nx=8 --ny=8 --run_game=true --loop=true --loop_after=0 --results_dir=..\test_gmres --display_game=True --profile_running=True --numgame=100
+
+ 20190912_212757     file ../test_gmres\dotsgame_20190912_154828.gmres     ngame=100 nrow=8 ncol=8 gmavg=4.345 sec (min=4.099 max=5.318) sqavg=0.068 sec
+ 20190912_212757 
+pgm history shadow_get_legal_moves
+ 20190912_212757 run_info crs_dots.py --nx=8 --ny=8 --run_game=true --loop=true --loop_after=0 --results_dir=..\test_gmres --profile_running=True --numgame=100
+
+ 20190912_212757     file ../test_gmres\dotsgame_20190912_211155.gmres     ngame=100 nrow=8 ncol=8 gmavg=3.354 sec (min=3.149 max=3.936) sqavg=0.052 sec
+ 20190912_212757 
+pgm history shadow_get_legal_moves
+ 20190912_212757 run_info crs_dots.py --nx=8 --ny=8 --run_game=true --loop=true --loop_after=0 --results_dir=..\test_gmres --display_game=False --profile_running=True --numgame=100
+
+ 20190912_212757     file ../test_gmres\dotsgame_20190912_211841.gmres     ngame=100 nrow=8 ncol=8 gmavg=0.957 sec (min=0.866 max=1.239) sqavg=0.015 sec
+ 20190912_212757 End loading 10 files
+ 20190912_212757 1000 games in 10 files
+ 20190912_212757  Game Statistics by number of rows, cols
+ 20190912_212757 rows cols Games
+ 20190912_212757    4    4   200
+ 20190912_212757    8    8   800
+ 20190912_212757  Detailed Game Statistics by number of rows, cols
+ 20190912_212757 rows cols games  pl   win(%   ) [(%sqs)]  loss(%   ) [(%sqs)]  tie (%   ) [(%sqs)]  
+ 20190912_212757    4    4   200   1    77(38.5) [(69.0)]   94(47.0) [(31.0)]   29(14.5) [(50.0)]
+ 20190912_212757    4    4   200   2    94(47.0) [(69.0)]   77(38.5) [(31.0)]   29(14.5) [(50.0)]
+ 20190912_212757 ----------------------------------------------------------------------
+ 20190912_212757    8    8   800   1   358(44.8) [(60.1)]  392(49.0) [(39.6)]   50( 6.2) [(50.0)]
+ 20190912_212757    8    8   800   2   392(49.0) [(60.4)]  358(44.8) [(39.9)]   50( 6.2) [(50.0)]
+ 20190912_212757 ----------------------------------------------------------------------
+ 20190912_212757 Saving properties file C:\Users\raysm\workspace\python\crs_dots\crs_dots_load.properties
+ 20190912_212757 Closing log file C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_load_20190912_212756.sllog

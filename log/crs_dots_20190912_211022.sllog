@@ -1,0 +1,155 @@
+ 20190912_211022 Creating Log File Name: C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20190912_211022.sllog
+ 20190912_211022 loadTraceFlags: set_window_size,button,pgm_stack,in_stroke,region_rect,add_part,display,part_check_ok,dbg,part_track_uncleared,edge_unselected,show_id,part_info,memory,enter,on_motion,is_over,part_info_over,edge_highlighted,no_blink,blink_on_first,get_parts,highlight,motion,down,selected,blink,edge_selected,leave,execute,set_window_size(,score,player,select_copy,execute_print,execute_select,execute_stack,execute_part_change,move,track_move_edge,keybd,running_loop,player_trace,new_edge,square_completion,complete_test,square,annotate_square,message,show_move,get_color,regno,play_strategy,copy,region_few_corners,nolegalmoves,flush_outputs,controls,list_moves
+ 20190912_211022 crs_dots.py --nx=8 --ny=8 --run_game=true --loop=true --loop_after=0 --results_dir=..\test_gmres --profile_running=True --numgame=100
+
+ 20190912_211022 args: Namespace(btmove=1.0, cmd_file_name=None, display_game=True, ew_display=7, ew_select=7, ew_standoff=8, height=600, loop=True, loop_after=0.0, min_xlen=10, numgame=100, nx=8, ny=8, play_level=None, playing=None, profile_running=True, results_dir='..\\test_gmres', results_files=True, run_game=True, show_id=False, show_players=True, show_score=True, speed_step=-1, src_lst=True, stroke_move=False, stx_lst=True, trace='', undo_len=200, width=600)
+
+ 20190912_211022 history: shadow_get_legal_moves
+ 20190912_211022 Game Results File C:\Users\raysm\workspace\python\crs_dots\test_gmres\dotsgame_20190912_211022.gmres
+ 20190912_211022 SelectControlWindow.__init__ 1
+ 20190912_211022 SelectControlWindow.__init__ 2
+ 20190912_211022 SelectControlWindow.__init__ 3
+ 20190912_211022 
+Loop 1
+ 20190912_211022 Memory Used: 46 MB, Change: 46.38 MB
+ 20190912_211022 SelectControlWindow.__init__ 3
+ 20190912_211022 SelectArea.add_add_down_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x0000027A95489780>>
+ 20190912_211022 SelectArea after add_down_click_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x0000027A95489780>>
+ 20190912_211022 board.area.down_click_call: <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x0000027A95489780>>
+ 20190912_211022 reset_score
+ 20190912_211022 PlayerControl
+ 20190912_211023 Game file version("ver01_rel01")
+ 20190912_211023 end of game 1   0.31
+ 20190912_211023 Starting New Game
+ 20190912_211023 Game file version("ver01_rel01")
+ 20190912_211023 end of game 2   0.03
+ 20190912_211023 Starting New Game
+ 20190912_211023 Game file version("ver01_rel01")
+ 20190912_211023 end of game 3   0.03
+ 20190912_211023 Starting New Game
+ 20190912_211024 Game file version("ver01_rel01")
+ 20190912_211024 end of game 4   0.03
+ 20190912_211024 Starting New Game
+ 20190912_211024 Game file version("ver01_rel01")
+ 20190912_211024 end of game 5   0.04
+ 20190912_211024 Starting New Game
+ 20190912_211025 Game file version("ver01_rel01")
+ 20190912_211025 end of game 6   0.03
+ 20190912_211025 Starting New Game
+ 20190912_211025 Game file version("ver01_rel01")
+ 20190912_211025 end of game 7   0.02
+ 20190912_211025 Starting New Game
+ 20190912_211025 Game file version("ver01_rel01")
+ 20190912_211025 end of game 8   0.03
+ 20190912_211025 Starting New Game
+ 20190912_211026 Game file version("ver01_rel01")
+ 20190912_211026 end of game 9   0.03
+ 20190912_211026 Starting New Game
+ 20190912_211026 Game file version("ver01_rel01")
+ 20190912_211026 end of game 10   0.02
+ 20190912_211026 Starting New Game
+ 20190912_211026 Game file version("ver01_rel01")
+ 20190912_211026 end of game 11   0.04
+ 20190912_211026 Starting New Game
+ 20190912_211027 Game file version("ver01_rel01")
+ 20190912_211027 end of game 12   0.02
+ 20190912_211027 Starting New Game
+ 20190912_211027 Game file version("ver01_rel01")
+ 20190912_211027 end of game 13   0.03
+ 20190912_211027 Starting New Game
+ 20190912_211027 Game file version("ver01_rel01")
+ 20190912_211027 end of game 14   0.02
+ 20190912_211027 Starting New Game
+ 20190912_211028 Game file version("ver01_rel01")
+ 20190912_211028 end of game 15   0.03
+ 20190912_211028 Starting New Game
+ 20190912_211028 Game file version("ver01_rel01")
+ 20190912_211028 end of game 16   0.03
+ 20190912_211028 Starting New Game
+ 20190912_211028 Game file version("ver01_rel01")
+ 20190912_211028 end of game 17   0.03
+ 20190912_211028 Starting New Game
+ 20190912_211029 Game file version("ver01_rel01")
+ 20190912_211029 end of game 18   0.02
+ 20190912_211029 Starting New Game
+ 20190912_211029 Game file version("ver01_rel01")
+ 20190912_211029 end of game 19   0.03
+ 20190912_211029 Starting New Game
+ 20190912_211029 Game file version("ver01_rel01")
+ 20190912_211029 end of game 20   0.03
+ 20190912_211029 Starting New Game
+ 20190912_211030 Game file version("ver01_rel01")
+ 20190912_211030 end of game 21   0.03
+ 20190912_211030 Starting New Game
+ 20190912_211030 Game file version("ver01_rel01")
+ 20190912_211030 end of game 22   0.02
+ 20190912_211030 Starting New Game
+ 20190912_211030 Game file version("ver01_rel01")
+ 20190912_211030 end of game 23   0.03
+ 20190912_211030 Starting New Game
+ 20190912_211031 Game file version("ver01_rel01")
+ 20190912_211031 end of game 24   0.03
+ 20190912_211031 Starting New Game
+ 20190912_211031 Game file version("ver01_rel01")
+ 20190912_211031 end of game 25   0.02
+ 20190912_211031 Starting New Game
+ 20190912_211031 Game file version("ver01_rel01")
+ 20190912_211031 end of game 26   0.04
+ 20190912_211031 Starting New Game
+ 20190912_211031 Game file version("ver01_rel01")
+ 20190912_211031 end of game 27   0.03
+ 20190912_211031 Starting New Game
+ 20190912_211032 Game file version("ver01_rel01")
+ 20190912_211032 end of game 28   0.02
+ 20190912_211032 Starting New Game
+ 20190912_211032 Game file version("ver01_rel01")
+ 20190912_211032 end of game 29   0.03
+ 20190912_211032 Starting New Game
+ 20190912_211032 Game file version("ver01_rel01")
+ 20190912_211032 end of game 30   0.04
+ 20190912_211032 Starting New Game
+ 20190912_211033 Game file version("ver01_rel01")
+ 20190912_211033 end of game 31   0.03
+ 20190912_211033 Starting New Game
+ 20190912_211033 Game file version("ver01_rel01")
+ 20190912_211033 end of game 32   0.03
+ 20190912_211033 Starting New Game
+ 20190912_211033 Game file version("ver01_rel01")
+ 20190912_211033 end of game 33   0.03
+ 20190912_211033 Starting New Game
+ 20190912_211034 Game file version("ver01_rel01")
+ 20190912_211034 end of game 34   0.02
+ 20190912_211034 Starting New Game
+ 20190912_211034 Game file version("ver01_rel01")
+ 20190912_211034 end of game 35   0.03
+ 20190912_211034 Starting New Game
+ 20190912_211034 Game file version("ver01_rel01")
+ 20190912_211034 end of game 36   0.03
+ 20190912_211034 Starting New Game
+ 20190912_211034 Game file version("ver01_rel01")
+ 20190912_211034 end of game 37   0.05
+ 20190912_211034 Starting New Game
+ 20190912_211035 Game file version("ver01_rel01")
+ 20190912_211035 end of game 38   0.03
+ 20190912_211035 Starting New Game
+ 20190912_211035 Game file version("ver01_rel01")
+ 20190912_211035 end of game 39   0.03
+ 20190912_211035 Starting New Game
+ 20190912_211036 Game file version("ver01_rel01")
+ 20190912_211036 end of game 40   0.02
+ 20190912_211036 Starting New Game
+ 20190912_211036 Game file version("ver01_rel01")
+ 20190912_211036 end of game 41   0.03
+ 20190912_211036 Starting New Game
+ 20190912_211036 Game file version("ver01_rel01")
+ 20190912_211036 end of game 42   0.02
+ 20190912_211036 Starting New Game
+ 20190912_211036 Game file version("ver01_rel01")
+ 20190912_211036 end of game 43   0.03
+ 20190912_211036 Starting New Game
+ 20190912_211037 Game file version("ver01_rel01")
+ 20190912_211037 end of game 44   0.03
+ 20190912_211037 Starting New Game
+ 20190912_211037 Game file version("ver01_rel01")
+ 20190912_211037 end of game 45   0.04
+ 20190912_211037 Starting New Game
