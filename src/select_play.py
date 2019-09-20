@@ -1055,7 +1055,7 @@ class SelectPlay:
         SlTrace.lg("auto_play player: %s" % self.get_player(), "player_trace")
         self.trace_scores("auto_play:")
         legal_moves = self.get_legal_moves()
-        if len(legal_moves) == 0:
+        if legal_moves.number() == 0:
             self.end_game("No more moves!")
             return False
         SlTrace.lg("auto_play player: %s" % self.get_player(), "player_trace")
@@ -1121,26 +1121,17 @@ class SelectPlay:
         LEVEL_NO_GIVE_SQUARE = 2        # Provide possible square to next play
         legal_moves = self.get_legal_moves()
         if level >= LEVEL_SQUARE:
-            squares = []
-            square_moves = []
-            for move in legal_moves:
-                if self.is_square_complete(move, squares, ifadd=True):
-                    square_moves.append(move)
-            if len(square_moves) > 0:
-                nr = random.randint(0, len(square_moves)-1)
-                next_move = square_moves[nr]
+            square_moves = self.get_square_moves(legal_moves)
+            if square_moves.number() > 0:
+                next_move = square_moves.rand_obj()
                 self.new_edge(next_move)
                 SlTrace.lg("positive play move for %s: %s" % (player, next_move), "play_strategy")
                 return
 
         if level >= LEVEL_NO_GIVE_SQUARE:
-            safe_square_moves = []
-            for move in legal_moves:
-                if self.square_complete_distance(move) > 2:
-                    safe_square_moves.append(move)  # One move 
-            if len(safe_square_moves) > 0:
-                nr = random.randint(0, len(safe_square_moves)-1)
-                next_move = safe_square_moves[nr]
+            safe_square_moves = self.get_square_distance_moves(min_dist=2, move_list=legal_moves)
+            if safe_square_moves.number() > 0:
+                next_move = safe_square_moves.rand_obj()
                 self.new_edge(next_move)
                 SlTrace.lg("positive play safe move for %s: %s" % (player, next_move), "play_strategy")
                 return
@@ -1193,15 +1184,31 @@ class SelectPlay:
         if player is None:
             player = self.get_player()
         legal_moves = self.get_legal_moves()
-        nr = random.randint(0, len(legal_moves)-1)
-        next_move = legal_moves[nr]
+        next_move = legal_moves.rand_obj()
         self.new_edge(next_move)
         
         
-    def get_legal_moves(self, ):
+    def get_legal_moves(self):
         return self.board.get_legal_moves()
-        
-        
+
+
+    def get_num_legal_moves(self):
+        return self.board.get_num_legal_moves()
+
+
+    def get_square_moves(self, moves):
+        """ Get, from moves, those which would complete a square
+        :moves: move list default: all legal moves
+        """
+        return self.board.get_square_moves(moves)
+
+
+    def get_square_distance_moves(self, min_dist=2, move_list=None):
+        """ Get moves which provide a minimum distance to sqaree completion
+        """
+        return self.board.get_square_distance_moves(min_dist=min_dist, move_list=move_list)
+    
+    
     def start_move(self):
         """ Start move
         :returns: True iff move has been made, and next move is coming
@@ -1209,8 +1216,8 @@ class SelectPlay:
         if not self.run:
             return False
         
-        legal_moves = self.get_legal_moves()
-        if len(legal_moves) == 0:
+
+        if self.get_num_legal_moves() == 0:
             SlTrace.lg("NO more legal moves!", "nolegalmoves")
             ###return False       
         

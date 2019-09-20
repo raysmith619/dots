@@ -282,7 +282,7 @@ class PlayerControl(SelectControlWindow):
         :play_level: comma separated string of playing player's Labels
         """
         players = self.get_players(all=True)
-        play_levels = [x.strip() for x in playing.split(',')]
+        play_levels = [x.strip() for x in play_level.split(',')]
         def_level = "2"
         if len(play_levels) == 0:
             SlTrace.lg("Setting to default level: {}".format(def_level)) 
@@ -296,8 +296,9 @@ class PlayerControl(SelectControlWindow):
                 player_level = play_levels[-1]  # Use last level
             plevel = int(player_level)
             playing_var = player.ctls_vars["level"]
+            player.level = plevel
             playing_var.set(plevel)
-
+            SlTrace.lg("Setting {} play level to {:d}".format(player, plevel))
 
     def set_playing(self, playing=None):
         """ Set players playing via

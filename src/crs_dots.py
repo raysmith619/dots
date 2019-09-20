@@ -31,6 +31,7 @@ from sc_score_window import ScoreWindow
 from dots_game_file import DotsGameFile
 
 history = "shadow_get_legal_moves"       # History of program
+history += ", MoveList"                 # Use of MoveList object 
 rF = None                   # Games Results file if any
 loop_no = 0                 # Label loop number, starting at 1
 sp = None

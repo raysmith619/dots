@@ -12,116 +12,7 @@ from select_part import SelectPart
 from select_region import SelectRegion
 from select_edge import SelectEdge
 from canvas_tracked import CanvasTracked
-import numpy as np
-
-
-"""
-Dots Square / Edge numbering
-Squares are numbered row, col starting at 1,1 in upper left
-Edges, bordering a square are numbered as follows:
-
-    Lve_row = sq_row          (Left vertical edge)
-    Lve_col = sq_col
-    
-    Rve_row = sq_row          (Right vertical edge)
-    Rve_col = sq_col + 1
-     
-    The_row = sq_row          (Top horizontal edge)
-    The_col = sq_col
-    
-    Bhe_row = sq_row + 1      (Botom horizontal edge)
-    Bhe_col = sq_col
-
-"""
-class DotsShadow:
-    """ Shadow of Dots structure to facilitate testing speed when display is not required
-    """
-    def __init__(self, nrows=None, ncols=None):
-        self.nrows = nrows
-        self.ncols = ncols
-        self.squares = np.zeros([nrows, ncols])
-        self.lines = np.zeros([nrows+1, ncols+1, 2])     # row, col, [horiz=0, vert=1]
-
-        self.squares_obj =  np.zeros([nrows, ncols], dtype=SelectRegion)
-        self.lines_obj = np.zeros([nrows+1, ncols+1, 2], dtype=SelectEdge)     # row, col, [horiz=0, vert=1]
-        self.nopen_line = nrows*(ncols+1)
-
-
-    def get_legal_moves(self):
-        """ Return list of legal moves
-        Initially we will minimize changes by returning a list compatible with
-        the current SelectDots.get_legal_moves
-        """
-        legals = []
-        for nr in range(0, self.nrows+1):
-            for nc in range(0, self.ncols+1):
-                if nc < self.ncols:
-                    if self.lines[nr, nc, 0] == 0:
-                        legals.append(self.lines_obj[nr, nc, 0])    # Horizontal till last
-                
-                if nr < self.nrows:
-                    if self.lines[nr, nc, 1] == 0:
-                        legals.append(self.lines_obj[nr, nc, 1])    # Vertical till last row
-        return legals
-    
-        
-
-
-    def set_part(self, part):
-        """ Add reference to actual part for reference / conversion
-        :part: Part to add to shadow
-        """
-        row = part.row 
-        col =  part.col
-        if part.is_region():
-            self.squares_obj[row-1,col-1] = part 
-        elif part.is_edge():
-            if part.sub_type() == 'h':
-                self.lines_obj[row-1, col-1, 0] = part
-            elif part:
-                self.lines_obj[row-1, col-1, 1] = part
-
-    def turn_on(self, part=None, player=None, move_no=None):
-        """ Shadow part turn on operation to facilitate speed when display is not required
-        :part: part to turn on
-        :player: who made operation
-        :move_no: current move number
-        """
-        pn = player.play_num
-        row = part.row 
-        col = part.col
-        sub_type = part.sub_type()
-        if part.is_edge():
-            if sub_type == 'h':
-                self.lines[row-1, col-1, 0] = pn
-            else:
-                self.lines[row-1, col-1, 1] = pn
-        elif part.is_region():
-            self.squares[row-1, col-1] = pn
-        else:
-            raise SelectError("turn_on Can't shadow part type {} at row={:d} col={;d}"
-                              .format(part, row, col))
-
-    def turn_off(self, part=None):
-        """ Shadow part turn on operation to facilitate speed when display is not required
-        :part: part to turn on
-        :player: who made operation
-        :move_no: current move number
-        """
-        row = part.row 
-        col = part.col
-        sub_type = part.sub_type()
-        if part.is_edge():
-            if sub_type == 'h':
-                self.lines[row-1, col-1, 0] = 0
-            else:
-                self.lines[row-1, col-1, 1] = 0
-        elif part.is_region():
-            self.squares[row-1, col-1] = 0
-        else:
-            raise SelectError("turn_off Can't shadow part type {} at row={:d} col={;d}"
-                              .format(part, row, col))
-
+from dots_shadow import DotsShadow
 
 class SelectDots(object):
     """
@@ -217,7 +108,7 @@ class SelectDots(object):
         """ Setup shadow which can be used to speedup testing
         if display or immediate display is not required
         """
-        self.shadow = DotsShadow(nrows=self.nrows, ncols=self.ncols)
+        self.shadow = DotsShadow(self, nrows=self.nrows, ncols=self.ncols)
             
         
             
@@ -357,13 +248,23 @@ class SelectDots(object):
         """  Get edges that would be legal moves
         """
         return self.shadow.get_legal_moves()
-    
-        edges = self.get_parts(pt_type="edge")
-        moves = []
-        for edge in edges:
-            if not edge.is_turned_on():
-                moves.append(edge)
-        return moves
+
+
+    def get_square_moves(self, moves):
+        """ Get, from moves, those which would complete a square
+        :moves: move list default: all legal moves
+        """
+        return self.shadow.get_square_moves(moves)
+
+
+    def get_num_legal_moves(self):
+        return self.shadow.get_num_legal_moves()
+
+
+    def get_square_distance_moves(self, min_dist=2, move_list=None):
+        """ Get moves which provide a minimum distance to sqaree completion
+        """
+        return self.shadow.get_square_distance_moves(min_dist=min_dist, move_list=move_list)
     
     
     def get_selects(self):
