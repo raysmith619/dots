@@ -311,7 +311,9 @@ class SelectRegion(SelectPart):
             
             
         return c1x,c1y,c3x,c3y
+
     
+
     def highlight(self):
         """ Highlight and display
         """

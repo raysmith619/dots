@@ -653,7 +653,8 @@ class SelectPart(object):
         No display done here
         """
         prev_color = self.get_color()
-        self.color = color        
+        self.color = color
+        self.on_color = self.off_color = color        
         return prev_color
 
     def set_node(self, index, node):
@@ -830,6 +831,44 @@ class SelectPart(object):
                     track_rec_id, track_track_no, track_stack = track
                     SlTrace.lg("Delete uncleared section %d %d" % (track_rec_id, track_track_no))
                     self.sel_area.canvas.delete(track_rec_id)
+
+ 
+    def draw_outline(self, color=None, width=None):
+        """ Draw outline of part
+        :sq: part
+        :color: color default: "blue"
+        """
+        if color is None:
+            color = "blue"
+        if width is None:
+            width = 2
+        pts = self.get_rect_points()
+        pts.append(pts[0])                 # Complete square
+        pts.append(pts[1])                 # Round off last corner
+        coords = []
+        for pt in pts:
+            coords.append(pt[0])
+            coords.append(pt[1])
+        canvas = self.sel_area.canvas
+        canvas.create_line(coords, fill=color, width=width)
+
+
+    
+    
+    def get_rect_points(self, sz_type=None, enlarge=False):
+        """ Get ordered points of rect p1,p2,p3,p4
+        :sz_type: type of rect 
+        :enlarge: true - enlarge
+        :returns: list of p1,p2,p3,p4 (x,y) tuples
+        """
+        rect = self.get_rect(sz_type=sz_type, enlarge=enlarge)
+        x1, y1, x3, y3 = rect
+        p1 = (x1,y1)
+        p2 = (x3,y1)
+        p3 = (x3,y3)
+        p4 = (x1,y3)
+        return [p1,p2,p3,p4]
+            
 
 
     def get_tracked(self, start=None):
@@ -1175,6 +1214,13 @@ class SelectPart(object):
         return points
     
     
+    def get_center(self, sz_type=None, enlarge=False):
+        """ Get center, distance to right/left, distance to top/bottom
+        """
+        cx, cy, _, _ = self.get_center_size(sz_type=sz_type, enlarge=enlarge)
+        return (cx, cy)
+    
+    
     def get_center_size(self, sz_type=None, enlarge=False):
         """ Get center, distance to right/left, distance to top/bottom
         """
@@ -1447,7 +1493,12 @@ class SelectPart(object):
             if edge.is_below(botom_edge):
                 botom_edge = edge
         return botom_edge        
-        
+
+    def get_col(self):
+        return self.col
+    
+    def get_row(self):
+        return self.row
         
     def get_right_edge(self):
         """ Get rightmost edge

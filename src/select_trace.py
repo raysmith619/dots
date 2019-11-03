@@ -198,7 +198,7 @@ class SlTrace:
 
 
     @classmethod
-    def lg(cls, msg="", trace_flag=None, level=1, to_stdout=True):
+    def lg(cls, msg="", trace_flag=None, level=1, to_stdout=True, dp=0):
         """
         Log string to file, and optionally to console STDOUT display is based on
         trace info
@@ -208,6 +208,7 @@ class SlTrace:
                    - when to trace - None - always
         @param level
                    - level to trace - default 1
+        @param dp decimal points in timestamp seconds
         @throws IOException
        
         @throws IOException
@@ -223,13 +224,18 @@ class SlTrace:
             print("IOException in lg setupLogging")
             return
  
-        ts = cls.getTs()
+        ts = cls.getTs(dp=dp)
         if to_stdout:
             prefix = ""
             if cls.stdOutHasTs:
                 prefix += " " + ts
-            print(prefix + " " + msg)
-            sys.stdout.flush()   # Force output
+            try:
+                print(prefix + " " + msg)
+                sys.stdout.flush()   # Force output
+            except:
+                print("Unexpected error:", sys.exc_info()[0])
+                raise
+            
         if cls.logWriter is None:
             print("Can't write to log file")
             return
@@ -240,7 +246,8 @@ class SlTrace:
             cls.logWriter.flush()    # Force output
         except IOError as e:
             print("IOError in lg write %s" % str(e))
-            
+        except:
+            print("Unexpected error:", sys.exc_info()[0])   
 
 
     """
@@ -587,6 +594,9 @@ class SlTrace:
                    - property key
         ###@return property value, "" if none
         """
+        if cls.defaultProps is None:
+            cls.setupLogging()
+            cls.setProps()
         return cls.defaultProps.getProperty(key, "")
 
 

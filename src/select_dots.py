@@ -33,12 +33,14 @@ class SelectDots(object):
                   check_mod=None,
                   down_click_call=None,
                   highlight_limit=None,
+                  highlighting=True,
                   corner_visible=True,
                   corner_width=10,
                   region_on_color='',
                   ###region_off_color='light slate gray',
                   region_off_color='',
                   region_visible=False,
+                  region_width=0,
                   edge_width=8,
                   edge_visible=True):
         """
@@ -60,6 +62,8 @@ class SelectDots(object):
         :region_visible: region (off) is visible default: False
         :highlight_limit: limit highlighting (seconds)
                 default: None (None - no limit)
+        :highlighting: True - highlight part under mouse
+                    Default: True
         :edge_width: edge width in pixels
                         default:1
         :edge_visible: edge visible default: True
@@ -90,8 +94,10 @@ class SelectDots(object):
         self.check_mod = check_mod
         self.tbmove = tbmove
         self.highlight_limit = highlight_limit
+        self.highlighting = highlighting
         
         self.down_click_call = down_click_call
+        self.region_width=region_width
         self.region_on_color = region_on_color
         self.region_off_color = region_off_color
         self.region_visible = region_visible
@@ -133,7 +139,8 @@ class SelectDots(object):
                                stroke_checking=self.stroke_checking,
                                check_mod=self.check_mod,
                                down_click_call=self.down_click_call,
-                               highlight_limit=self.highlight_limit)
+                               highlight_limit=self.highlight_limit,
+                               highlighting=self.highlighting)
         
         rects =  []
         rects_rows = []         # So we can pass row, col
@@ -184,6 +191,7 @@ class SelectDots(object):
                             off_color=self.region_off_color,   
                             invisible_region=not self.region_visible,
                             invisible_edge=not self.edge_visible,
+                            region_width=self.region_width,
                             edge_width=self.edge_width)
         ####if not self.display_game:
         ####    return
@@ -430,7 +438,23 @@ class SelectDots(object):
         if self.canvas is not None:
             self.canvas.destroy()
             self.canvas = None
-    
+
+
+
+    def draw_line(self, p1, p2, color=None, width=None, **kwargs):
+        """ Draw line between two points on canvas
+        :p1: point x,y canvas coordinates
+        :p2: point x,y canvas coordinates
+        :color: line color default: red
+        :width: line width in pixels default:1
+        :kwargs: keyword args passed to tk
+        """
+        self.area.draw_line(p1, p2, color=color, width=width, **kwargs)
+
+ 
+    def draw_outline(self, sq, color=None, width=None):
+        self.area.draw_outline(sq=sq, color=color, width=width)
+        
 
     def remove_parts(self, parts):
         """ Remove deleted or changed parts

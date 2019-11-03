@@ -324,6 +324,9 @@ class DotsShadow:
         :player: who made operation
         :move_no: current move number
         """
+        if player is None:
+            return              # Short circuit if no player
+        
         pn = player.play_num
         row = part.row 
         col = part.col

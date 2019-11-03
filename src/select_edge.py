@@ -416,11 +416,13 @@ class SelectEdge(SelectPart):
         c1x,c1y,c3x,c3y = SelectLoc.order_ul_lr(c1x,c1y,c3x,c3y)
         """ Leave room at each end for corner """
         corner1 = self.get_corner(c1x, c1y)
-        if corner1 is None:
-            SlTrace.lg("None corner1")
-        _, _, corner1_xsize, corner1_ysize = corner1.get_center_size()
-        corner3 = self.get_corner(c3x, c3y)
-        corner3_x, corner3_y, corner3_xsize, corner3_ysize = corner3.get_center_size()
+        if corner1 is not None:
+            _, _, corner1_xsize, corner1_ysize = corner1.get_center_size()
+            corner3 = self.get_corner(c3x, c3y)
+            _, _, corner3_xsize, corner3_ysize = corner3.get_center_size()
+        else:
+            corner1_xsize = corner1_ysize = 0
+            corner3_xsize = corner3_ysize = 0
         dir_x, dir_y = self.edge_dxy()
         wlen = self.get_edge_width(sz_type)/2
         if dir_y != 0:          # Check if in y direction
@@ -456,7 +458,7 @@ class SelectEdge(SelectPart):
         min_distance = None
         corners = self.get_corners()
         if not corners:
-            SlTrace.lg("No corners")
+            SlTrace.lg("No corners", "no_corners")
         for corner in corners:
             if min_corner is None or corner.distance(cx,cy) < min_distance:
                 min_corner = corner
