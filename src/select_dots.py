@@ -5,6 +5,8 @@ Created on Oct 30, 2018
 Creation and Manipulation of the grid (dots and squares)
 of the old dots game
 """
+from tkinter import *
+
 from select_trace import SlTrace
 from select_error import SelectError
 from select_area import SelectArea
@@ -130,7 +132,7 @@ class SelectDots(object):
         self.canvas = CanvasTracked(self.frame,
                  width=self.width, height=self.height,
                  bg="white")
-        self.canvas.pack()
+        self.canvas.pack(expand=YES, fill=BOTH)
         
         self.area = SelectArea(self.canvas, mw=self.mw,
                                board=self,
@@ -448,8 +450,9 @@ class SelectDots(object):
         :color: line color default: red
         :width: line width in pixels default:1
         :kwargs: keyword args passed to tk
+        :returns: canvas line object
         """
-        self.area.draw_line(p1, p2, color=color, width=width, **kwargs)
+        return self.area.draw_line(p1, p2, color=color, width=width, **kwargs)
 
  
     def draw_outline(self, sq, color=None, width=None):

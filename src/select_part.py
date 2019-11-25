@@ -686,8 +686,8 @@ class SelectPart(object):
         :y: - y location of letter's center
                 default: dot's center
         :color: text color, default: black
-        :height: height of text, default: just fits in dot
-        :width: width of text, default: just fits in dot
+        :height: height of text, in pixels, default: just fits in dot
+        :width: width of text, in pixels, default: just fits in dot
         :display: True display dot default: do display
         """
         self.clear_centered_texts()
@@ -717,6 +717,9 @@ class SelectPart(object):
         text = ct.text 
         x = ct.x 
         y = ct.y
+        font_name = ct.font_name
+        if font_name is None:
+            font_name = 'Helvetica'
         color = ct.color
         height = ct.height
         color_bg = ct.color_bg
@@ -724,10 +727,11 @@ class SelectPart(object):
         
         """ Add letter in center of dot
         :text: letter (or string) to add
-        :x: - x location of letter's center
+        :x: - x location of letter's center relative to dot's center
                 default: dot's center
-        :y: - y location of letter's center
+        :y: - y location of letter's center relative to dot's center
                 default: dot's center
+        :font_name: font name default:Helvetica 
         :color: text color, default: black
         :height: height of text, default: just fits in dot
         """
@@ -737,8 +741,12 @@ class SelectPart(object):
         cx, cy, ctoright, ctotop = self.get_center_size()
         if x is None:
             x = cx
+        else:
+            x += cx
         if y is None:
             y = cy
+        else:
+            y += cy
         if color is None:
             color = "black"
         if height is None:
@@ -751,7 +759,7 @@ class SelectPart(object):
         text_height = height
         if len(text) > 1:
             text_height = height*1.4/len(text)
-        text_font = font.Font(family='Helvetica', size=-int(text_height))
+        text_font = font.Font(family=font_name, size=-int(text_height))
         if ct.text_bg_tag is not None:
             self.sel_area.canvas.delete(ct.text_bg_tag)
             ct.text_bg_tag = None
@@ -786,8 +794,8 @@ class SelectPart(object):
             self.blinker.stop()
             self.blinker = None
             
-        if not self.connecteds:
-            SlTrace.lg("display_clear no connecteds %s" % self)
+        ###if not self.connecteds:
+        ###    SlTrace.lg("display_clear no connecteds %s" % str(self))
         self.clear_display_multi_tags()
         if self.display_tag is not None:   # leave alone if highlighted
             if isinstance(self.display_tag, list):
@@ -1536,6 +1544,7 @@ class SelectPart(object):
             
 
     def add_centered_text(self, text, x=None, y=None,
+                          font_name=None,
                           color=None, color_bg=None,
                           height=None, width=None, display=True):
         """ Add letter in center of dot
@@ -1544,12 +1553,14 @@ class SelectPart(object):
                 default: dot's center
         :y: - y location of letter's center
                 default: dot's center
+        :font_name: font family name
         :color: text color, default: black
         :height: height of text, default: just fits in dot
         :width: width of text, default: just fits in dot
         :display: True display dot default: do display
         """
         centered_text = CenteredText(self, text, x=x, y=y,
+                                     font_name=font_name,
                                      color=color, color_bg=color_bg,
                                      height=height, width=width)
         self.centered_text.append(centered_text)

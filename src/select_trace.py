@@ -234,7 +234,6 @@ class SlTrace:
                 sys.stdout.flush()   # Force output
             except:
                 print("Unexpected error:", sys.exc_info()[0])
-                raise
             
         if cls.logWriter is None:
             print("Can't write to log file")

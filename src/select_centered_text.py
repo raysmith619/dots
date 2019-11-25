@@ -7,16 +7,19 @@ class CenteredText:
     """ Contents for text placed inside a region
     """
     def __init__(self, part, text, x=None, y=None,
+                    font_name=None,
                     color=None, color_bg=None,
                     height=None, width=None):
         """ Setup instance of centered text
         :part: in which centered text is placed
         :text: text string to place
+        :font: font name
         """
         self.part = part
         self.text = text
         self.x = x
         self.y = y
+        self.font_name = font_name
         self.color = color
         self.color_bg = color_bg
         self.height = height
@@ -30,7 +33,13 @@ class CenteredText:
         """
         st = self.text
         if self.x is not None or self.y is not None:
-            st += " at:x=%d y=%d" (self.x, self.y)
+            if self.x is None:
+                self.x = 0
+            if self.y is None:
+                self.y = 0
+            st += f" at:x={self.x} y={self.y}"
+        if self.font_name is not None:
+            st += f" font={self.font_name}"
         if self.color is not None:
             st += " %s" % self.color
         if self.color_bg is not None: 

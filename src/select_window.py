@@ -31,6 +31,7 @@ class SelectWindow(Frame):
                  pgmExit=None,
                  cmd_proc=False,
                  cmd_file=None,
+                 arrange=None,
                  arrange_selection=True,
                  game_control=None,
                  games=[],          # text, proc pairs
@@ -49,6 +50,9 @@ class SelectWindow(Frame):
         if control_prefix is None:
             control_prefix = SelectWindow.CONTROL_NAME_PREFIX
         self.control_prefix = control_prefix
+        self.arrange = arrange
+        if arrange is not None:
+            arrange_selection = False
         self.arrange_selection = arrange_selection
         self.pgmExit = pgmExit
         self.game_control = game_control
@@ -91,9 +95,11 @@ class SelectWindow(Frame):
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=self.pgmExit)
         menubar.add_cascade(label="File", menu=filemenu)
-
-                                # Arrange control - optoinal
-        if self.arrange_selection:
+        if self.arrange is not None:         # Explicit arrange control cmd
+            menubar.add_command(label="Arrange",
+                                 command=self.arrange)
+                            
+        elif self.arrange_selection:    # Arrange control - optoinal
             menubar.add_command(label="Arrange",
                                  command=self.arrange_control)
 

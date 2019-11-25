@@ -38,9 +38,11 @@ class SelectArea(object):
                 board=None,
                 display_game=True,
                 image=None, rects=None,
+                region_width=0,
                 show_moved=False, show_id=False,
                 stroke_checking=False,
                 highlight_limit=None,
+                highlighting=True,
                 check_mod=None,
                 down_click_call=None,
                 tbmove=.1,
@@ -52,12 +54,15 @@ class SelectArea(object):
         :board: playing board (SelectDots)
         :display_game: avoid display if False to minimize delays
                     default: True
+        :highlighting: True highlight parts if mouse over
+                        default: True
         :image: displayed in frame    Not necessary/used
         :rects: single, or list of Rectangles (upper left x,y), (lower right x,y)
                 each being a region
                 Default is no rectangles
         :highlight_limit: Limt higlighting to time (seconds)
                 Default: no time limit
+        :region_width: region boundary width
         :stroke_checking:  True-> check for stroking mouse/hand Default: False
         :check_mod: called, if present, before and after part is modified
         :down_click_call: processes down clicks if present'
@@ -78,6 +83,7 @@ class SelectArea(object):
                  (pt1 (upper right), pt2 (lower right)
         """
         self.image = image
+        self.region_width = region_width
         if mw is None:
             mw = tk.Tk()
             mw.withdraw()       # Hide main window
@@ -91,7 +97,8 @@ class SelectArea(object):
     
         self.check_mod = check_mod
         self.tbmove = tbmove
-        self.highlight_limit = highlight_limit                        
+        self.highlight_limit = highlight_limit
+        self.highlighting = highlighting                        
         self.show_id = show_id
         self.show_moved = show_moved
         self.record_md = SelectMoveDisplay(self, show_moved=show_moved)
@@ -148,10 +155,13 @@ class SelectArea(object):
                 draggable_region=True,   
                 invisible_region=False,
                 invisible_edge=False,
+                region_width=None,
                 edge_width=8,
                 invisible_corner=False):
         """ Add rectangle to object as another region
-        """                
+        """
+        if region_width is None:
+            region_width = self.region_width                
         rec_ps = [None] * 4
         ulX, ulY = rect[0][0], rect[0][1]
         lrX, lrY = rect[1][0], rect[1][1]
@@ -162,6 +172,7 @@ class SelectArea(object):
                         invisible=invisible_region,
                         edge_width=edge_width,
                         edge_visible=not invisible_edge,
+                        region_width=region_width,
                         on_color=on_color,
                         off_color=off_color,
                         color=color, row=row, col=col)
@@ -762,6 +773,24 @@ class SelectArea(object):
                               part), "highlight")
                     
 
+    def draw_line(self, p1, p2, color=None, width=None, **kwargs):
+        """ Draw line between two points on canvas
+        :p1: point x,y canvas coordinates
+        :p2: point x,y canvas coordinates
+        :color: line color default: red
+        :width: line width in pixels default:2
+        :returns: canvas line object
+        """
+        if color is None:
+            color = "red"
+        if width is None:
+            width = 2
+        canvas = self.canvas
+        return canvas.create_line(p1[0], p1[1], p2[0], p2[1], fill=color, width=width, **kwargs)
+
+ 
+    def draw_outline(self, sq, color=None, width=None):
+        sq.draw_outline(color=color, width=width)
     
     
     def motion (self, event):
@@ -872,7 +901,8 @@ class SelectArea(object):
                         SlTrace.lg("motion on(%s) at xy=(%d,%d) by xinc=%d yinc=%d"
                                % (part.part_type, x,y, xinc, yinc), "motion")
                         self.move_part(part, xinc, yinc)
-                        self.highlight_set(part)
+                        if self.highlighting:
+                            self.highlight_set(part)
                     self.record_move_display()
         parts = self.get_parts_at(x,y, sz_type=SelectPart.SZ_SELECT)        # NOTE: this is reference
         if len(parts) > 0:
@@ -882,17 +912,20 @@ class SelectArea(object):
                 for pa in parts:
                     SlTrace.lg("part: %s" % pa, "motion")
                 SlTrace.lg("", "motion")
-            self.highlight_clear()              # First clear all highlighted parts
+            if self.highlighting:
+                self.highlight_clear()              # First clear all highlighted parts
             for part in parts:
                 if not part.is_region():
                     SlTrace.lg("motion over %s" % part, "is_over")
                 if SlTrace.trace("part_info_over"):
                     part.display_info(tag="over:")
-                self.highlight_set(part, xy=(x,y))
+                if self.highlighting:
+                    self.highlight_set(part, xy=(x,y))
                 self.stroke_check(part, x=x, y=y)
         else:
-            if self.has_highlighted():    
-                self.highlight_clear()
+            if self.highlighting:
+                if self.has_highlighted():    
+                    self.highlight_clear()
             
             
     def highlight_set(self, part, xy=None,
@@ -1442,9 +1475,9 @@ if __name__ == "__main__":
             
     im = Image.new("RGB", (width, height))
     frame = Frame(width=width, height=height, bg="", colormap="new")
-    frame.pack()
+    frame.pack(expand=YES, fill=BOTH)
     canvas = Canvas(frame, width=width, height=height)
-    canvas.pack()   
+    canvas.pack(expand=YES, fill=BOTH)   
     sr = SelectArea(canvas, image=im, rects=rects,
                       show_moved=show_moved, show_id=show_id)
     sr.display()
