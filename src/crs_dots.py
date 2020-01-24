@@ -10,6 +10,7 @@ import traceback
 from tkinter import *    
 import argparse
 import cProfile, pstats, io         # profiling support
+import objgraph
 
 import  gc
 import tracemalloc

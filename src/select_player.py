@@ -1,5 +1,6 @@
 # select_player.py
 import copy
+import re
 
 from select_error import SelectError
 from select_trace import SlTrace
@@ -66,9 +67,13 @@ class SelectPlayer:
             SelectPlayer.id += 1
             id = SelectPlayer.id
         self.id = id
+        if name is None:
+            name =str(id)
         self.name = name
         if label is None:
-            if self.name is not None:
+            if re.match(r'^\d+$', name):
+                label = name
+            else:
                 label = self.name[0]
         self.label = label
         self.playing = playing

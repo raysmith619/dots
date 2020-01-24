@@ -579,7 +579,7 @@ class SelectPlay:
     
     def show_score_window(self):
                
-        if not self.sel_area.display_game:
+        if not self.display_game:
             return
 
         if self.mw is None:

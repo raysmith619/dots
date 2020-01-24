@@ -29,6 +29,8 @@ class SelectWindow(Frame):
                  title=None,
                  control_prefix=None,
                  pgmExit=None,
+                 file_open=None,
+                 file_save=None,                 
                  cmd_proc=False,
                  cmd_file=None,
                  arrange=None,
@@ -47,6 +49,8 @@ class SelectWindow(Frame):
         #reference to the master widget, which is the tk window                 
         self.title = title
         self.master = master
+        self.file_open = file_open
+        self.file_save = file_save
         if control_prefix is None:
             control_prefix = SelectWindow.CONTROL_NAME_PREFIX
         self.control_prefix = control_prefix
@@ -84,9 +88,15 @@ class SelectWindow(Frame):
         self.master.config(menu=menubar)
 
         # create the file object)
+        file_open_cmd = self.file_open
+        if file_open_cmd is None:
+            file_open_cmd = self.File_Open_tbd
         filemenu = Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Open", command=self.File_Open_tbd)
-        filemenu.add_command(label="Save", command=self.File_Save_tbd)
+        filemenu.add_command(label="Open", command=file_open_cmd)
+        file_save_cmd = self.file_save
+        if file_save_cmd is None:
+            file_save_cmd = self.File_Save_tbd
+        filemenu.add_command(label="Save", command=file_save_cmd)
         filemenu.add_separator()
         filemenu.add_command(label="Log", command=self.LogFile)
         filemenu.add_command(label="Properties", command=self.Properties)
@@ -381,7 +391,14 @@ if __name__ == "__main__":
     def user_exit():
         print("user_exit")
         exit()
-        
+    
+    def user_file_open():
+        print("user_file_open")
+    
+    def user_file_save():
+        print("user_file_save")
+            
+            
     SlTrace.setProps()
     SlTrace.setFlags("flag1=1,flag2=0,flag3=1,flag4=0, flag5=1, flag6=1")
         
@@ -391,6 +408,9 @@ if __name__ == "__main__":
     app = SelectWindow(mw,
                     title="select_window Testing",
                     pgmExit=user_exit,
+                    arrange_selection=False,
+                    file_open = user_file_open,
+                    file_save = user_file_save,
                     )
     
 

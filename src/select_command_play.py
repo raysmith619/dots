@@ -318,13 +318,15 @@ class SelectCommandPlay(SelectCommand):
         for part_id in self.prev_selects:
             if part_id not in self.new_selects:
                 part = self.get_part(part_id)
-                part.select_clear()
+                if part is not None:
+                    part.select_clear()
                 self.set_changed(part_id)
         for part_id in self.new_selects:
             if part_id not in self.prev_selects:
                 part = self.get_part(part_id)
-                part.select_set()
-                self.set_changed(part_id)
+                if part is not None:
+                    part.select_set()
+                    self.set_changed(part_id)
 
             
     def display_update(self):

@@ -458,7 +458,7 @@ class SelectArea(object):
                 
         ordered = []
         for part in pts:
-            if part.is_region():
+            if part is not None and part.is_region():
                 ordered.append(part)
         for part in pts:
             if part.is_edge():

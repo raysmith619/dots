@@ -8,7 +8,12 @@ from select_trace import SlTrace
 from select_error import SelectError
 from select_control_window import SelectControlWindow            
 from sc_player_control import PlayerControl
-        
+
+class PlayerFields:
+    def __init__(self, player, widgets={}):
+        self.player = player
+        self.widgets = widgets
+                
 class ScoreWindow(SelectControlWindow):
     CONTROL_NAME_PREFIX = "score_control"
     DEF_WIN_X = 500
@@ -45,6 +50,7 @@ class ScoreWindow(SelectControlWindow):
         """ Initialize subclassed SelectControlWindow singleton
              Setup score /undo/redo window
         """
+        self.players = {}      # Keep track of players, fields in score board
         if title is None:
             title = "Game Control"
         if control_prefix is None:
@@ -52,6 +58,8 @@ class ScoreWindow(SelectControlWindow):
         if player_control is None:
             player_control = PlayerControl()
         self.player_control = player_control
+        if player_control is not None:
+            self.player_control.set_score_control(self)
         self.play_control = play_control
         self.show_ties = show_ties
         super()._init(*args, title=title, control_prefix=control_prefix,
@@ -63,7 +71,6 @@ class ScoreWindow(SelectControlWindow):
             self.col_infos = ScoreWindow.col_infos
         if self.display:
             self.control_display()    
-            
 
     def control_display(self):            
         """ display /redisplay controls to enable
@@ -94,17 +101,10 @@ class ScoreWindow(SelectControlWindow):
         headings_frame = Frame(scores_frame)
         headings_frame.pack()
         self.set_field_headings(headings_frame)
-        
+        self.players_frame = Frame(scores_frame)
+        self.players_frame.pack()
         for player in players:
-            player_frame = Frame(scores_frame)
-            player_frame.pack(side="top", fill="both", expand=True)
-            self.set_player_frame(player_frame, player, "name")
-            self.set_player_frame(player_frame, player, "label")
-            self.set_player_frame(player_frame, player, "score")
-            self.set_player_frame(player_frame, player, "played")
-            self.set_player_frame(player_frame, player, "wins")
-            if self.show_ties:
-                self.set_player_frame(player_frame, player, "ties")
+            self.add_player(player)
 
         
         bw = 5
@@ -124,7 +124,22 @@ class ScoreWindow(SelectControlWindow):
         ###self.setup_score_window(move_no_label=move_no_label)
         self.arrange_windows()
         self.mw.bind( '<Configure>', self.win_size_event)
-        ###self.update_window()
+        self.update_window()
+
+    def add_player(self, player):
+        if player.id in self.players:
+            return              # Only add first
+        
+        self.players[player.id] = PlayerFields(player)
+        player_frame = Frame(self.players_frame)
+        player_frame.pack(side="top", fill="both", expand=True)
+        self.set_player_frame(player_frame, player, "name")
+        self.set_player_frame(player_frame, player, "label")
+        self.set_player_frame(player_frame, player, "score")
+        self.set_player_frame(player_frame, player, "played")
+        self.set_player_frame(player_frame, player, "wins")
+        if self.show_ties:
+            self.set_player_frame(player_frame, player, "ties")
         
     
     def get_prop_key(self, name):
@@ -229,61 +244,68 @@ class ScoreWindow(SelectControlWindow):
 
     
             
-
+    def add_widget(self, player, field, widget):
+        """ add entries widget
+        :player: player
+        :field: field's name
+        """
+        widget.config({"fg":player.color, "bg":player.color_bg})
+        self.players[player.id].widgets[field] = widget
+        
     def set_player_frame_name(self, frame, player, value, width=None):
-        content = StringVar()
-        content.set(value)
+        content = player.ctls_vars["name"]
         val_entry = Entry(frame, textvariable=content, width=width)
+        self.add_widget(player, "name", val_entry)
+        ##val_entry.pack(side="left", fill="none", expand=True)
         val_entry.pack(side="left", fill="none", expand=True)
-        player.ctls["name"] = val_entry
-        player.ctls_vars["name"] = content
 
     def set_player_frame_label(self, frame, player, value, width=None):
-        content = StringVar()
-        content.set(value)
+        content = player.ctls_vars["label"]
         val_entry = Entry(frame, textvariable=content, width=width)
+        self.add_widget(player, "label", val_entry)
         val_entry.pack(side="left", fill="none", expand=True)
-        player.ctls["label"] = val_entry
-        player.ctls_vars["label"] = content
+
 
     def set_player_frame_score(self, frame, player, value, width=None):
-        content = IntVar()
-        content.set(value)
+        content = player.ctls_vars["score"]
         val_entry = Entry(frame, textvariable=content, width=width)
+        self.add_widget(player, "score", val_entry)
         val_entry.pack(side="left", expand=True)
-        player.ctls["score"] = val_entry
-        player.ctls_vars["score"] = content
 
     def set_player_frame_played(self, frame, player, value, width=None):
-        content = IntVar()
-        content.set(value)
+        content = player.ctls_vars["played"]
         val_entry = Entry(frame, textvariable=content, width=width)
+        self.add_widget(player, "played", val_entry)
         val_entry.pack(side="left", expand=True)
-        player.ctls["played"] = val_entry
-        player.ctls_vars["played"] = content
 
     def set_player_frame_wins(self, frame, player, value, width=None):
-        content = IntVar()
-        content.set(value)
+        content = player.ctls_vars["wins"]
         val_entry = Entry(frame, textvariable=content, width=width)
+        self.add_widget(player, "wins", val_entry)
         val_entry.pack(side="left", expand=True)
-        player.ctls["wins"] = val_entry
-        player.ctls_vars["wins"] = content
 
     def set_player_frame_ties(self, frame, player, value, width=None):
-        content = IntVar()
-        content.set(value)
+        content = player.ctls_vars["ties"]
         val_entry = Entry(frame, textvariable=content, width=width)
+        self.add_widget(player, "ties", val_entry)
         val_entry.pack(side="left", expand=True)
-        player.ctls["ties"] = val_entry
-        player.ctls_vars["ties"] = content
-        
+
+    def update_colors(self):
+        """ Update field colors
+        """
+        for window_player in self.players.values():
+            player = window_player.player
+            if player.playing:
+                wplayer = self.players[player.id]
+                widgets = wplayer.widgets
+                for widget in widgets.values():
+                    widget.config({"fg": player.color, "bg" : player.color_bg})
     
     def update_window(self):
         if self.mw is None:
             return
         
-        if self.move_no_label is not None:
+        if self.move_no_label is not None and self.play_control is not None:
             scmd = self.play_control.get_last_cmd()
             if scmd is None:
                 self.move_no_label.config(text="Start")
@@ -292,6 +314,8 @@ class ScoreWindow(SelectControlWindow):
                 self.move_no_label.config(text=move_no_str)
         players = self.player_control.get_players()
         for player in players:
+            if player.id not in self.players:
+                self.add_player(player)              # add if not present
             score_ctl_var = player.ctls_vars["score"]
             score = player.get_score()
             score_ctl_var.set(score)
@@ -304,7 +328,7 @@ class ScoreWindow(SelectControlWindow):
             wins = player.get_wins()
             wins_ctl_var.set(wins)
             SlTrace.lg("wins: %d %s" % (wins, player), "score")
-
+        ###self.update_colors()
 
     def update_score(self, move_no=None, players=None):
         """ Update score board
@@ -331,7 +355,7 @@ class ScoreWindow(SelectControlWindow):
                 wins = player.get_wins()
                 wins_ctl_var.set(wins)
                 SlTrace.lg("wins: %d %s" % (wins, player), "score")
-            
+        ###self.update_colors()    
         
         
     def undo_button(self):
