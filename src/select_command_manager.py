@@ -16,20 +16,29 @@ Command manager
 class SelectCommandManager:
     """ Manipulate command redo/undo
     """
-    def __init__(self, user_module, undo_len=100):
+    def __init__(self, user_module, undo_micro_move=None, undo_len=100):
         """ Setup command processing (undo/redo
         :user_module: module which desires command undo/redo
+        :undo_micro_move: Undo each micro move not just user move
+                    default: undo each user move
         :undo_len: maximum undo length
         """
         self.cmd_num = 0
         self.move_no = 0
 
         self.user_module = user_module
+        if undo_micro_move is None:
+            undo_micro_move = False
+        self.undo_micro_move = undo_micro_move
         self.undo_len = undo_len
         self.current_command = None
         self.command_stack = []         # Commands completed, which can be undone
         self.undo_stack = []            # Commands which have been undone, which can be redone
         self.changed = {}               # Changed since last display
+
+    def undo_micro_move_command(self, new_value):
+        self.undo_micro_move = new_value
+        SlTrace.lg(f"SelectCommandManager: New undo_micro_move: {new_value}")
 
     def next_cmd_no(self):
         """ Provide next unique command number
@@ -129,13 +138,19 @@ class SelectCommandManager:
         return False
 
     
-    def undo(self):
+    def undo(self, undo_micro_move=None):
         """ Undo commands till
             1. One found that can't undo
             2. One fails undo
-            3. A has_prompt completes
-            4. A command has undo_unit
+            3. if not undo_micro_move:
+                A has_prompt completes
+            4. if not undo_micro_move:
+                A command has undo_unit
+            :undo_micro_move: undo user moves and environment move
+                default: self.undo_micro_move (default: False)
         """
+        if undo_micro_move is None:
+            undo_micro_move = self.undo_micro_move
         SlTrace.lg("undo", "execute")
         while True:
             if not self.can_undo():
@@ -150,8 +165,9 @@ class SelectCommandManager:
                 SlTrace.lg("Undo failed")
                 return res
         
-            if cmd.undo_unit:
-                SlTrace.lg("undo_unit")
+            if undo_micro_move or cmd.undo_unit:
+                if cmd.undo_unit:
+                    SlTrace.lg("undo_unit")
                 return res
                 
             lud = self.get_last_command()
@@ -171,12 +187,14 @@ class SelectCommandManager:
             SlTrace.lg("undo till has_prompt", "execute")
             SlTrace.lg("undo till undo_unit", "execute")
      
-    def redo(self):
+    def redo(self, undo_micro_move=None):
         """ Redo commands till
             1. One found that can't redo
             2. One fails redo
             3. A has_prompt completes
         """
+        if undo_micro_move is None:
+            undo_micro_move = self.undo_micro_move
         SlTrace.lg("redo", "execute")
         self.cmd_undo_stack_print("redo undo_stack:", "execute_stack")
         while True:
@@ -194,8 +212,9 @@ class SelectCommandManager:
                 SlTrace.lg("Can't redo")
                 return res
         
-            if cmd.undo_unit:
-                SlTrace.lg("redo: undo_unit")
+            if undo_micro_move or cmd.undo_unit:
+                if cmd.undo_unit:
+                    SlTrace.lg("redo: undo_unit")
                 lud = self.undo_stack[-1]
                 if lud.has_prompt:
                     if lud.new_messages:
@@ -204,10 +223,8 @@ class SelectCommandManager:
                             lud.user_module.do_message(msg)
                     if SlTrace.trace("execute_undo_stack"):
                         self.cmd_undo_stack_print("undo stack AFTER redo")                        
-                    return res
                 return res
 
-                        
             SlTrace.lg("continue redo till an undo_unit", "execute")
     
     
@@ -230,7 +247,7 @@ class SelectCommandManager:
                 break
             self.command_stack.pop()
         if len(self.command_stack) < self.undo_len:    
-            self.command_stack.append(bcmd)
+            self.command_stack.append(bcmd.copy())
             self.cmd_stack_print("save_command", "execute_stack")
 
 

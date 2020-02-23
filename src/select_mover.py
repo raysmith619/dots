@@ -229,10 +229,12 @@ class SelectMover(object):
         self.sel_area.display(parts=parts)
         
 
-    def display_clear(self, handle):
+    def display_clear(self, handle, display=False):
         """ Clear display of this handle
+        :handle: part to clear
+        :display: update display after clearing default: no update
         """
-        self.sel_area.display_clear(handle)
+        self.sel_area.display_clear(handle, display=display)
 
 
 class SelectMoveDisplay():

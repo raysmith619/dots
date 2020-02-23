@@ -249,7 +249,7 @@ class SelectPart(object):
         new_copy.part_type = self.part_type
         new_copy.highlighted = self.highlighted
         new_copy.highlight_tag = self.highlight_tag
-        new_copy.display_multi_tags = self.display_multi_tags    # For parts with multiple sets of display tags
+        new_copy.display_multi_tags = copy.deepcopy(self.display_multi_tags)    # For parts with multiple sets of display tags
         new_copy.turned_on = self.turned_on
         new_copy.move_no = self.move_no
         new_copy.on_highlighting = self.on_highlighting     # allow highlighting if on
@@ -278,11 +278,11 @@ class SelectPart(object):
         if copy is None:
             copy = self
         if copy.part_id not in copy.sel_area.parts_by_id:
-            SlTrace.lg("part_check:%s part not in parts_by_id %s" % (prefix, copy))
+            SlTrace.lg(f"part_check:{prefix} part not in parts_by_id: {copy}")
         elif not copy.connecteds:
-            SlTrace.lg("part_check:%s display_clear no connecteds %s" % (prefix, copy))
+            SlTrace.lg(f"part_check:{prefix} display_clear no connecteds: {copy}")
         else:
-            SlTrace.lg("part_check:%s OK" % prefix, "part_check_ok")    
+            SlTrace.lg("part_check:{prefix}: OK", "part_check_ok")    
         
         
     def __init__(self, sel_area, part_type,
@@ -336,6 +336,7 @@ class SelectPart(object):
         :edge_visible: True edge is visible
                         default: True
         :check_mod: called, if present, before and after part is modified
+        :display_tracking: display (canvas) control
         :row: optional row number, generally 1 - n
         :col: optional col number, generally 1 - n
         """
@@ -346,6 +347,7 @@ class SelectPart(object):
         if "SelectArea" not in str_sel_area:
             raise SelectError("sel_area(%s) is not instance of SelectArea" % str_sel_area)
         self.sel_area = sel_area
+        self.board = sel_area.board     # point directly to board control
          
         if part_type is None:
             raise SelectError("SelectPart missing part_type")
@@ -761,71 +763,116 @@ class SelectPart(object):
             text_height = height*1.4/len(text)
         text_font = font.Font(family=font_name, size=-int(text_height))
         if ct.text_bg_tag is not None:
-            self.sel_area.canvas.delete(ct.text_bg_tag)
+            self.delete_tags(ct.text_bg_tag)
             ct.text_bg_tag = None
         c1x,c1y,c3x,c3y = self.get_rect()
-        ct.text_bg_tag = self.sel_area.canvas.create_rectangle(
+        text_bg_tag = self.sel_area.canvas.create_rectangle(
                                     c1x, c1y, c3x, c3y,
                                     fill=color_bg)
-
-        if ct.text_tag is not None:
-            self.sel_area.canvas.delete(ct.text_tag)
-            ct.text_tag = None
-        ct.text_tag = self.sel_area.canvas.create_text(ctext_x, ctext_y, font=text_font, text=text,
+        self.add_display_tags(text_bg_tag)
+        text_tag = self.sel_area.canvas.create_text(ctext_x, ctext_y, font=text_font, text=text,
                                                fill=color)
+        self.add_display_tags(text_tag)
+        
+    def clear_indicator_tags(self):
+        """ Clear any indicator display
+        """
+        pass
+    
+    def set_indicator_tags(self, tags):
+        """ Set/reset indicator tags
+        :tags: canvas tags to set
+        """
+        pass
 
+    def clear_h1_indicator_tags(self):
+        """ clear special indicator tags
+        """
+        if self.h1_indicator_tags is not None:
+            self.delete_tags(self.h1_indicator_tags)
+            self.h1_indicator_tags = None
 
+    def set_h1_indicator_tags(self, tags):
+        """ Set/reset indicator tags
+        :tags: canvas tags to set
+        """
+        if SlTrace.trace("display_indicator"):
+            SlTrace.lg(f"set_h1_indicator_tags tags:{tags}")
+        if self.h1_indicator_tags is not None:
+            self.clear_h1_indicator_tags()
+        self.h1_indicator_tags = copy.deepcopy(tags)
 
-    def display_clear(self):
+    def delete_objects(self, objs, quiet = False):
+        """ Delete objects or list of objects
+        :objs: object or list of lists of objects
+        :quiet: suppress tracing
+        """
+        if not quiet and SlTrace.trace("delete_objects"):
+            SlTrace.lg(f"delete_objects: {self} objects:{objs}")
+            
+        if objs is None:
+            return
+        
+        if isinstance(objs, list):
+            for obj in objs:
+                if not quiet and SlTrace.trace("delete_objects"):
+                    SlTrace.lg(f"delete_object:{self} object: {obj}")
+                self.delete_objects(obj)
+        else:
+            objs.destroy()
+
+    def delete_tags(self, tags, quiet = False):
+        """ Delete tag or list of tags
+        :tags: tag or list of lists of tags
+        :quiet: suppress tracing
+        """
+        if not quiet and SlTrace.trace("delete_tags"):
+            SlTrace.lg(f"delete_tags: {self} tags:{tags}")
+            
+        if tags is None:
+            return
+        
+        if isinstance(tags, list):
+            for tag in tags:
+                self.delete_tags(tag, quiet=True)
+        else:
+            self.sel_area.canvas.delete(tags)
+        
+    def display_clear(self, display=False):
+        """ Clear out display of current edge
+        :display: display after clearing
+                    default: no display
+        """
+        self.board.display_clear(self, display=display)
+
+    def display_clear_OBSOLETE_REWPLACED(self):
         """ Clear display of this part
         """
-        if ActiveCheck.not_active():
-            return      # At end
-        
-        if self.sel_area is None:
-            return
-        
-        if self.sel_area.canvas is None:
-            return
-        
-        if self.part_id not in self.sel_area.parts_by_id:
-            SlTrace.lg("part not in parts_by_id")
-        if self.blinker:
-            self.blinker.stop()
-            self.blinker = None
-            
+
+        self.clear_indicator_tags()            
         ###if not self.connecteds:
         ###    SlTrace.lg("display_clear no connecteds %s" % str(self))
         self.clear_display_multi_tags()
         if self.display_tag is not None:   # leave alone if highlighted
-            if isinstance(self.display_tag, list):
-                for tag in self.display_tag:
-                    self.sel_area.canvas.delete(tag)
-            else:
-                self.sel_area.canvas.delete(self.display_tag)                
+            self.delete_tags(self.display_tag)
             self.display_tag = None
         if self.highlight_tag is not None:
-            if isinstance(self.highlight_tag, list):
-                for tag in self.highlight_tag:
-                    self.sel_area.canvas.delete(tag)
-            else:
-                self.sel_area.canvas.delete(self.highlight_tag)                
+            self.delete_tags(self.highlight_tag)
             self.highlight_tag = None
         if self.display_multi_tags:
             self.clear_display_multi_tags()
         if self.move_tag is not None:
-            self.sel_area.canvas.delete(self.move_tag)
+            self.delete_tags(self.move_tag)
             self.move_tag = None
         if self.partno_tag is not None:
-            self.sel_area.canvas.delete(self.partno_tag)
+            self.delete_tags(self.partno_tag)
             self.partno_tag = None
         self.clear_centered_texts()
         if self.text_tags:          # non centered_text
-            for tag in self.text_tags:
-                self.sel_area.canvas.delete(tag)
+            self.delete_tags(self.text_tags)
             self.text_tags = []
         if self.move_no_tag is not None:
-            self.sel_area.canvas.delete(self.move_no_tag)
+            self.delete_tags(self.move_no_tag)
             self.move_no_tag = None
         for attr in self.base:
             setattr(self, attr, self.base[attr])
@@ -838,7 +885,9 @@ class SelectPart(object):
                 for track in tracked:
                     track_rec_id, track_track_no, track_stack = track
                     SlTrace.lg("Delete uncleared section %d %d" % (track_rec_id, track_track_no))
-                    self.sel_area.canvas.delete(track_rec_id)
+                    self.delete_tags(track_rec_id)
+        ###self.sel_area.mw.update_idletasks()
+        self.sel_area.mw.update()
 
  
     def draw_outline(self, color=None, width=None):
@@ -906,8 +955,8 @@ class SelectPart(object):
         if self.centered_text:
             for ct in self.centered_text:
                 self.clear_centered_text(ct)
-            del(self.centered_text)
-            self.centered_text = []
+            ###del(self.centered_text)        ###HACK to allow redo ???
+            ###self.centered_text = []
             
     def clear_centered_text(self, ct):
         """ Clear centered text display, leaving info
@@ -921,7 +970,7 @@ class SelectPart(object):
         """
         if self.move_no is not None:
             if self.move_no_tag is not None:
-                self.sel_area.canvas.delete(self.move_no_tag)
+                self.delete_tags(self.move_no_tag)
             self.move_no = None
 
     def select_copy(self, levels=3):
@@ -973,14 +1022,17 @@ class SelectPart(object):
         return edx, edy
 
         
-    def highlight_clear(self, tag=None, display=True):
+    def highlight_clear(self, display=True):
         ### HACKif self.is_highlighted():    ???
         if self.part_id in self.sel_area.highlights:
-            del self.sel_area.highlights[self.part_id]
+            self.delete_tags(self.sel_area.highlights[self.part_id])
         if self.highlight_tag is not None:
-            self.sel_area.canvas.delete(self.highlight_tag)
-            self.display_tag = None
+            self.delete_tags(self.highlight_tag)
+            self.highlight_tag = None
         self.highlighted = False
+        if self.part_id in self.sel_area.highlights:
+            del self.sel_area.highlights[self.part_id]
+        
         if display:
             self.display()
         
@@ -1411,11 +1463,7 @@ class SelectPart(object):
         """
         if self.display_multi_tags is None or not self.display_multi_tags:
             return
-        for taggroup in self.display_multi_tags:
-            for tag in taggroup:
-                if tag is not None:
-                    self.sel_area.canvas.delete(tag)
-                    tag = None
+        self.delete_tags(self.display_multi_tags)
         self.display_multi_tags = []
         
     
@@ -1564,6 +1612,7 @@ class SelectPart(object):
                                      color=color, color_bg=color_bg,
                                      height=height, width=width)
         self.centered_text.append(centered_text)
+        self.add_display_objects(centered_text)
         self.invisible = False
         if display:
             self.display()
@@ -1577,7 +1626,18 @@ class SelectPart(object):
         if not self.is_connected(handle):
             self.connecteds.append(handle)
         return handle
-    
+
+    def add_display_objects(self, objects):
+        """ Add newly displayed objects on canvas
+        :objects: objects, or lists of objects, or lists of...
+        """
+        self.board.add_display_objects(self, objects)
+
+    def add_display_tags(self, tags):
+        """ Add tags of newly displayed canvas objects
+        :tags: tag, or lists of tags, or lists of...
+        """
+        self.board.add_display_tags(self, tags)
     
     def is_adjacent(self, part):
         """ Test if part already adjacent to us
@@ -1675,7 +1735,7 @@ class SelectPart(object):
         self.sel_area.board.shadow.turn_off(part=self)
         if display:
             self.display()
-
+ 
 
     def turn_on(self, display=True, player=None, move_no=None):
         """ Set part to be "on", may be "Game" specific

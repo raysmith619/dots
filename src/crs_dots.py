@@ -18,6 +18,9 @@ import tracemalloc
 snapshot1 = None
 snapshot2 = None
 
+mw = Tk()       # MUST preceed users of SelectControl for tkinter vars ...Var()
+                # e.g. SelectPlay -> ScoreWindow -> SelectControl
+from select_control import SelectControl
 from select_part import SelectPart
 from select_window import SelectWindow
 from select_play import SelectPlay
@@ -73,6 +76,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 ###sys.setrecursionlimit(500)
+cF = SelectControl(control_prefix="dots_control")       # Late comer for this pgm
 cmd_file_name = None        # Command file, if one
 ###cmd_file_name = "3down.scrc"  # Command file, if one
 src_lst = True                  # List source as run
@@ -94,6 +98,7 @@ show_players = True # Display players info/control
 show_score = True   # Display score / undo /redo
 speed_step = -1     # Reduce all waits to this if 0 or greater - debugging, analysis
 stroke_move = False # Support stroke move for touch screens
+undo_micro_move = cF.make_val("undo_micro_move", False)   # Undo all steps, not just user moves
 width = 600         # Window width
 height = width      # Window height
 board_change = True # True iff board needs redrawing
@@ -154,6 +159,8 @@ parser.add_argument('--show_score', type=str2bool, dest='show_score', default=sh
 parser.add_argument('--speed_step', type=float, dest='speed_step', default=speed_step)
 parser.add_argument('--stroke_move', type=str2bool, dest='stroke_move', default=stroke_move)
 parser.add_argument('--trace', dest='trace', default=trace)
+parser.add_argument('--undo_micro_move', type=str2bool, dest='undo_micro_move',
+                                     default=undo_micro_move)
 parser.add_argument('--undo_len', type=int, dest='undo_len', default=undo_len)
 parser.add_argument('--width=', type=int, dest='width', default=width)
 parser.add_argument('--height=', type=int, dest='height', default=height)
@@ -184,6 +191,7 @@ speed_step = args.speed_step
 src_lst = args.src_lst
 stx_lst = args.stx_lst
 stroke_move = args.stroke_move
+undo_micro_move = args.undo_micro_move
 trace = args.trace
 if trace:
     SlTrace.setFlags(trace)
@@ -246,7 +254,6 @@ board_frame = None
 msg_main_frame = None       # Message enclosing frame
 msg_frame = None            # message enclosed frame
         
-mw = Tk()
 mw.lift()
 mw.attributes("-topmost", True)
 
@@ -486,9 +493,9 @@ def set_dots_button():
         board_frame = Frame(mw, width=width, height=height, bg="", colormap="new")
         board_frame.pack(side="top", fill=NONE, expand=YES)
         msg_main_frame = Frame(mw)
-        msg_main_frame.pack(side="bottom")
+        msg_main_frame.pack(side="bottom", expand=YES, fill=BOTH)
         msg_frame = Frame(msg_main_frame)
-        msg_frame.pack(side="bottom")
+        msg_frame.pack(side="bottom", expand=YES, fill=BOTH)
         board_change = False
     if sqs is None:
         sqs = SelectDots(board_frame, mw=mw,
@@ -515,6 +522,7 @@ def set_dots_button():
                         move_first=1, before_move=before_move,
                         after_move=after_move,
                         show_ties=show_ties,
+                        undo_micro_move=undo_micro_move,
                         undo_len=undo_len)
         if command_stream is not None:
             command_stream.set_play_control(sp)
@@ -678,7 +686,19 @@ if play_level is not None:
 if playing is not None:
     player_control.set_playing(playing)
 game_control = SelectGameControl(title="Game Control", display=True)
-score_window = ScoreWindow(title="Score", player_control=player_control, display=True)   
+
+def undo_micro_move_command(new_value):
+    global undo_micro_move
+    
+    undo_micro_move = cF.set_val("undo_micro_move", new_value)
+    SlTrace.lg(f"New undo_micro_move: {undo_micro_move}")
+    if sp is not None:
+        sp.undo_micro_move_command(undo_micro_move)
+    
+score_window = ScoreWindow(title="Score", player_control=player_control,
+                           undo_micro_move=undo_micro_move,
+                           undo_micro_move_command=undo_micro_move_command,
+                           display=True)   
 set_dots_button()
 
 mainloop()

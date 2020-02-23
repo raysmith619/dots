@@ -22,7 +22,7 @@ class SelectKbdCmd:
         self.mw.bind("<KeyPress>", self.key_press)
         self.mw.bind("<KeyRelease>", self.key_release)
         self.kbd_input_flag = False           # In kbd_input gathering
-        self.gr_input_top = None       # Set if input
+        self.gr_input_top_win = None       # Set if input
         self.keycmd_edge_mark = None        # Current marker edge
         """ Keyboard command control
         """
@@ -226,6 +226,9 @@ class SelectKbdCmd:
                 "minus" - rotate selection counter clockwise
             ; - multi character command
              c[anvas] pattern - list canvas objects with tag "ALL" - all canvas objects
+             e[dge] (h/v) row col - display edge (horizontal,vertical) at row, col
+                 e.g.  ; e h 1 2  - horizontal edge at row==1, col==2
+             g(region) row col - display region at row, col
              p[part] pattern - List parts with tag, default all parts (one entry per part)
              r[ecord] pattern - Trace canvas rectangles with any tag matching pattern
              s[tart] number[current] - start(restart) looking at tracking number
@@ -355,6 +358,29 @@ class SelectKbdCmd:
                             SlTrace.lg("deleting: %s: %s" % (tags, rec_id))
                             canvas.delete(rec_id)
                             break
+            elif kbd_cmd.lower().startswith("e"):
+                try:
+                    edge_dir = kbd_args[0]
+                    row = int(kbd_args[1])
+                    col = int(kbd_args[2])
+                    part = self.get_part(type="edge", sub_type=edge_dir, row=row, col=col)
+                    if part is None:
+                        raise SelectError(f"Unrecognized command {kbd_cmd_str}")
+                    else:
+                        SlTrace.lg(f"part: {part}")
+                except:
+                    SlTrace.lg("Command format: e, [hv], row, col")
+            elif kbd_cmd.lower().startswith("g"):
+                try:
+                    row = int(kbd_args[0])
+                    col = int(kbd_args[1])
+                    part = self.get_part(type="region", row=row, col=col)
+                    if part is None:
+                        raise SelectError(f"Unrecognized command {kbd_cmd_str}")
+                    else:
+                        SlTrace.lg(f"part: {part}")
+                except:
+                    SlTrace.lg("Command format: e, [hv], row, col")
             elif kbd_cmd.lower().startswith("p"):
                 canvas = self.get_canvas()
                 if len(kbd_args) > 0:
@@ -432,7 +458,7 @@ class SelectKbdCmd:
                 elif ec == "c":
                     part.display_clear()        # clear display
                 elif ec == "n":                 # turn on
-                    part.turn_on(player=self.get_player())
+                    part.turn_on(player=self.game_control.get_player())
                 elif ec == "f":                 # turn off
                     part.turn_off()
 
@@ -574,10 +600,10 @@ class SelectKbdCmd:
             ok_cmd()
            
             
-        if self.gr_input_top is None:
+        if self.gr_input_top_win is None:
             self.gr_input_entry_var = StringVar() # Holds the entry text
-            self.gr_input_top = Toplevel(self.mw)
-            mw = self.gr_input_top
+            self.gr_input_top_win = Toplevel(self.mw)
+            mw = self.gr_input_top_win
             label = Label(mw, text=prompt)    # Create Label with prompt
             label.pack(side=LEFT)
         
@@ -593,6 +619,7 @@ class SelectKbdCmd:
         while self.gr_input_reading:
             ###self.mw.update_idletasks()
             self.mw.update()
-        self.get_canvas().focus_set()         # Focus back on canvas
+        self.gr_input_top_win.destroy()                    # Close window
+        self.gr_input_top_win = None                # Clear it
         return self.gr_input_entry_text
         

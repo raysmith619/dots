@@ -4,6 +4,7 @@ Support for shadow dots game board - logical function of the game without displa
 """
 import numpy as np
 
+from select_error import SelectError
 from select_edge import SelectEdge
 from select_region import SelectRegion
 from matplotlib.mlab import dist
@@ -355,12 +356,12 @@ class DotsShadow:
         sub_type = part.sub_type()
         if part.is_edge():
             if sub_type == 'h':
-                if lines[row-1, col-1, 0] > 0:
+                if self.lines[row-1, col-1, 0] > 0:
                     self.nopen_line += 1
                 self.lines[row-1, col-1, 0] = 0
             else:
                 self.lines[row-1, col-1, 1] = 0
-                if lines[row-1, col-1, 1] > 0:
+                if self.lines[row-1, col-1, 1] > 0:
                     self.nopen_line += 1
         elif part.is_region():
             self.squares[row-1, col-1] = 0

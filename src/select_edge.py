@@ -72,62 +72,13 @@ class SelectEdge(SelectPart):
             self.display_clear()
             return
         '''
-        c1x, c1y, c3x, c3y = self.get_rect()        # Vales are modified if appropriate
-        loc = self.loc
-        SlTrace.lg("%s: %s at %s" % (self.part_type, self, str(loc)), "display")
+        SlTrace.lg("%s: %s at %s" % (self.part_type, self, str(self.loc)), "display")
         if self.highlighted:
-            if SlTrace.trace("edge_highlighted"):
-                SlTrace.lg("selected %s" % self, "edge_highlighted")
-            if self.turned_on:
-                if self.on_highlighting:
-                    if self.player is not None:     # Check if indicators on
-                        multi_tags = self.display_indicator(player=self.player)
-                        self.blinker_set(self.blink(multi_tags))
-
-                else:
-                    c1x,c1y,c3x,c3y = self.get_rect(enlarge=True)
-                    self.highlight_tag = self.sel_area.canvas.create_rectangle(
-                                        c1x, c1y, c3x, c3y,
-                                        fill=SelectPart.edge_fill_highlight, tag="highlights")
-                    self.blinker_set(self.blink(self.highlight_tag, off_fill="red"))
-            else:
-                if self.off_highlighting:
-                    multi_tags = self.display_indicator(fills=["purple", "darkgray", "orange"])
-                    self.blinker_set(self.blink(multi_tags))
-                else:
-                    c1x,c1y,c3x,c3y = self.get_rect()
-                    self.display_clear()
-                   
+            self.set_view_highlighted()
         elif self.is_selected():
-            if SlTrace.trace("edge_selected"):
-                SlTrace.lg("selected %s" % self, "edge_selected")
-            if self.turned_on:
-                if self.on_highlighting:
-                    if self.player is not None:     # Check if indicators on
-                        multi_tags = self.display_indicator(player=self.player, ditag="ditag:turned_on==%s" % self.turned_on)
-                        self.blinker_set(self.blink(multi_tags))
-
-                else:
-                    c1x,c1y,c3x,c3y = self.get_rect(enlarge=True)
-                    self.highlight_tag = self.sel_area.canvas.create_rectangle(
-                                        c1x, c1y, c3x, c3y,
-                                        fill=SelectPart.edge_fill_highlight, tag="highlights")
-                    self.blinker_set(self.blink(self.highlight_tag, off_fill="red"))
-            else:
-                if self.off_highlighting:
-                    multi_tags = self.display_indicator(fills=["purple", "darkgray", "orange"])
-                    self.blinker_set(self.blink(multi_tags))
-                else:
-                    c1x,c1y,c3x,c3y = self.get_rect()
-                    self.display_clear()
-                   
+            self.set_view_selected()
         else:           # Not highlighted
-            if SlTrace.trace("edge_unselected"):
-                SlTrace.lg("unselected %s" % self, "edge_unselected")
-            self.display_clear()
-            c1x, c1y, c3x, c3y = self.get_rect()
-            if self.is_turned_on():
-                self.display_indicator(player=self.player)
+            self.set_view_default()
         if SlTrace.trace("show_id"):
             dir_x, dir_y = self.edge_dxy()
             chr_w = 5
@@ -139,9 +90,11 @@ class SelectEdge(SelectPart):
                 offset_x = len(str(self.part_id))*chr_w
                 offset_y = 0    
         
+            c1x,c1y,c3x,c3y = self.get_rect()
             cx = (c1x+c3x)/2 + offset_x
             cy = (c1y+c3y)/2 + offset_y
             self.name_tag = self.display_text((cx, cy), text=str(self.part_id))
+            self.add_display_tags(self.name_tag)
         if self.move_no is not None and SlTrace.trace("show_move"):
             dir_x, dir_y = self.edge_dxy()
             chr_w = 5
@@ -156,9 +109,74 @@ class SelectEdge(SelectPart):
             cx = (c1x+c3x)/2 + offset_x
             cy = (c1y+c3y)/2 + offset_y
             self.move_no_tag = self.display_text((cx, cy), text=str(self.move_no))
+            self.add_display_tags(self.move_no_tag)
             SlTrace.lg("    part showing move_no %s" % self, "show_move_print")
         self.sel_area.mw.update_idletasks()
-        
+
+    def set_view_highlighted(self):
+        """ Set highlighted view
+        """
+        if SlTrace.trace("edge_highlighted"):
+            SlTrace.lg("selected %s" % self, "edge_highlighted")
+        if self.turned_on:
+            if self.on_highlighting:
+                if self.player is not None:     # Check if indicators on
+                    indicator_tags = self.display_indicator(player=self.player)
+                    blinker = self.blink(indicator_tags)
+                    self.add_display_objects(blinker)
+
+            else:
+                c1x,c1y,c3x,c3y = self.get_rect(enlarge=True)
+                highlight_tag = self.sel_area.canvas.create_rectangle(
+                                    c1x, c1y, c3x, c3y,
+                                    fill=SelectPart.edge_fill_highlight, tag="highlights")
+                self.add_display_tags(highlight_tag)
+                blinker = self.blink(self.highlight_tag, off_fill="red")
+                self.add_display_objects(blinker)
+        else:
+            if self.off_highlighting:
+                indicator_tags = self.display_indicator(fills=["purple", "darkgray", "orange"])
+                self.add_display_tags(indicator_tags)
+                blinker = self.blinker_set(self.blink(indicator_tags))
+                self.add_display_objects(blinker)
+
+    def set_view_selected(self):
+        """ Set view as selected
+        """
+        if SlTrace.trace("edge_selected"):
+            SlTrace.lg("selected %s" % self, "edge_selected")
+        if self.turned_on:
+            if self.on_highlighting:
+                if self.player is not None:     # Check if indicators on
+                    indicator_tags = self.display_indicator(player=self.player, ditag="ditag:turned_on==%s" % self.turned_on)
+                    blinker = self.blink(indicator_tags)
+                    self.add_display_objects(blinker)
+
+            else:
+                c1x,c1y,c3x,c3y = self.get_rect(enlarge=True)
+                highlight_tag = self.sel_area.canvas.create_rectangle(
+                                    c1x, c1y, c3x, c3y,
+                                    fill=SelectPart.edge_fill_highlight, tag="highlights")
+                self.add_display_tags(highlight_tag)
+                blinker = self.blink(self.highlight_tag, off_fill="red")
+                self.add_display_objects(blinker)
+        else:
+            if self.off_highlighting:
+                indicator_tags = self.display_indicator(fills=["purple", "darkgray", "orange"])
+                self.add_display_tags(indicator_tags)
+                blinker = self.blink(indicator_tags)
+                self.add_display_objects(blinker)
+
+    def set_view_default(self):
+        """ Set default (non highlighted/selected) view of edge
+        """
+        if SlTrace.trace("edge_unselected"):
+                SlTrace.lg("unselected %s" % self, "edge_unselected")
+        if self.turned_on:
+            if self.on_highlighting:
+                if self.player is not None:     # Check if indicators on
+                    indicator_tags = self.display_indicator(player=self.player)
+                    self.add_display_tags(indicator_tags)
         
     def blink(self, tagtags,
                    on_time=None,
@@ -206,10 +224,11 @@ class SelectEdge(SelectPart):
                 If icolor None - SelectPart.edge_fill_highlight
                 If len(fills) == 2 fills[2] == fills[1]
         :ditag:    debugging tag default: None
-        :returns: returns array of array of tags, caller is responsible for resource management                                                                                                                                        ;
+        :returns: tags for possible blinking -  tags are stored here
+                                                via add_display_tags
         """
-        if self.blinker:
-            SlTrace.lg("display_indicator - blinker already on")
+        ###if self.blinker:
+        ###    SlTrace.lg(f"display_indicator - blinker already on player:{player} {self}")
         display_multi_tags = []
         if player is None:
             player = self.player
@@ -228,7 +247,6 @@ class SelectEdge(SelectPart):
             
         on_length = 10
         off_length = 10
-        tags = []
         c1x, c1y, c3x, c3y = self.get_rect()
         multi_tags = [[], [], []]                 # Multiple sets for ripple
         if self.sub_type() == "h":
@@ -267,7 +285,7 @@ class SelectEdge(SelectPart):
                 multi_tags[2].append(tag)
                 
                 lc1x = lc3x+1
-            display_multi_tags = multi_tags    
+            self.add_display_tags(multi_tags)    
         else: # vertical edge
             lc1x = c1x
             lc3x = c3x
@@ -304,8 +322,8 @@ class SelectEdge(SelectPart):
                 multi_tags[2].append(tag)
                 
                 lc1y = lc3y+1
-            display_multi_tags = multi_tags    
-        return display_multi_tags
+            self.add_display_tags(multi_tags)    
+        return multi_tags
     
 
     def is_left(self, edge):

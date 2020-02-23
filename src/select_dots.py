@@ -11,10 +11,9 @@ from select_trace import SlTrace
 from select_error import SelectError
 from select_area import SelectArea
 from select_part import SelectPart
-from select_region import SelectRegion
-from select_edge import SelectEdge
 from canvas_tracked import CanvasTracked
 from dots_shadow import DotsShadow
+from display_tracking import DisplayTracking
 
 class SelectDots(object):
     """
@@ -109,6 +108,7 @@ class SelectDots(object):
         self.edge_visible = edge_visible
         self.stroke_checking = stroke_checking
         self.area = None        # Set non None when created
+        self.display_tracking = DisplayTracking(self)
         self.setup_area()
 
 
@@ -132,6 +132,7 @@ class SelectDots(object):
         self.canvas = CanvasTracked(self.frame,
                  width=self.width, height=self.height,
                  bg="white")
+        self.canvas.set_parts_control(self)     # connect the dots - for info :)
         self.canvas.pack(expand=YES, fill=BOTH)
         
         self.area = SelectArea(self.canvas, mw=self.mw,
@@ -233,7 +234,6 @@ class SelectDots(object):
                     left_edge.col = part.col
         self.complete_square_call = None                # Setup for complete square call
         self.new_edge_call = None                       # Setup for new edge call
-
 
     def get_part(self, id=None, type=None, sub_type=None, row=None, col=None):
         """ Get basic part
@@ -432,6 +432,25 @@ class SelectDots(object):
 
         self.area.display()
 
+    def add_display_objects(self, part, objects):
+        """ Add newly displayed objects on canvas
+        :part: displaying part
+        :objects: objects, or lists of objects, or lists of...
+        """
+        self.display_tracking.add_display_objects(part, objects)
+
+    def add_display_tags(self, part, tags):
+        """ Add tags of newly displayed canvas objects
+        :part: displaying part
+        :tags: tag, or lists of tags, or lists of...
+        """
+        self.display_tracking.add_display_tags(part, tags)
+
+    def display_clear(self, part, display=False):
+        """ Clear out display of current edge
+        """
+        self.display_tracking.display_clear(part, display=display)
+
 
     def destroy(self):
         if self.area is not None:
@@ -464,18 +483,10 @@ class SelectDots(object):
         Only clears display, leaving part in place
         :parts: list of parts to be removed
         """
-        return          # aLL changes reflected by insert
         for part in parts:
-            d_part = self.area.get_part(id=part.part_id)
-            if d_part is None:
-                raise SelectError("No part(id=%d) found %s"
-                                   % (part.part_id, part))
-                continue
-            d_part.turn_off()
-            d_part.highlight_clear(display=False)
-            d_part.display_clear()
-            d_part.set(invisible=True)
-
+            if part.is_region():
+                part.clear_centered_texts()
+                pass
 
     def reset(self):
         """ Set board to beginning of game

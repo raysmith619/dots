@@ -50,7 +50,7 @@ class SelectRegion(SelectPart):
                                     c1x, c1y, c3x, c3y,
                                     width=self.region_width,
                                     fill=self.get_color())
-        pass
+        self.add_display_tags(self.color_bg_tag)
 
     '''
     def add_rect(self, rect, color=None):
@@ -147,8 +147,9 @@ class SelectRegion(SelectPart):
         if not self.sel_area.display_game:
             return
 
-        if self.invisible and not self.centered_text:   # hack to show
-            return
+        ###if self.invisible and not self.centered_text:   # hack to show
+        ###    return
+        self.display_clear()
         
         SlTrace.lg("%s: %s at %s" % (self.part_type, self, str(self.loc)), "display")
         c1x,c1y,c3x,c3y = self.get_rect()
@@ -156,12 +157,10 @@ class SelectRegion(SelectPart):
             fill = self.on_color
         else:
             fill = self.off_color
-        outine = fill
         if fill is None:
             fill = self.color
         if fill is None:
             fill = 'PeachPuff3'
-            outline = 'black'
         SlTrace.lg("region fill=%s" % fill, "get_color")
         ###self.display_clear()
         if SlTrace.trace("region_rect"):
@@ -200,6 +199,7 @@ class SelectRegion(SelectPart):
                                     coords,
                                     width=self.highlight_on_stripe_width,
                                     fill=hfill)
+                self.add_display_tags(tag)
                 self.highlight_tag = tag
             except:
                 SlTrace.lg("Possible bad hfill: %s for region %d" % (hfill, self.partno))
@@ -211,6 +211,7 @@ class SelectRegion(SelectPart):
                                     c1x, c1y, c3x, c3y,
                                     width=self.region_width,
                                     fill=fill)
+                self.add_display_tags(tag)
                 self.display_tag = tag
             except:
                 SlTrace.lg("Possible bad fill: %s for region %d" % (fill, self.partno))
@@ -226,6 +227,7 @@ class SelectRegion(SelectPart):
             SlTrace.lg("region: %d  %s row=%d, col=%d (%d,%d) %s"
                        % (self.partno, self.part_type,
                           self.row, self.col, cx,cy, disp_str))
+            self.add_display_tags(self.partno_tag)
 
     def edge_dxy(self):
         """ Get "edge direction" as x-increment, y-increment pair

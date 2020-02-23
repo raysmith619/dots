@@ -255,8 +255,10 @@ class SelectReg(object):
         return None
 
 
-    def display_clear(self, handle):
+    def display_clear(self, handle, display=False):
         """ Clear display of this handle
+        :handle: part to clear
+        :display: display after clear default: no display
         """
         if handle.display_tag is not None:
             if isinstance(handle.display_tag, list):

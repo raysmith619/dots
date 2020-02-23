@@ -48,11 +48,14 @@ class SelectPlay:
                  btmove=.1, move_first=None,
                  before_move=None, after_move=None,
                  show_ties=False,
-                 undo_len=100):
+                 undo_len=100,
+                 undo_micro_move=False):
         """ Setup play
         :board: playing board (SelectDots)
         :mw: Instance of Tk, if one, else created here
         :numgame: if present, limit play to numgame games
+        :msg_frame: base frame for game messages
+                    default: create one
                 default: no limit
         :display_game: display game play on screen
                     Set False to reduce execution time for
@@ -71,6 +74,8 @@ class SelectPlay:
         :show_ties: ties are shown
         :undo_len: maximum length of undo
             default: 100
+        :undo_micro_move: undo/redo each micro move
+                        default: undo/redo to previous user move
         :cmd_stream: command stream if any,
                 If present, get commands from here
                 default: none
@@ -95,16 +100,20 @@ class SelectPlay:
         self.board = board
         
         if msg_frame is None:
-            self.msg_frame = Frame(board.canvas)
-            self.msg_frame.pack(side="bottom")
-        self.msg_frame = msg_frame
+            msg_frame = Frame(board.canvas)
+            msg_frame.pack(side="bottom", expand=YES, fill=BOTH)
+        self.msg_frame_base = msg_frame         # Container for actual frame
+        self.msg_frame = None                   # Actual frame
         self.cmd_stream = cmd_stream
         self.cmd_stream_proc = SelectPlayCommand(self, cmd_stream)
         if self.cmd_stream is not None:
             self.cmd_stream.set_play_control(self)
             self.cmd_stream.set_cmd_stream_proc(self.cmd_stream_proc)
         self.undo_len = undo_len
-        self.command_manager = SelectCommandManager(self, undo_len=self.undo_len)
+        self.undo_micro_move = undo_micro_move
+        self.command_manager = SelectCommandManager(self,
+                                            undo_micro_move=self.undo_micro_move,
+                                            undo_len=self.undo_len)
         SelectCommandPlay.set_management(self.command_manager, self)
         if mw is None:
             mw = Tk()
@@ -361,14 +370,16 @@ class SelectPlay:
         return res
                 
         
-    def annotate_squares(self, squares, player=None):
+    def annotate_squares(self, squares, edge=None, player=None):
         """ Annotate squares in board with players info
-        Setup current command only
-        Updates select_cmd: prev_parts, new_parts as appropriate
+        Create command and execute which reflects change
         :squares: list of squares to annotate
+        :edge: edge used to complete square
         :player: player whos info is used
                 Default: use current player
         """
+        self.get_cmd("annotate_squares")
+        self.add_prev_parts(edge)
         if player is None:
             player = self.get_player()
         if not isinstance(squares, list):
@@ -386,7 +397,7 @@ class SelectPlay:
                 SlTrace.lg("annotate_square: %s\n%s"
                          % (sc, sc.str_edges()))
             self.add_new_parts(sc)
-
+        self.complete_cmd()
         return
 
     def show_display(self):
@@ -477,22 +488,31 @@ class SelectPlay:
             self.auto_play_pause()
 
 
-    def add_message(self, text, color=None, font_size=40,
-                   time_sec=None):
-        """ Put message up. If time is present bring it down after time seconds    
+    def add_message(self, text, cmd=None,
+                    color=None, font_size=40,
+                    time_sec=None):
+        """ Put message up. If time is present bring it down after time seconds
+        NOTE: message is displayed when command is executed
+        :cmd: command for message
+                default: add to current command, if one
+                        else create and execute new command
         :time: time for message
                 default: leave message there till next message
         """
         if not isinstance(text, str):
             raise SelectError("add_message: text is not str - "
                               + str(text))
-        scmd = self.select_cmd
-        if scmd is None:
-            raise SelectError("add_message with no SelectCommand")
         message = SelectMessage(text, color=color,
                                   font_size=font_size,
                                   time_sec=time_sec)
-        scmd.add_message(message)
+        if cmd is None:
+            cmd = self.select_cmd
+        if cmd is None:
+            cmd = self.get_cmd("add_message")
+            cmd.add_message(message)
+            self.do_cmd()               # Remove command from consideration
+        else:
+            cmd.add_message(message)
 
 
     def destroy(self):
@@ -653,7 +673,7 @@ class SelectPlay:
                     break
                 if self.mw is not None and self.mw.winfo_exists():
                     self.mw.update()
-                time.sleep(.01)
+                self.mw.after(int((message.end_time-now)*1000))   # rather than loop time.sleep(.01)
         if self.cur_message is not None:
             self.cur_message.destroy()
             self.cur_message = None
@@ -698,11 +718,16 @@ class SelectPlay:
             return
         
         if (self.mw is None or not self.mw.winfo_exists()
-            or self.msg_frame is None
-            or not self.msg_frame.winfo_exists()):
+            or self.msg_frame_base is None
+            or not self.msg_frame_base.winfo_exists()):
             return
         
         self.wait_message(message)
+        if self.msg_frame is not None:
+            self.msg_frame.destroy()        # Remove all message frames
+            self.msg_frame = None
+        self.msg_frame = Frame(self.msg_frame_base)
+        self.msg_frame.pack(side="top", expand=YES, fill=BOTH)
         text = message.text
         color = message.color
         font_size = message.font_size
@@ -735,7 +760,6 @@ class SelectPlay:
                 time_sec = self.speed_step          # Modify for view / debugging
             end_time = datetime.now() + timedelta(seconds=time_sec)
             message.end_time = end_time
-
 
     def end_message(self):
         """ End current message, if any
@@ -966,9 +990,16 @@ class SelectPlay:
             raise SelectError("add_new_parts with no SelectCommand")
         scmd.add_new_parts(parts)
 
+    def undo_micro_move_command(self, new_value):
+        self.undo_micro_move = new_value
+        SlTrace.lg(f"selectPlay: New undo_micro_move: {new_value}")
+        self.command_manager.undo_micro_move_command(new_value)
 
-    def undo(self):
+
+    def undo(self, undo_micro_move=None):
         """ Undo most recent command
+        :undo_micro_move: undo micromove
+                    default: command_manager.undo_micro_move
         :returns: True iff successful
         """
         while self.is_waiting_for_message():
@@ -977,11 +1008,13 @@ class SelectPlay:
         if self.ignore_if_busy():
             return False
         self.clear_highlighted()
-        return self.command_manager.undo()
+        return self.command_manager.undo(undo_micro_move=undo_micro_move)
 
 
-    def redo(self):
+    def redo(self, undo_micro_move=None):
         """ Undo most recent command
+        :undo_micro_move: undo micromove
+                    default: command_manager.undo_micro_move
         :returns: True iff successful
         """
         while self.is_waiting_for_message():
@@ -990,7 +1023,7 @@ class SelectPlay:
         if self.ignore_if_busy():
             return False
         
-        return self.command_manager.redo()
+        return self.command_manager.redo(undo_micro_move=undo_micro_move)
         
     
     
@@ -1451,22 +1484,23 @@ class SelectPlay:
     def down_click(self, part, event=None):
         """ Process down_click
         :part: on which down click occured
-        :returns: True if event processed
+        :returns: None - all events are considered processed here
         """
+        self.clear_highlighted(display=False)       # Clear all, reset if appropriate
         if part.is_turned_on():
-            return False
+            return
         
         if part.is_edge():
             self.manual_moves.append(part)
-            return True
+            return
         
-        return False
+        return
     
     
 
     def new_edge(self, edge):
         """ Process new edge selection
-                1. Adjust edge apperence appropriately
+                1. Adjust edge apperance appropriately
                 2. Announced new edge creation by user
                 3. Make command undo unit
         :edge: updated edge component
@@ -1482,13 +1516,16 @@ class SelectPlay:
         self.trace_scores("new_edge:")
         SlTrace.lg("New edge %s by %s"
                     % (edge, prev_player), "new_edge")
-        self.complete_cmd()                     # Complet current command if one
+        self.complete_cmd()                     # Complete current command if one
+        prev_selects = self.get_selected_part()
         self.cmd_select(edge)
         scmd = self.get_cmd("new_edge", undo_unit=True)
         scmd.set_prev_player(prev_player)
+        scmd.add_prev_selects(prev_selects)
         ###edge.highlight_clear()                  # So undo won't re-highlight
         scmd.add_prev_parts(edge)               # Save previous edge state 
         self.mark_edge(edge, prev_player, move_no=scmd.move_no)
+        edge.highlight_clear()                  # unhighlight after move
         self.add_new_parts(edge)
         self.update_score(self.next_move_no(), prev_player, edge)
         self.do_cmd()                               # move complete
@@ -1496,14 +1533,11 @@ class SelectPlay:
             self.list_selected("After new_edge")
         self.clear_mods()
 
-        scmd = self.get_cmd("after_edge")
         prev_player = self.get_player()
         next_player = prev_player                    # Change if appropriate
         regions = []
         if self.is_square_complete(edge, regions):
             self.update_results_score(edge, regions)
-            self.add_prev_parts(edge)
-            edge.highlight_clear(display=False)          # ??? Should we just set flag??
             self.completed_square(edge, regions)
             nsq = len(regions)
             if nsq == 1:
@@ -1516,9 +1550,10 @@ class SelectPlay:
             SlTrace.lg("Next player: %s" % next_player, "player_trace")
         if SlTrace.trace("selected"):
             self.list_selected("After square check")
-
-        scmd.set_new_player(next_player)
-        self.do_cmd()
+        if next_player != prev_player:
+            scmd = self.get_cmd("new_player")
+            scmd.set_new_player(next_player)
+            self.do_cmd()
         if SlTrace.trace("selected"):
             self.list_selected("After next_player set")
         self.enable_moves()
@@ -1595,7 +1630,7 @@ class SelectPlay:
         if SlTrace.trace("square"):
             SlTrace.lg(text)
         SlTrace.lg("completing edge: %s" % edge, "square")
-        self.annotate_squares(squares, player=player)
+        self.annotate_squares(squares, edge=edge, player=player)
         self.update_score_squares(player, squares=squares)
         self.trace_scores("after self.update_score")
         self.add_message(text, font_size=20, time_sec=1)
@@ -1675,11 +1710,12 @@ class SelectPlay:
             
     def update_score_squares(self, player, squares):
         """ Update player's score based on squares completed
+        Create and execute command
         :squares:  completed squares
         """
+        scmd = self.get_cmd("update_score")
         if not isinstance(squares, list):
             squares = [squares]
-        scmd = self.get_cmd()
         prev_score = player.get_score()
         new_score = prev_score + len(squares)
         SlTrace.lg("prev_score:%d new_score:%d %s" % (prev_score, new_score, player), "score")
@@ -1687,6 +1723,7 @@ class SelectPlay:
         self.trace_scores("after set_score(%d, %s)" % (new_score, player))
         scmd.add_prev_score(player, prev_score)
         scmd.add_new_score(player, new_score)
+        self.complete_cmd()
         self.update_score_window()
 
 

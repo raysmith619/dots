@@ -13,21 +13,28 @@ from select_error import SelectError
 class CanvasTracked(Canvas):
     track_no = 0        # Unique element tracking number
     
-    def __init__(self, master=None, cnf={}, **kw):
+    def __init__(self, master=None, cnf={}, parts_control=None, **kw):
     ###def __init__(self, master, name, *args, **kwargs):
         """ Set up canvas object tracking
-        :class: canvas to be is_tracked
+        :master: canvas to be is_tracked
+        :parts_control: parts info (e.g. SelectDots)
         """
         ###super(Canvas, self).__init__(master=master, cnf=cnf, **kw)
         Canvas.__init__(self, master=master, cnf=cnf, **kw)
         self.by_rec_id = {}
         self.by_track_no = {}
         self.start_track_no = CanvasTracked.track_no
+        self.parts_control = parts_control
 
     def set_game_control(self, game_control):
         """ Connect with game control to allow info access
         """
         self.game_control = game_control
+
+    def set_parts_control(self, parts_control):
+        """ Connect with parts control to allow info access
+        """
+        self.parts_control = parts_control
          
     def set_start_track(self, num):
         """ Set tracking start number
@@ -71,7 +78,9 @@ class CanvasTracked(Canvas):
         :id: unique part id
         :returns: part, None if not found
         """
-        return self.game_control.get_part(id=id, type=type, sub_type=sub_type, row=row, col=col)
+        if self.parts_control is None:
+            raise SelectError("get_part can't function because parts_control not set")
+        return self.parts_control.get_part(id=id, type=type, sub_type=sub_type, row=row, col=col)
 
 
     def get_tracked(self, start=None, part=None):

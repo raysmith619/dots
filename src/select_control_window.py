@@ -194,17 +194,20 @@ class SelectControlWindow(Toplevel):
         wlabel.pack(side="left", anchor=W)
 
 
-    def set_sep(self, frame=None):
+    def set_sep(self, text=None, frame=None):
         """ Add default separator
+        :text: text in separator
         :frame:  destination frame
         """
+        if text is None:
+            text = "  "
         if frame is None:
             frame = self.base_frame
-        self.set_text("  ", frame=frame)
+        self.set_text(text, frame=frame)
 
 
     def set_vert_sep(self, frame=None):
-        """ Add default verticle separator
+        """ Add default vertical separator
         :frame:  destination frame
         """
         if frame is None:
@@ -216,11 +219,14 @@ class SelectControlWindow(Toplevel):
 
 
     def set_check_box(self, frame=None, field=None,
-                        label=None, value=False):
+                        label=None, value=False,
+                        command=None):
         """ Set up check box for field
         :field: local field name
         :label: button label - default final section of field name
         :value: value to set
+        :command: function to call with new value when box changes
+                    default: no call
         """
         if frame is None:
             frame = self.base_frame
@@ -234,12 +240,20 @@ class SelectControlWindow(Toplevel):
         full_field = self.field_name(field)
         value = self.get_prop_val(full_field, value)
         content.set(value)
-        widget =  Checkbutton(frame, variable=content)
+        cmd = None
+        if command is not None:     # HACK - only works for ONE checkbox
+            self.check_box_change_content = content
+            self.check_box_change_callback = command
+            cmd = self.check_box_change 
+        widget =  Checkbutton(frame, variable=content, command=cmd)
         widget.pack(side="left", fill="none", expand=True)
         self.ctls[full_field] = widget
         self.ctls_vars[full_field] = content
         self.set_prop_val(full_field, value)
 
+    def check_box_change(self):
+        value = self.check_box_change_content.get()
+        self.check_box_change_callback(value)
 
     def set_entry(self, frame=None, field=None,
                         label=None, value=None,

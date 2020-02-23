@@ -69,9 +69,9 @@ class SelectCommandPlay(SelectCommand):
                                undo_unit=undo_unit,
                                display=display)
         if isinstance(action_or_cmd, str):
-            if cmd_num is None:
-                cmd_num = self.command_manager.next_cmd_no()
-            self.cmd_num = cmd_num
+            ###if cmd_num is None:
+            ###    cmd_num = self.command_manager.next_cmd_no()
+            ###self.cmd_num = cmd_num
             self.prev_move_no = None
             self.new_move_no = None
             self.prev_keycmd_edge_mark = None   # Usually no action
@@ -149,6 +149,11 @@ class SelectCommandPlay(SelectCommand):
                 
         return st
 
+    def copy(self):
+        """ present effective copy of object
+        """
+        return self.select_copy()
+    
 
     def select_copy(self, levels=None):
         return copy.copy(self)
@@ -279,6 +284,9 @@ class SelectCommandPlay(SelectCommand):
         Only unique id is kept
         :parts: one or list of part/part_ids
         """
+        if parts is None:
+            return
+        
         if not isinstance(parts, list):
             parts = [parts]
         for part in parts:
@@ -379,7 +387,17 @@ class SelectCommandPlay(SelectCommand):
         """
         if self.user_module is None:
             return
-        
+        if SlTrace.trace("execute"):
+            ck_entry = 3
+            mgr = self.command_manager
+            cmd_stack = mgr.command_stack
+            if len(cmd_stack) >= ck_entry:
+                cmd_entry = cmd_stack[ck_entry-1]
+                new_selects = cmd_entry.new_selects
+                for select in new_selects:
+                    part = self.get_part(select)
+                    SlTrace.lg(f"execute select:{select}")
+                
         SlTrace.lg("\n execute(%s)" % self, "execute")
         self.user_module.trace_scores("execute")
         if SlTrace.trace("selected"):
@@ -402,13 +420,16 @@ class SelectCommandPlay(SelectCommand):
         if self.action == "cmd_select":
             self.execute_cmd_select()
         else:
-            self.user_module.set_player(self.new_player)
-            self.user_module.remove_parts(list(self.prev_parts.values()))
-            self.user_module.insert_parts(list(self.new_parts.values()))
-            self.user_module.display_messages(self.new_messages)
-            if self.new_score is not None:
-                SlTrace.lg("new_score %d: %s" % (self.new_score[1], self.new_score[0]), "score")
-            self.user_module.update_score_from_cmd(self.new_score, self.prev_score)
+            try:
+                self.user_module.set_player(self.new_player)
+                self.user_module.remove_parts(list(self.prev_parts.values()))
+                self.user_module.insert_parts(list(self.new_parts.values()))
+                self.user_module.display_messages(self.new_messages)
+                if self.new_score is not None:
+                    SlTrace.lg("new_score %d: %s" % (self.new_score[1], self.new_score[0]), "score")
+                self.user_module.update_score_from_cmd(self.new_score, self.prev_score)
+            except Exception as exc:
+                SlTrace.lg(f"Exception running cmd: {self} exception: {exc}")
         if self.display:    
             self.display_update()
         self.user_module.display_print("execute(%s) AFTER"

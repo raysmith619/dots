@@ -2,6 +2,7 @@
 """ Centered Text near/within Part
 """
 from pip._vendor.distlib import resources
+from PIL._imaging import display
 
 class CenteredText:
     """ Contents for text placed inside a region
@@ -62,4 +63,9 @@ class CenteredText:
         if self.text_bg_tag is not None:
             self.part.sel_area.canvas.delete(self.text_bg_tag)
             self.text_bg_tag = None
-            
+
+    def destroy(self):
+        """ Remove object from display
+        """
+        self.delete()
+        

@@ -57,7 +57,7 @@ class BlinkerMultiState:
             return False
         
         if not self.enable_blinking:
-           return False
+            return False
         
         if SlTrace.trace("no_blink"):
             return False
@@ -153,3 +153,9 @@ class BlinkerMultiState:
                     self.canvas.delete(tag)
                     tag  = None
         self.multitags = []
+
+    def destroy(self):
+        """ Remove
+        """
+        self.stop()
+        

@@ -120,7 +120,7 @@ class SelectArea(object):
                 rects = [rects]         # list of one
             for rect in rects:
                 self.add_rect(rect)
-        self.canvas.bind ("<ButtonPress-1>", self.down)
+        self.canvas.bind ("<Button-1>", self.button_click)
         self.canvas.bind ("<ButtonRelease-1>", self.up)
         self.canvas.bind ( "<Enter>", self.enter)
         self.canvas.bind ("<Leave>", self.leave)
@@ -461,10 +461,10 @@ class SelectArea(object):
             if part is not None and part.is_region():
                 ordered.append(part)
         for part in pts:
-            if part.is_edge():
+            if part is not None and part.is_edge():
                 ordered.append(part)
         for part in pts:
-            if part.is_corner():
+            if part is not None and part.is_corner():
                 ordered.append(part)
         return ordered
             
@@ -532,7 +532,7 @@ class SelectArea(object):
         """
         if id is not None:
             if id not in self.parts_by_id:
-                SlTrace.lg("part not in parts_by_id")
+                SlTrace.lg(f"part id={id} not in parts_by_id")
                 return None
             
             part = self.parts_by_id[id]
@@ -663,20 +663,33 @@ class SelectArea(object):
         part = self.parts_by_row_col[key]
         
         return part
+
+    def delete_tags(self, tags, quiet = False):
+        """ Delete tag or list of tags
+        :tags: tag or list of lists of tags
+        :quiet: supress tracing
+        """
+        if SlTrace.trace("delete_tags"):
+            SlTrace.lg(f"delete_tags: {self} tags:{tags}")
+            
+        if tags is None:
+            return
+        
+        if isinstance(tags, list):
+            for tag in tags:
+                self.delete_tags(tag, quiet=True)
+        else:
+            self.canvas.delete(tags)
     
     
     def display_clear(self, handle):
         """ Clear display of this handle
         """
         if handle.display_tag is not None:
-            if isinstance(handle.display_tag, list):
-                for tag in handle.display_tag:
-                    self.canvas.delete(tag)
-            else:
-                self.canvas.delete(handle.display_tag)
+            self.delete_tags(handle.display_tag)
             handle.display_tag = None
         if handle.highlight_tag is not None:
-            self.canvas.delete(handle.highlight_tag)
+            self.delete_tags(handle.highlight_tag)
             handle.highlight_tag = None
 
     
@@ -729,6 +742,46 @@ class SelectArea(object):
                     if res:
                         return res        # we've done the processing for this part
         return False                        # No processing
+
+    def button_click(self, event):
+        if SlTrace.trace("part_info"):
+            cnv = event.widget
+            x,y = cnv.canvasx(event.x), cnv.canvasy(event.y)
+            parts = self.get_parts_at(x,y)
+            if parts:
+                SlTrace.lg("x=%d y=%d" % (x,y))
+                for part in parts:
+                    SlTrace.lg("    %s\n%s" % (part, part.str_edges()))
+            
+        if not self.enable_moves_:
+            return                  # Low-level ignore
+
+        self.is_down = True
+        if self.inside:
+            SlTrace.lg("Click in canvas event:%s" % event, "motion")
+            cnv = event.widget
+            x,y = cnv.canvasx(event.x), cnv.canvasy(event.y)
+            SlTrace.lg("x=%d y=%d" % (x,y), "down")
+                
+        if self.has_highlighted():
+            part_ids = list(self.highlights)
+            for part_id in part_ids:
+                part = self.parts_by_id[part_id]
+                SlTrace.lg("highlighted %s" % (part), "highlight")
+                if self.down_click_call is not None:
+                    self.down_click_call(part, event=event)
+                    continue        # we've done the processing for this part
+                    
+                self.select_set(part)
+                if part.display_tag is None:
+                    pt=str(part.part_type)
+                    pdtag = str(part.display_tag)
+                    SlTrace.lg("select %s tag=%s"
+                           % (pt, pdtag,), "highlight")
+                else:
+                    SlTrace.lg("select %s tag=%s (%s)"
+                           % (part.part_type, part.display_tag,
+                              part), "highlight")
     
     
 
@@ -876,11 +929,6 @@ class SelectArea(object):
     def on_motion(self, event):
         cnv = event.widget
         x,y = cnv.canvasx(event.x), cnv.canvasy(event.y)
-        self.mouse_move(x, y)
-        
-        
-        
-    def mouse_move(self, x,  y):
         SlTrace.lg("on_motion: x,y=%d,%d" % (x,y), "on_motion")
         if not self.enable_moves_:
             return                  # Low-level ignore
@@ -899,21 +947,29 @@ class SelectArea(object):
                         xinc = x - prev_xy[0]
                         yinc = y - prev_xy[1]
                         SlTrace.lg("motion on(%s) at xy=(%d,%d) by xinc=%d yinc=%d"
-                               % (part.part_type, x,y, xinc, yinc), "motion")
+                               % (part.part_type, x,y, xinc, yinc), "on_motion")
                         self.move_part(part, xinc, yinc)
                         if self.highlighting:
                             self.highlight_set(part)
                     self.record_move_display()
         parts = self.get_parts_at(x,y, sz_type=SelectPart.SZ_SELECT)        # NOTE: this is reference
         if len(parts) > 0:
-            ncheck = 3
+            s = ""
+            part_str = "NONE" if len(parts) == 0 else str(parts[0])
+            if len(parts) != 1:
+                s = "s"
+                for part in parts[1:]:      # first is already present
+                    part_str += "\n" + " "*len(" over 2 parts: ") + str(part)
+            SlTrace.lg(f"over {len(parts)} part{s}: {part_str}", "motion")
+            ncheck = 1
             if len(parts) > ncheck:
-                SlTrace.lg("on parts(%d) > %d " % (len(parts), ncheck), "motion")
-                for pa in parts:
-                    SlTrace.lg("part: %s" % pa, "motion")
-                SlTrace.lg("", "motion")
+                if SlTrace.trace("motion_over_n"):
+                    SlTrace.lg("on parts(%d) > %d " % (len(parts), ncheck))
+                    for pa in parts:
+                        SlTrace.lg("part: %s" % pa)
+                    SlTrace.lg("")
             if self.highlighting:
-                self.highlight_clear()              # First clear all highlighted parts
+                self.highlight_clear(parts=parts, others=True) # First clear all highlighted parts
             for part in parts:
                 if not part.is_region():
                     SlTrace.lg("motion over %s" % part, "is_over")
@@ -992,19 +1048,12 @@ class SelectArea(object):
             
         return False
 
-    def clear_highlighted(self, parts=None, display=True):
-        """ Clear highlighted parts
-        :parts: parts to clear default: ALL
-        :display: True display after default: True
+    def clear_highlighted(self, parts=None, others=False, display=True):
+        """ alternate
         """
-        if parts is None:
-            parts = []
-            for highlight in self.highlights.values():
-                parts.append(highlight.part)
-        for part in parts:
-            part.highlight_clear(display=display)
-            
-
+        
+        self.highlight_clear(parts=parts, others=others, display=display
+                             )
     def highlight_clear(self, parts=None, others=False, display=True):
         """ Clear highlighted parts
             Remove part form  highlights
@@ -1013,9 +1062,6 @@ class SelectArea(object):
                         True - clear other parts
             :display: display updated, default: True
         """
-        if not self.has_highlighted():
-            return
-        
         if parts is None:
             if not others:
                 SlTrace.lg("highlight_clear ALL", "highlight")
@@ -1026,15 +1072,13 @@ class SelectArea(object):
             parts = [parts]
         
         if others:
+            parts_dict = {}
+            for part in parts:
+                parts_dict[part.part_id] = part
             other_parts = []
-            for highlight in self.highlights.values():
-                found = False
-                for part in parts: 
-                    if highlight.part.is_same(part):
-                        found = True
-                        break
-                if not found:
-                    other_parts.append(part)
+            for highlight in self.highlights:
+                if highlight not in parts_dict:
+                    other_parts.append(self.highlights[highlight].part)
             parts = other_parts
                 
         for part in parts:
@@ -1360,8 +1404,8 @@ class SelectArea(object):
         cnv = event.widget
         x,y = cnv.canvasx(event.x), cnv.canvasy(event.y)
         ###got = event.widget.coords (tk.CURRENT, x, y)
-        SlTrace.lg("up at x=%d y=%d" % (x,y), "motion")
-        SlTrace.lg("up is ignored", "motion")
+        SlTrace.lg("up at x=%d y=%d" % (x,y), "on_up")
+        SlTrace.lg("up is ignored", "on_up")
         return
     
         if self.has_selected():

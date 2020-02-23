@@ -8,6 +8,7 @@ from select_trace import SlTrace
 from select_error import SelectError
 from select_control_window import SelectControlWindow            
 from sc_player_control import PlayerControl
+from select_control import SelectControl
 
 class PlayerFields:
     def __init__(self, player, widgets={}):
@@ -18,6 +19,7 @@ class ScoreWindow(SelectControlWindow):
     CONTROL_NAME_PREFIX = "score_control"
     DEF_WIN_X = 500
     DEF_WIN_Y = 0
+    cF = SelectControl()        # Access to program variables
     
     wd = 15
     col_infos = [
@@ -46,9 +48,14 @@ class ScoreWindow(SelectControlWindow):
             
     def _init(self, *args, title=None, control_prefix=None,
               play_control=None, player_control=None, show_ties=True,
+              undo_micro_move=False,
+              undo_micro_move_command=None,
                **kwargs):
         """ Initialize subclassed SelectControlWindow singleton
              Setup score /undo/redo window
+             :undo_micro_move: Undo every move not just user moves
+             :undo_micro_move_command: command to call when undo_micro_move
+                 changes default: no call
         """
         self.players = {}      # Keep track of players, fields in score board
         if title is None:
@@ -62,6 +69,9 @@ class ScoreWindow(SelectControlWindow):
             self.player_control.set_score_control(self)
         self.play_control = play_control
         self.show_ties = show_ties
+        self.undo_micro_move = self.cF.make_val("undo_micro_move", undo_micro_move,
+                                                repeat=True)
+        self.undo_micro_move_command = undo_micro_move_command
         super()._init(*args, title=title, control_prefix=control_prefix,
                        **kwargs)
         self.show_ties = show_ties
@@ -121,11 +131,26 @@ class ScoreWindow(SelectControlWindow):
         redo_button.pack(side="left", expand=True)
         redo_button.config(width=bw, height=bh)
     
+        self.set_sep(10*" ")
+        undo_micro_move = self.cF.get_val("undo_micro_move",
+                                           self.undo_micro_move)
+        self.set_check_box(field="undo_micro_move",
+                           label="micro moves", value=undo_micro_move,
+                           command=self.undo_micro_move_change )
         ###self.setup_score_window(move_no_label=move_no_label)
         self.arrange_windows()
         self.mw.bind( '<Configure>', self.win_size_event)
         self.update_window()
 
+    def undo_micro_move_change(self, new_value):
+        """ Update undo_micro_move setting
+        :new_value: updated value
+        """
+        self.cF.set_val("undo_micro_move",
+                          new_value)
+        if self.undo_micro_move_command is not None:
+            self.undo_micro_move_command(new_value)
+        
     def add_player(self, player):
         if player.id in self.players:
             return              # Only add first
@@ -158,6 +183,11 @@ class ScoreWindow(SelectControlWindow):
         prop_val = SlTrace.getProperty(prop_key)
         if prop_val is None:
             return default
+        
+        if isinstance(default, bool):
+            if prop_val == "1" or prop_val.lower() == "true":
+                return True
+            return False
         
         if isinstance(default, int):
             if prop_val == "":
@@ -360,11 +390,11 @@ class ScoreWindow(SelectControlWindow):
         
     def undo_button(self):
         SlTrace.lg("undoButton")
-        res = self.play_control.undo()
+        res = self.play_control.undo(undo_micro_move=self.undo_micro_move)
         return res
                 
         
     def redo_button(self):
         SlTrace.lg("redoButton")
-        res = self.play_control.redo()
+        res = self.play_control.redo(undo_micro_move=self.undo_micro_move)
         return res
