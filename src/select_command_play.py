@@ -102,11 +102,11 @@ class SelectCommandPlay(SelectCommand):
             if self.prev_selects:
                 st += "\n  prev_selects:"
                 for part_id in self.prev_selects.values():
-                    st += "\n    %s" % self.get_part(part_id)
+                    st += "\n    %s" % self.get_part(id=part_id)
             if self.new_selects:
                 st += "\n  new_selects:"
-                for part_id in self.new_selects.values():
-                    st += "\n    %s" % self.get_part(part_id)
+                ###TFDfor part_id in self.new_selects.values():
+                ###    st += "\n    %s" % self.get_part(id=part_id)
         ###st += (" new_player:" + str(self.new_player))
         st += "\n  prev_player: " + str(self.prev_player)
         st += "\n  new_player: " + str(self.new_player)
@@ -331,7 +331,7 @@ class SelectCommandPlay(SelectCommand):
                 self.set_changed(part_id)
         for part_id in self.new_selects:
             if part_id not in self.prev_selects:
-                part = self.get_part(part_id)
+                part = self.get_part(id=part_id)
                 if part is not None:
                     part.select_set()
                     self.set_changed(part_id)
@@ -463,13 +463,30 @@ class SelectCommandPlay(SelectCommand):
             self.list_selected("execute AFTER")
         return True
 
-
+    '''
     def get_part(self, id=None, type=None, sub_type=None, row=None, col=None):
         """ Get basic part
         :id: unique part id
         :returns: part, None if not found
         """
         return self.user_module.get_part(id=id, type=type, sub_type=sub_type, row=row, col=col)
+    '''
+
+
+    def get_part(self, id):
+        """ Get basic part
+        :id: unique part id
+        :returns: part, None if not found
+        """
+        return self.user_module.get_part(id)
+
+
+    def get_mvpart(self, mvpart=None):
+        """ Get basic part
+        :id: unique part id
+        :returns: part, None if not found
+        """
+        return self.user_module.get_mvpart(mvpart=mvpart)
 
     
     def list_cmd(self, prefix=None):

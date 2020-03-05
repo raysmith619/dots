@@ -96,6 +96,7 @@ class SelectEdge(SelectPart):
             self.name_tag = self.display_text((cx, cy), text=str(self.part_id))
             self.add_display_tags(self.name_tag)
         if self.move_no is not None and SlTrace.trace("show_move"):
+            c1x,c1y,c3x,c3y = self.get_rect()
             dir_x, dir_y = self.edge_dxy()
             chr_w = 5
             chr_h = chr_w*2

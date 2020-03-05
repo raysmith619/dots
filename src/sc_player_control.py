@@ -350,7 +350,7 @@ class PlayerControl(SelectControlWindow):
         comma separated string
         :playing: comma separated string of playing player's Labels
         """
-        players = self.get_players()        # Get playing
+        players = self.get_players(all=True)        # Get playing
         if playing is None:
             player_str = ""
             for player in players:

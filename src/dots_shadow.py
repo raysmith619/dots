@@ -4,12 +4,14 @@ Support for shadow dots game board - logical function of the game without displa
 """
 import numpy as np
 
+from select_trace import SlTrace
 from select_error import SelectError
 from select_edge import SelectEdge
 from select_region import SelectRegion
 from matplotlib.mlab import dist
 import random    
-
+from docutils.nodes import row
+from move_list import MoveList, MVP
 """
 Dots Square / Edge numbering
 Squares are numbered row, col starting at 1,1 in upper left
@@ -28,76 +30,7 @@ Edges, bordering a square are numbered as follows:
     Bhe_col = sq_col
 
 """
-class MoveList:
-    """ List of moves (edge specifications) which can be efficiently manipulated
-    """
-    def __init__(self, shadow, max_move=None, moves=None):
-        """ Setup list
-        :shadow:  Playing shadow data control
-        :max_move: Maximum number of moves
-        :list: if present, initialize list
-        """
-        self.shadow = shadow
-        if max_move is None:
-            if moves is not None:
-                max_move = len(moves)
-            else:
-                max_move = 225
-        self.moves = np.zeros([max_move, 3], dtype=int)     #  [row, col, hv(0-horizontal, 1-vertical]
-        self.nmove = 0                          # Empty
-        if moves is not None:
-            for i, mv in enumerate(moves):
-                hv = 0 if mv.sub_type() == 'h' else 1
-                self.moves[i, 0] = mv.row
-                self.moves[i, 1] = mv.col
-                self.moves[i, 2] = hv
-            self.nmove = len(moves)
-
-
-    def add_move(self, move):
-        """ Add move (tuple) to move list
-        Currently no check or handling for overflow
-        :move: move (tuple) to add
-        """
-        for i, mval in enumerate(move):
-            self.moves[self.nmove, i] = mval
-        self.nmove += 1
-            
     
-    def number(self):
-        """ Get number in list
-        :returns: number in list
-        """
-        return self.nmove
-    
-    
-    def rand_move(self):
-        """ Get random list entry
-        """
-        ir = random.randint(0,self.nmove-1)
-        return (self.moves[ir,0], self.moves[ir,1], self.moves[ir,2])
-    
-    
-    def rand_obj(self):
-        """ Get random list entry object e.g. edge
-        """
-        irt = self.rand_move()
-        obj = self.shadow.lines_obj[irt]
-        return obj
-
-
-    def list_moves(self):
-        """ Provide python list of moves
-        """
-        moves = []
-        for i in range(self.nmove):
-            row = self.moves[i,0]
-            col = self.moves[i,1]
-            hv = self.moves[i,2]
-            move = self.shadow.get_edge(row, col, hv)
-            moves.append(move)
-        return moves
-            
             
 class DotsShadow:
     """ Shadow of Dots structure to facilitate testing speed when display is not required
@@ -108,28 +41,40 @@ class DotsShadow:
         self.ncols = ncols
         self.squares = np.zeros([nrows, ncols])
         self.lines = np.zeros([nrows+1, ncols+1, 2])     # row, col, [horiz=0, vert=1]
+        
+                                                    # Mark illegal edges as used
+        for ir in range(nrows+1):
+            self.lines[ir, ncols, MVP.HV_H] = 1     # No horizontal edge at right end
+        for ic in range(ncols+1):
+            self.lines[nrows, ic, MVP.HV_V] = 1     # No vertical edge at bottom end
 
         self.squares_obj =  np.zeros([nrows, ncols], dtype=SelectRegion)
         self.lines_obj = np.zeros([nrows+1, ncols+1, 2], dtype=SelectEdge)     # row, col, [horiz=0, vert=1]
+        ###self.lines_obj = np.zeros([nrows+1+1, ncols+1+1, 2], dtype=SelectEdge)     # row, col, [horiz=0, vert=1]
         self.nopen_line = 2*nrows*ncols + nrows + ncols
+
+
+    def get_legal_list(self):
+        """ Return MoveList of legal moves
+        :returns: list(MoveList) of moves(MoveList)
+        """
+        legals = MoveList(self)
+        for ir in range(0, self.nrows+1):
+            for ic in range(0, self.ncols+1):
+                for hv in [MVP.HV_H, MVP.HV_V]:
+                    if self.lines[ir, ic, hv] == 0:
+                        legals.add_move(MVP(row=ir+1, col=ic+1, hv=hv))    # unused
+        return legals
 
 
     def get_legal_moves(self):
         """ Return list of legal moves
-        :give_edges: True retun list of edges (legacy values)
-        :returns: list of moves(MoveList)
+        :returns: list(MoveList) of moves(MoveList)
         """
-        legals = MoveList(self, max_move=None)
-        for ir in range(0, self.nrows+1):
-            for ic in range(0, self.ncols+1):
-                if ic < self.ncols:
-                    if self.lines[ir, ic, 0] == 0:
-                        legals.add_move((ir, ic, 0))    # Horizontal till last
-                
-                if ir < self.nrows:
-                    if self.lines[ir, ic, 1] == 0:
-                        legals.add_move((ir, ic, 1))    # Vertical till last row
-        return legals
+        legal_list = self.get_legal_list()
+        legal_moves = legal_list.get_moves()
+        
+        return legal_moves
 
 
     def get_num_legal_moves(self):
@@ -145,20 +90,19 @@ class DotsShadow:
         :returns: list(MoveList) of moves that will complete a square
         """
         if move_list is None:
-            move_list = self.get_legal_moves()
+            move_list = self.get_legal_list()
         square_move_list = MoveList(self, max_move=move_list.nmove)
         
-        moves = move_list.moves
-        for im in range(move_list.nmove):
-            nr = moves[im, 0]
-            nc = moves[im, 1]
-            hv = moves[im, 2]    
+        for mvp in move_list:
+            nr = mvp.row
+            nc = mvp.col
+            hv = mvp.hv    
             if self.does_complete_square(nr, nc, hv):
-                square_move_list.add_move((nr, nc, hv))
+                square_move_list.add_move(mvp)
         return square_move_list
 
 
-    def get_square_distance_moves(self, min_dist=2, move_list=None):
+    def get_square_distance_list(self, min_dist=2, move_list=None):
         """ Get moves give a minimum distance(additional number of
         moves to complete a square) to square completion
         :min_dist: minimum distance requested, e.g. 1: next move can
@@ -172,12 +116,12 @@ class DotsShadow:
             move_list = self.get_legal_moves()
         dist_move_list = MoveList(self, max_move=move_list.nmove)
         
-        for im in range(move_list.nmove):
-            nr = move_list.moves[im, 0]
-            nc = move_list.moves[im, 1]
-            hv = move_list.moves[im, 2]    
+        for mvp in move_list:
+            nr = mvp.row
+            nc = mvp.col
+            hv = mvp.hv    
             if self.distance_from_square(nr, nc, hv) >= min_dist:
-                dist_move_list.add_move((nr, nc, hv))
+                dist_move_list.add_move(mvp)
         return dist_move_list
     
 
@@ -260,10 +204,17 @@ class DotsShadow:
         """ Check if edge will complete square
         :nr: row number, starting at 1 for top of board
         :nc: col number, starting at 1 for left of board
-        :hc: horizontal/vertical 0- horizontal, 1-vertical
+        :hv: horizontal/vertical 0- horizontal, 1-vertical
         """
+        if nr < 1 or nr > self.nrows+1:
+            raise SelectError(f"row:{nr} out of range")
+        if nc < 1 or nc > self.ncols+1:
+            raise SelectError(f"col:{nc} out of range")
+        if hv < 0 or hv > 1:
+            raise SelectError(f"hv:{hv} out of range")
         ir = nr - 1
         ic = nc - 1
+        SlTrace.lg(f"ir={ir} ic={ic} hv={hv}", "complete_square")
         if hv == 0:     # Horizontal
             if ir > 0:
                                                             # Square above
@@ -272,7 +223,7 @@ class DotsShadow:
                         and self.lines[ir, ic+1, 1] == 0):  # right vertical edge
                     return True            
                 
-                                                            # Square below
+            if ir < self.nrows:                             # Square below
                 if (self.lines[ir+1, ic, 1] > 0             # left vertical edge
                         and self.lines[ir+1, ic, 0] > 0     # bottom horizontal edge
                         and  self.lines[ir+1, ic, 1] > 0): # right vertical edge
@@ -285,8 +236,9 @@ class DotsShadow:
                         and self.lines[ir, ic-1, 1] > 0     # left vertical edge
                         and self.lines[ir, ic-1, 0] > 0):   # top horizontal edge
                     return True     # complete sq on left
-                
+
                                                             # Square to right
+            if ic < self.ncols:                             # but not right most column
                 if (self.lines[ir+1, ic, 0] > 0             # bottom horizontal edge
                         and self.lines[ir+1, ic, 1] > 0     # right vertical edge     
                         and self.lines[ir+1, ic, 0] > 0):    # top horizontal edge
@@ -301,8 +253,17 @@ class DotsShadow:
         :col: col number, starting with 1
         :hv: horizontal==0, vertical==1
         """
-        return self.lines[row-1, col-1, hv]
+        return self.lines_obj[row-1, col-1, hv]
+    
+    def get_mvpart(self, mvpart=None):
+        """ get shadowed part (edge only)
+        :mvpart: MoveList entry designation
+        """
+        if mvpart is not None:
+            ir, ic, hv = mvpart.row-1, mvpart.col-1, mvpart.hv
+            return self.lines_obj[ir, ic, hv]
         
+        return None
 
 
     def set_part(self, part):

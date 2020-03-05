@@ -235,14 +235,24 @@ class SelectDots(object):
         self.complete_square_call = None                # Setup for complete square call
         self.new_edge_call = None                       # Setup for new edge call
 
+
+    def get_mvpart(self, mvpart=None):
+        """ Get MVP part
+        :mvpart: unique move part specification (row,col,hv)
+        :returns: part, None if not found
+        """
+        return self.shadow.get_mvpart(mvpart=mvpart)
+
     def get_part(self, id=None, type=None, sub_type=None, row=None, col=None):
         """ Get basic part
+        :mvpart: shadow (MoveList) id
         :id: unique part id
         :type: part type e.g., edge, region, corner
         :row:  part row
         :col: part column
         :returns: part, None if not found
         """
+        
         return self.area.get_part(id=id, type=type, sub_type=sub_type, row=row, col=col)
 
  
@@ -253,9 +263,13 @@ class SelectDots(object):
         """
         return self.area.get_parts(pt_type=pt_type)
     
+    def get_legal_list(self):
+        """  Get MoveList of edges that would be legal moves
+        """
+        return self.shadow.get_legal_list()
     
     def get_legal_moves(self):
-        """  Get edges that would be legal moves
+        """  Get list of edges that would be legal moves
         """
         return self.shadow.get_legal_moves()
 
@@ -271,10 +285,10 @@ class SelectDots(object):
         return self.shadow.get_num_legal_moves()
 
 
-    def get_square_distance_moves(self, min_dist=2, move_list=None):
+    def get_square_distance_list(self, min_dist=2, move_list=None):
         """ Get moves which provide a minimum distance to sqaree completion
         """
-        return self.shadow.get_square_distance_moves(min_dist=min_dist, move_list=move_list)
+        return self.shadow.get_square_distance_list(min_dist=min_dist, move_list=move_list)
     
     
     def get_selects(self):

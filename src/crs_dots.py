@@ -40,7 +40,6 @@ rF = None                   # Games Results file if any
 loop_no = 0                 # Label loop number, starting at 1
 sp = None
 command_stream = None
-game_control = None
 def pgm_exit():
     ActiveCheck.clear_active()  # Disable activities
     if rF is not None:
@@ -102,6 +101,8 @@ undo_micro_move = cF.make_val("undo_micro_move", False)   # Undo all steps, not 
 width = 600         # Window width
 height = width      # Window height
 board_change = True # True iff board needs redrawing
+setup_before_game = False       # True -> setup before next game
+                
 
 
 
@@ -256,9 +257,10 @@ msg_frame = None            # message enclosed frame
         
 mw.lift()
 mw.attributes("-topmost", True)
+game_control = SelectGameControl(title="Game Control", display=True)
 
 ###@profile    
-def setup_app(game_conrol):
+def setup_app():
     """ Setup / Resetup app window
     :returns: app reference
     """
@@ -406,7 +408,7 @@ def end_game():
         pl_str = "s" if numgame != 1 else ""
         SlTrace.lg("Ending program after {:d} game{}".format(numgame, pl_str))
         pgm_exit()
-        
+
     if sp.restart_game:
         mw.after(0, new_game)
     elif loop and not sp.game_stopped:
@@ -423,7 +425,6 @@ def set_dots_button():
     global loop_no
     global first_set_app
     global app
-    global game_control
     global board_frame, msg_main_frame, msg_frame, sqs
     global width, height, min_xlen, nx, ny
     global n_rearrange_cycles, rearrange_cycle
@@ -447,9 +448,7 @@ def set_dots_button():
             print_list = traceback.format_list(stack)
             for line in print_list[-list_len:]:
                 SlTrace.lg("  " + line)
-    if game_control is None:
-        game_control = SelectGameControl()    
-    app = setup_app(game_control)
+    app = setup_app()
     
     app.update_form()
         
@@ -652,6 +651,14 @@ def run_cmd():
 def new_game():
     """ Start new game
     """
+    global setup_before_game
+    
+    if setup_before_game:
+        set_dots_button()
+        setup_before_game = False
+        
+                
+
     SlTrace.lg("Starting New Game")
     if sp is not None:
         sp.reset()
@@ -671,6 +678,32 @@ def pause_cmd():
     if sp is not None:
         sp.pause_cmd()
 
+def game_control_set(gcw):
+    """ game_control_set button cmd
+    :gcw: game control window object
+    """
+    global loop, loop_after, speed_step, show_ties, min_xlen
+    global run_resets
+    global nx, ny
+    global setup_before_game
+    global board_change
+
+    loop = gcw.get_prop_val("running.loop", loop)
+    loop_after = gcw.get_prop_val("running.loop_after", loop_after)
+    speed_step = game_control.get_prop_val("running.speed_step", speed_step)
+    run_resets = game_control.get_prop_val("scroring.run_resets", run_resets)
+    show_ties = game_control.get_prop_val("scoring.show_ties", show_ties)
+    min_xlen = game_control.get_prop_val("viewing.min_xlen", min_xlen)    
+    nx = game_control.get_prop_val("viewing.columns", nx)    
+    ny = game_control.get_prop_val("viewing.rows", ny)
+    setup_before_game = True
+    board_change = True
+
+    ###if sp is not None:
+    ###    sp.game_control_window_set_cmd(gcw)
+
+
+    
 if results_files:
     rF = DotsGameFile(file_dir=results_dir, history=history, pgm_info=pgm_info)
     SlTrace.lg("Game Results File %s" % rF.file_path)
@@ -685,7 +718,6 @@ if play_level is not None:
     player_control.set_play_level(play_level)
 if playing is not None:
     player_control.set_playing(playing)
-game_control = SelectGameControl(title="Game Control", display=True)
 
 def undo_micro_move_command(new_value):
     global undo_micro_move
@@ -699,6 +731,8 @@ score_window = ScoreWindow(title="Score", player_control=player_control,
                            undo_micro_move=undo_micro_move,
                            undo_micro_move_command=undo_micro_move_command,
                            display=True)   
+
+game_control.set_set_cmd(game_control_set)      # Link local command to game_control Set Button
 set_dots_button()
 
 mainloop()

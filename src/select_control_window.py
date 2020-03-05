@@ -14,6 +14,7 @@ import os
 
 from select_error import SelectError
 from select_trace import SlTrace
+import cmd
 
 
     
@@ -43,10 +44,12 @@ class SelectControlWindow(Toplevel):
                 control_prefix=None,
                 title=None,
                 display=True,
+                set_cmd=None,
                 new = False
                  ):
         """ Control attributes
         :title: window title
+        :set_cmd: function, if present, to call on button press
         """
         SelectControlWindow.instance_no += 1
         self.play_control = play_control
@@ -62,6 +65,7 @@ class SelectControlWindow(Toplevel):
         self.ctls = {}          # Dictionary of field control widgets
         self.ctls_vars = {}     # Dictionary of field control widget variables
         self.display = display   # Done in instance, if at all
+        self.set_cmd = set_cmd
         self._is_displayed = False
 
 
@@ -121,7 +125,14 @@ class SelectControlWindow(Toplevel):
     """
     def set(self):
         self.set_vals()
+        if self.set_cmd is not None:
+            self.set_cmd(self)
 
+    def set_set_cmd(self, cmd):
+        """ Setup / clear Set button command
+        """
+        self.set_cmd = cmd
+        
     
     def reset(self):
         self.set_vals()

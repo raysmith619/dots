@@ -123,12 +123,19 @@ class SelectGameControl(SelectControlWindow):
 
     
 if __name__ == '__main__':
-        
+
+    def set_cmd(ctl):
+        SlTrace.lg("Set Button")
+                
     root = Tk()
     root.withdraw()       # Hide main window
 
     SlTrace.setProps()
-    cF = SelectGameControl(None, title="SelectGameControl Testing", display=True)
+    loop = True
+    ###loop = False
+    cF = SelectGameControl(None, title="SelectGameControl Testing", display=True, set_cmd=set_cmd)
+    cF.set_prop_val("running.loop", loop)
+    cF.control_display()
     ##cF.open("cmdtest")
         
     root.mainloop()

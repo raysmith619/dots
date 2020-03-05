@@ -531,6 +531,9 @@ class SelectPart(object):
         """ Provide view of difference between
             us and part
         """
+        if part is None:
+            return f"{self} CHANGED to {part}"
+        
         st = ""
         if part.part_type != self.part_type:
             st += " type CHANGEd %s ==> %s" % (
