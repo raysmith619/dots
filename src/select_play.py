@@ -86,8 +86,6 @@ class SelectPlay:
         self.numgame = numgame
         self.profile_running = profile_running
         self.playing = True     # Hack to suppress activity on exit event
-        if score_window is None:
-            score_window = ScoreWindow()
         self.score_window = score_window
         if game_control is None:
             raise SelectError("SelectPlay: manditory game_control is missing")
@@ -129,9 +127,7 @@ class SelectPlay:
         self.manual_moves = []          # Initialize empty list
 
         self.btmove = btmove
-        if player_control is None:
-            player_control = PlayerControl(display=False)
-        self.player_control = player_control
+        self.player_control = player_control    # May be set later
         self.player_index = 0
         self.messages = []      # Command messages, if any
         self.first_time = True       # flag showing first time
@@ -192,6 +188,7 @@ class SelectPlay:
         
         while self.running:
             SlTrace.lg("running_loop", "running_loop")
+            self.mw.update()
             if ActiveCheck.not_active():
                 break
             SlTrace.lg("running_loop active", "running_loop")
@@ -218,8 +215,7 @@ class SelectPlay:
                         SlTrace.lg("running_loop successful start_move", "running_loop")
                         self.next_move_no()
                     SlTrace.lg("running_loop after start_move", "running_loop")
-            else:
-                self.mw.update()        
+                        
                 
         SlTrace.lg("running_loop after loop", "running_loop")
         BlinkerMultiState.disable()
@@ -272,6 +268,9 @@ class SelectPlay:
         if highlight:
             edge.highlight_set()
         self.keycmd_edge_mark = edge
+    
+    def list_selected(self, prefix=None):
+        self.board.area.list_selected(prefix=prefix)
         
         
     def make_new_edge(self, edge=None, dir=None, rowcols=None, display=True):
@@ -426,14 +425,16 @@ class SelectPlay:
         """
         return self.command_manager.get_changed(clear=clear)
 
-        
-    def setup_score_window(self):
-        """ Setup interaction with Move/Undo/Redo
+    def setup_scores_frame(self):
+        """ Set / Reset scoring window scoring frame
         """
         if self.score_window is not None:
-            self.score_window.destroy()
-                        
-        self.score_window = ScoreWindow()
+            self.score_window.setup_scores_frame()
+        
+    def setup_score_window(self, score_window):
+        """ Setup interaction with Move/Undo/Redo
+        """
+        self.score_window = score_window
 
 
     def close_score_window(self):
@@ -465,6 +466,12 @@ class SelectPlay:
         Begins move
         """
         player = self.get_player()
+        if player is None:
+            msg = "Nobody playing"
+            SlTrace.lg(msg)
+            self.add_message(msg)
+            return
+        
         prev_player = self.get_prev_player()
         if player != prev_player:
             was_str = " was %s" % prev_player
@@ -475,7 +482,7 @@ class SelectPlay:
         scmd = self.get_cmd("announce_player", has_prompt=True)
         self.set_prev_player(prev_player)
         self.set_new_player(player)
-        text = "It's %s's turn." % player.name
+        text = f"It's {player.name}'s turn." 
         self.trace_scores("announce_player:")
         SlTrace.lg(text, "player")
         self.add_message(text, color=player.color)
@@ -524,13 +531,14 @@ class SelectPlay:
         if self.board is not None:
             self.board.destroy()
             self.board = None
-        if False and self.game_control is not None:
+        hold_sub_displays = True
+        if not hold_sub_displays and self.game_control is not None:
             self.game_control.destroy()
             self.game_control = None
-        if self.player_control is not None:
+        if not hold_sub_displays and self.player_control is not None:
             self.player_control.destroy()
             self.player_control = None
-        if self.score_window is not None:
+        if not hold_sub_displays and self.score_window is not None:
             self.score_window.destroy()
             self.score_window = None
             
@@ -595,8 +603,13 @@ class SelectPlay:
         
         for message in messages:
             self.do_message(message)
-    
-    
+
+    def set_score_window(self, scw):
+        """ set/reset score window
+        :scw: score window
+        """
+        self.score_window = scw
+    '''
     def show_score_window(self):
                
         if not self.display_game:
@@ -607,7 +620,7 @@ class SelectPlay:
         if self.score_window is None:
             self.score_window = ScoreWindow(play_control=self.player_control, show_ties=self.show_ties)
         self.score_window.update_window()
-    
+    '''
     
     def clear_score_window(self):
         if self.mw is None:
@@ -1117,7 +1130,7 @@ class SelectPlay:
                         e.g. stay_even==.1 if score > .1*opponent
                 abs() >= 1 use stay_even as number advantage
                         e.g. stay_even==2 if score > 2 + opponent
-
+        :returns: adjusted level
         """
         SlTrace.lg("adjust_level_to_stay_even player: %s" % self.get_player(), "player_trace")
         level = player.level
@@ -1129,6 +1142,9 @@ class SelectPlay:
         our_score = player.get_score()
         SlTrace.lg("adjust_level_to_stay_even player: %s" % self.get_player(), "player_trace")
         next_player = self.get_next_player(set_player=False)
+        if next_player is None:
+            return level
+        
         SlTrace.lg("adjust_level_to_stay_even player: %s" % self.get_player(), "player_trace")
         next_score = next_player.get_score()
         SlTrace.lg("adjust_level_to_stay_even player: %s" % self.get_player(), "player_trace")
@@ -1273,6 +1289,9 @@ class SelectPlay:
                 self.list_selected("After start_move")
             self.new_move = False
         player = self.get_player()
+        if player is None:
+            return False
+        
         if player.auto:
             self.auto_play_pause()
             if self.auto_play(player):
@@ -1438,6 +1457,7 @@ class SelectPlay:
 
             
     def start_game(self):
+        self.player_control.setup_game()
         self.in_game = True
         self.new_move = True
         self.manual_moves = []          # Initialize empty list
@@ -1563,6 +1583,9 @@ class SelectPlay:
             SlTrace.lg("%d Dot%s Completed" % (nsq, plu), "square")
         else:
             next_player = self.get_next_player()      # Advance to next player
+            if next_player is None:
+                return level
+            
             SlTrace.lg("Next player: %s" % next_player, "player_trace")
         if SlTrace.trace("selected"):
             self.list_selected("After square check")

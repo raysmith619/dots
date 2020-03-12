@@ -46,7 +46,7 @@ class ScoreWindow(SelectControlWindow):
         ]
         
             
-    def _init(self, *args, title=None, control_prefix=None,
+    def __init__(self, *args, title=None, control_prefix=None,
               play_control=None, player_control=None, show_ties=True,
               undo_micro_move=False,
               undo_micro_move_command=None,
@@ -62,17 +62,13 @@ class ScoreWindow(SelectControlWindow):
             title = "Game Control"
         if control_prefix is None:
             control_prefix = ScoreWindow.CONTROL_NAME_PREFIX
-        if player_control is None:
-            player_control = PlayerControl()
         self.player_control = player_control
-        if player_control is not None:
-            self.player_control.set_score_control(self)
         self.play_control = play_control
         self.show_ties = show_ties
         self.undo_micro_move = self.cF.make_val("undo_micro_move", undo_micro_move,
                                                 repeat=True)
         self.undo_micro_move_command = undo_micro_move_command
-        super()._init(*args, title=title, control_prefix=control_prefix,
+        super().__init__(*args, title=title, control_prefix=control_prefix,
                        **kwargs)
         self.show_ties = show_ties
         if show_ties:
@@ -82,6 +78,16 @@ class ScoreWindow(SelectControlWindow):
         if self.display:
             self.control_display()    
 
+    def set(self):
+        self.set_vals()
+        if self.set_cmd is not None:
+            self.set_cmd(self)
+
+    def set_set_cmd(self, cmd):
+        """ Setup / clear Set button command
+        """
+        self.set_cmd = cmd
+        
     def control_display(self):            
         """ display /redisplay controls to enable
         entry / modification
@@ -103,18 +109,10 @@ class ScoreWindow(SelectControlWindow):
                               )
         self.move_no_label.pack(side="left", expand=True)
         ###move_no_label.config(width=2, height=1)
-        
-        scores_frame = Frame(self.mw)
-        scores_frame.pack()
-        players = self.player_control.get_players()
-        
-        headings_frame = Frame(scores_frame)
-        headings_frame.pack()
-        self.set_field_headings(headings_frame)
-        self.players_frame = Frame(scores_frame)
-        self.players_frame.pack()
-        for player in players:
-            self.add_player(player)
+        self.scores_container_frame = Frame(self.mw)
+        self.scores_container_frame.pack()
+        self.scores_frame = None            # Reset each time we update players
+        self.setup_scores_frame()
 
         
         bw = 5
@@ -141,6 +139,27 @@ class ScoreWindow(SelectControlWindow):
         self.arrange_windows()
         self.mw.bind( '<Configure>', self.win_size_event)
         self.update_window()
+
+
+    def setup_scores_frame(self):
+        """ Set/Reset players' scores frame
+        """
+        if self.scores_frame is not None:
+            self.scores_frame.pack_forget()
+            self.scores_frame.destroy()
+            self.scores_frame = None
+        self.players = {}               # Clear, to add currently playing
+        self.scores_frame = Frame(self.scores_container_frame)
+        self.scores_frame.pack()    
+        players = self.player_control.get_players()
+        
+        headings_frame = Frame(self.scores_frame)
+        headings_frame.pack()
+        self.set_field_headings(headings_frame)
+        self.players_frame = Frame(self.scores_frame)
+        self.players_frame.pack()
+        for player in players:
+            self.add_player(player)
 
     def undo_micro_move_change(self, new_value):
         """ Update undo_micro_move setting
@@ -231,10 +250,9 @@ class ScoreWindow(SelectControlWindow):
         :player: player info
         :field: name of field
         """
-        col_infos = self.col_infos
         col_info = None     # Set if name found
         idx = 0             # Bumped after each check
-        for cinfo in col_infos:
+        for cinfo in self.col_infos:
             if cinfo[0] == field:
                 cname = field
                 if len(cinfo) >=2:

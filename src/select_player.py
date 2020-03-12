@@ -103,6 +103,17 @@ class SelectPlayer:
         """
         return copy.copy(self)
     
+    def deleteProps(self):
+        """ Delete players properties from properties file
+            in prepartation to delete the player
+        """
+        player_prop_key = self.get_prop_key("")
+        prop_keys = SlTrace.getPropKeys(player_prop_key)
+        SlTrace.lg(f"deleteProps for {self}")
+        for key in prop_keys:
+            prop_value = SlTrace.getProperty(key, None)
+            SlTrace.lg(f"{key}={prop_value}")
+            SlTrace.deleteProperty(key)
     
     def get_prop_key(self, name):
         """ Translate full  control name into full Properties file key
@@ -148,6 +159,23 @@ class SelectPlayer:
         """
         self.control.set_wins(self, wins)
 
+    def get_playing_num(self):
+        """ get playing number (index +1)
+        """
+        playing = self.control.playing
+        if len(playing) == 0:
+            return None
+        
+        for i, player in enumerate(playing):
+            if player.id == self.id:
+                return i+1
+        
+        return None     # Not found
+    
+                
+        pindex = self.control.cur_pindex
+        
+        
     def get_played(self):
         """ Get current played # TBD update as did get/set_score
         """
@@ -190,7 +218,8 @@ class SelectPlayer:
         """ Set all control variables from internal values
         """
         for field in self.ctls_vars:
-            self.set_ctl_from_val(field)
+            if hasattr(self, field):            # Avoid fields that are not in the player
+                self.set_ctl_from_val(field)
 
         """ Do fields not represented by control variables """
         self.set_prop("played")

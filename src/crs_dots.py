@@ -20,16 +20,19 @@ snapshot2 = None
 
 mw = Tk()       # MUST preceed users of SelectControl for tkinter vars ...Var()
                 # e.g. SelectPlay -> ScoreWindow -> SelectControl
+from select_error import SelectError
+from select_trace import SlTrace
+
 from select_control import SelectControl
 from select_part import SelectPart
 from select_window import SelectWindow
 from select_play import SelectPlay
-from select_trace import SlTrace
 ###from select_region import SelectRegion
 from select_dots import SelectDots
 from sc_cmd_file_control import SelectCommandFileControl
 from active_check import ActiveCheck
-from sc_game_control import SelectGameControl
+from select_game_control import SelectGameControl
+###from sc_game_control import SelectGameControl
 from sc_player_control import PlayerControl
 from sc_score_window import ScoreWindow
 from dots_game_file import DotsGameFile
@@ -40,6 +43,12 @@ rF = None                   # Games Results file if any
 loop_no = 0                 # Label loop number, starting at 1
 sp = None
 command_stream = None
+
+                            # Major control windows
+game_control = None
+player_control = None
+score_window = None     # Set when window is created, vis show_score_window
+
 def pgm_exit():
     ActiveCheck.clear_active()  # Disable activities
     if rF is not None:
@@ -108,7 +117,7 @@ setup_before_game = False       # True -> setup before next game
 
 
 base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-SlTrace.setLogName(base_name)
+###SlTrace.setLogName(base_name)
 pgm_info = "%s %s\n" % (os.path.basename(sys.argv[0]), " ".join(sys.argv[1:]))
 SlTrace.lg(pgm_info)
 ###SlTrace.setTraceFlag("get_next_val", 1)
@@ -257,7 +266,6 @@ msg_frame = None            # message enclosed frame
         
 mw.lift()
 mw.attributes("-topmost", True)
-game_control = SelectGameControl(title="Game Control", display=True)
 
 ###@profile    
 def setup_app():
@@ -270,7 +278,8 @@ def setup_app():
     global speed_step
     global first_app_set
     global board_change
-    
+
+        
     if first_set_app:
         app = SelectWindow(mw,
                         title="crs_dots",
@@ -280,12 +289,16 @@ def setup_app():
                         arrange_selection=False,
                         game_control=game_control
                         )
-        app.add_menu_command("NewGame", new_game)
-        app.add_menu_command("Players", show_players_window)
-        app.add_menu_command("Score", show_score_window)
         app.add_menu_command("CmdFile", cmd_file)
+        app.add_menu_separator()
+        app.add_menu_command("NewGame", new_game)
         app.add_menu_command("Run", run_cmd)
         app.add_menu_command("Pause", pause_cmd)
+        app.add_menu_separator()
+        app.add_menu_separator()
+        app.add_menu_command("Players", show_players_window)
+        app.add_menu_command("Game Control", show_score_window)
+        app.add_menu_command("Score", show_score_window)
     
         if is_in_pgm_args("loop"):
             game_control.set_prop_val("running.loop", loop)
@@ -534,7 +547,7 @@ def set_dots_button():
         if run_resets:
             sp.reset_score()
     if show_players:
-        show_players_window()
+        show_players_window(display=show_players)
     player_control.set_all_scores(0)
     ###if show_score:
     ###    show_score_window()
@@ -592,13 +605,48 @@ def set_dots_button():
         mw.after(0, sp.running_loop)
 
         
-def show_score_window():
+def show_game_control_window(display=True):
+    """ Setup game control window
+    """
+    global game_control
+    global sp
+    
+    SlTrace.lg("SelectGameControl")
+    if game_control is None:
+        game_control = SelectGameControl(title="Game Control", display=display)
+    else:
+        if display:
+            game_control.show_window()
+
+
+def show_players_window(display=True):
+    """ View/Change players
+    """
+    global player_control
+
+    SlTrace.lg("PlayerControl")
+    if player_control is None:
+        player_control = PlayerControl(title="Player Control", display=display)
+    else:
+        if display:
+            player_control.show_window()
+
+        
+def show_score_window(display=True):
     """ Setup score /undo/redo window
     """
+    global score_window
     global sp
-    if sp is not None:
-        sp.show_score_window()
-
+    
+    SlTrace.lg("ScoreWindow")
+    if score_window is None:
+        score_window = ScoreWindow(title="Score", player_control=player_control,
+                                   undo_micro_move=undo_micro_move,
+                                   undo_micro_move_command=undo_micro_move_command,
+                                   display=display)
+    else:
+        if display:
+            score_window.show_window()
     
 def vs(val):
     if type(val) == str:
@@ -623,14 +671,6 @@ def new_board():
     if sqs is not None:
         sqs.setup_area()
 
-
-def show_players_window():
-    """ View/Change players
-    """
-    SlTrace.lg("PlayerControl")
-    sp.player_control.control_display()
-
-
 def cmd_file():
     """ Setup command file processing
     """
@@ -654,6 +694,7 @@ def new_game():
     global setup_before_game
     
     if setup_before_game:
+        score_window.setup_scores_frame()
         set_dots_button()
         setup_before_game = False
         
@@ -699,8 +740,19 @@ def game_control_set(gcw):
     setup_before_game = True
     board_change = True
 
-    ###if sp is not None:
-    ###    sp.game_control_window_set_cmd(gcw)
+
+def player_control_set(pcw):
+    """ game_control_set button cmd
+    Must changes must wait till next game ?
+    Missing players?
+    :gcw: game control window object
+    """
+    ''' Let the came continue...
+    if sp is not None:
+        sp.stop_game("Player Change")
+    setup_before_game = True
+    board_change = True
+    '''
 
 
     
@@ -713,12 +765,6 @@ if cmd_file_name is not None:
                                  run_cmd=run_cmd_file, new_board=new_board,
                                  src_lst=src_lst, stx_lst=stx_lst)
 
-player_control = PlayerControl(title="Player Control", display=True)
-if play_level is not None:
-    player_control.set_play_level(play_level)
-if playing is not None:
-    player_control.set_playing(playing)
-
 def undo_micro_move_command(new_value):
     global undo_micro_move
     
@@ -726,14 +772,22 @@ def undo_micro_move_command(new_value):
     SlTrace.lg(f"New undo_micro_move: {undo_micro_move}")
     if sp is not None:
         sp.undo_micro_move_command(undo_micro_move)
-    
-score_window = ScoreWindow(title="Score", player_control=player_control,
-                           undo_micro_move=undo_micro_move,
-                           undo_micro_move_command=undo_micro_move_command,
-                           display=True)   
 
+                        # Setup control windows
+show_game_control_window()
+show_players_window()
+if play_level is not None:
+    player_control.set_play_level(play_level)
+if playing is not None:
+    player_control.set_playing(playing)
+show_score_window()    
+
+player_control.set_set_cmd(player_control_set)      # Link local command to player_control Set Button
 game_control.set_set_cmd(game_control_set)      # Link local command to game_control Set Button
 set_dots_button()
+if sp is None:
+    raise SelectError("show_score_window - play control not setup  yet")
+sp.set_score_window(score_window)   
 
 mainloop()
 SlTrace.lg("After mainloop()")

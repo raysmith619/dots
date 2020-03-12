@@ -21,7 +21,7 @@ class SelectGameControl(SelectControlWindow):
     
         
             
-    def _init(self, *args, title=None, control_prefix=None,
+    def __init__(self, *args, title=None, control_prefix=None,
               central_control=None, player_control=None,
                **kwargs):
         """ Initialize subclassed SelectControlWindow singleton
@@ -33,9 +33,20 @@ class SelectGameControl(SelectControlWindow):
             control_prefix = SelectGameControl.CONTROL_NAME_PREFIX
         self.player_control = player_control
         self.central_control = central_control
-        super()._init(*args, title=title, control_prefix=control_prefix,
+        super().__init__(*args, title=title, control_prefix=control_prefix,
                        **kwargs)
+        self.control_display()
 
+    def set(self):
+        self.set_vals()
+        if self.set_cmd is not None:
+            self.set_cmd(self)
+
+    def set_set_cmd(self, cmd):
+        """ Setup / clear Set button command
+        """
+        self.set_cmd = cmd
+            
     def set_play_control(self, play_control):
         """ Link ourselves to the display
         """
@@ -46,8 +57,7 @@ class SelectGameControl(SelectControlWindow):
         """ display /redisplay controls to enable
         entry / modification
         """
-        if self._is_displayed:
-            return
+
 
         super().control_display()       # Do base work        
         
@@ -90,7 +100,9 @@ class SelectGameControl(SelectControlWindow):
         self.set_entry(field="rows", label="rows", value=5, width=3)
         
         self.arrange_windows()
-
+        if not self.display:
+            self.hide_window()
+            
     """ Control functions for game control
     """
     def new_game(self):
@@ -120,6 +132,15 @@ class SelectGameControl(SelectControlWindow):
         self.set_vals()
         if self.play_control is not None:
             self.play_control.pause_cmd()
+
+
+
+    def destroy(self):
+        """ Destroy window resources
+        """
+        if self.mw is not None:
+            self.mw.destroy()
+        self.mw = None
 
     
 if __name__ == '__main__':

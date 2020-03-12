@@ -25,7 +25,7 @@ class SelectCommandFileControl(SelectControlWindow):
     DEF_WIN_Y = 300
     
 
-    def _init(self, *args,
+    def __init__(self, *args,
                  title="File Control",
                  control_prefix=CONTROL_NAME_PREFIX,
                  run=False,
@@ -61,7 +61,7 @@ class SelectCommandFileControl(SelectControlWindow):
         self.is_to_line_pats = []   # Compiled rex
         self.stop_pressed = False
         
-        super()._init(*args,
+        super().__init__(*args,
                       title=title, control_prefix=control_prefix,
                       **kwargs)    
         """ Player attributes

@@ -289,7 +289,10 @@ class DotsShadow:
         if player is None:
             return              # Short circuit if no player
         
-        pn = player.play_num
+        pn = player.get_playing_num()
+        if pn is None:
+            return
+        
         row = part.row 
         col = part.col
         sub_type = part.sub_type()

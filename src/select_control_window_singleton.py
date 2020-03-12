@@ -1,7 +1,7 @@
-# select_control_window.py
+# command_file.py
 """
 Base for independent control window
-NOTE: for Singleton version see select_control_window_singleton.py
+Provides a singleton which is universally accessible
 Facilitates
     setting and display of game controls
     persistent storage of values
@@ -43,11 +43,16 @@ class SelectControlWindow(Toplevel):
         """
         cls._instance = None
     
-    def __init__(self, play_control=None,
+    def __init__(self, *args, **kwargs):
+        SlTrace.lg("SelectControlWindow.__init__ %d" % SelectControlWindow.instance_no)
+        
+            
+    def _init(self, play_control=None,
                 control_prefix=None,
                 title=None,
                 display=True,
-                set_cmd=None
+                set_cmd=None,
+                new = False
                  ):
         """ Control attributes
         :title: window title
@@ -69,6 +74,16 @@ class SelectControlWindow(Toplevel):
         self.display = display   # Done in instance, if at all
         self.set_cmd = set_cmd
         self._is_displayed = False
+
+
+    def __new__(cls, *args, **kwargs):
+        """ Make a singleton
+        """
+        if cls._instance is None:
+            cls._instance = super(SelectControlWindow, cls).__new__(cls)
+            ###cls._instance._init(*args, **kwargs)
+            cls._instance._init(**kwargs)
+        return cls._instance
     
     def set_play_control(self, play_control):
         """ Link ourselves to the display
@@ -80,6 +95,9 @@ class SelectControlWindow(Toplevel):
         """ display /redisplay controls to enable
         entry / modification
         """
+        if self._is_displayed:
+            return
+        
         top_frame = Frame(self.mw)
         top_frame.pack(side="top", fill="x", expand=True)
         self.top_frame = top_frame
@@ -347,7 +365,7 @@ class SelectControlWindow(Toplevel):
         win_width = self.get_prop_val("win_width", self.mw.winfo_width())
         win_height = self.get_prop_val("win_height", self.mw.winfo_height())
         self.set_window_size(win_x, win_y, win_width, win_height, change=True)
-        self.mw.protocol("WM_DELETE_WINDOW", self.hide_window)  # Still need info
+        self.mw.protocol("WM_DELETE_WINDOW", self.delete_window)
         self.mw.bind('<Configure>', self.win_size_event)
        
     
@@ -481,6 +499,7 @@ class SelectControlWindow(Toplevel):
     def delete_window(self):
         """ Handle window deletion
         """
+        '''
         if self.play_control is not None and hasattr(self.play_control, "close_score_window"):
             self.play_control.close_score_window()
         else:
@@ -491,14 +510,10 @@ class SelectControlWindow(Toplevel):
             sys.exit(0)
 
         self.play_control = None
-        
-    def hide_window(self):
-        """ Hide window as we said...
-        """
+        '''
         self.mw.withdraw()              # Just hide, for we can't easily delete/restore a singleton
 
-
-    def show_window(self):
+    def restore_window(self):
         """ Restore to view
         """
         self.mw.deiconify()
