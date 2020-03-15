@@ -1421,9 +1421,9 @@ class SelectPlay:
         wins: number of games with top score (or tie)
         """
         players = self.player_control.get_players()
-        game_control = self.game_control
-        if game_control is not None:
-            game_control.set_vals()         # Update any changed game control settings
+        ###game_control = self.game_control
+        ###if game_control is not None:
+        ###    game_control.set_vals()         # Update any changed game control settings
         if len(players) == 0:
             return      # No players
         n_top_score = 0
@@ -1501,6 +1501,9 @@ class SelectPlay:
                 Default: no regions are added
         :returns: True iff one or more squares are completed
         """
+        if self.board is None:
+            return False
+        
         return self.board.is_square_complete(edge, squares=squares, ifadd=ifadd)
 
 

@@ -26,7 +26,7 @@ from tkinter import *
 from select_error import SelectError
 from select_trace import SlTrace
 from select_player import SelectPlayer
-from select_control_window import SelectControlWindow
+from select_control_window import SelectControlWindow, content_var
 
         
 class ColumnInfo:
@@ -424,6 +424,7 @@ class PlayerControl(SelectControlWindow):
         """
         self.delete_players_checked()
         self.set_vals()
+        self.control_display_base()
         if self.set_cmd is not None:
             self.set_cmd(self)
         
@@ -434,7 +435,7 @@ class PlayerControl(SelectControlWindow):
         next_id = 1
         while len(self.players) > 0 and next_id in self.players:
             next_id += 1
-        next_player = SelectPlayer(self, id=next_id)
+        next_player = SelectPlayer(self, id=next_id)        # Next available id
         self.add_player_form(next_player)
         SlTrace.lg(f"new_player:{next_player}")
 
@@ -448,19 +449,15 @@ class PlayerControl(SelectControlWindow):
             val = getattr(player, field)
             self.set_prop_val(field_key, val)
         '''
-        # Create control variables not found in player control window
-        # score control
-        for field in player.ctls:               # Update player from fields
-            if field not in self.only_form_fields:
-                player.set_val_from_ctl(field)
+        self.players[player.id] = player
         score_fields = ["score", "played", "wins", "ties"]
-        for field in score_fields:
-            value = player.get_val(field)
-            content = player.ctls_vars[field] = IntVar()
-            content.set(value)   
-            field_key = f"{player.id}.{field}"
-            val = getattr(player, field)
-            self.set_prop_val(field_key, val)
+        for field in self.player_fields + score_fields:
+            if field in self.only_form_fields:
+                pass
+            else:
+                value = player.get_val(field)
+                player.ctls_vars[field] = content_var(value)
+                player.set_prop(field)
         self.add_player_form1(player)
         
     def set_field_headings(self, field_headings_frame):
@@ -749,8 +746,6 @@ class PlayerControl(SelectControlWindow):
             if to_delete:
                 self.delete_player(player)
                 delete_count += 1
-        if delete_count > 0:
-            self.control_display_base()
                 
     def set_score(self, player, score):
         """ Set player score centrally 

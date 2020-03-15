@@ -11,11 +11,12 @@ Facilitates
 from tkinter import *
 import re
 import os
+import time
 
 from select_error import SelectError
-from select_trace import SlTrace
-import cmd
-
+from select_trace import SlTrace, str2val
+from select_input import SelectInput
+from builtins import str, int
 
     
 
@@ -27,6 +28,42 @@ def str2bool(v):
     else:
         raise SelectError('Not a recognized Boolean value %s' % v)
     
+
+def content_var_type(val):
+    """ Convert content_variable instance
+    into variable type
+    :var:   variable type
+    """
+    if isinstance(val, StringVar):
+        val_type = str
+    elif isinstance(val, IntVar):
+        val_type = int
+    elif isinstance(val, DoubleVar):
+        val_type = float
+    elif isinstance(val, BooleanVar):
+        val_type = bool
+    else:
+        raise SelectError(f"Unsupported content var type {val}")
+    return val_type
+    
+
+def content_var(val):
+    """ create content variable of the type of val
+    :val:   value to initialize content
+    """
+    val_type = type(val)
+    if val_type == str:
+        var = StringVar()
+    elif val_type == int:
+        var = IntVar()
+    elif val_type == float:
+        var = DoubleVar()
+    elif val_type == bool:
+        var = BooleanVar()
+    else:
+        raise SelectError(f"Unsupported content var val_type {val_type}")
+    var.set(val)
+    return var
     
     
 class SelectControlWindow(Toplevel):
@@ -120,6 +157,16 @@ class SelectControlWindow(Toplevel):
     def undo(self):
         self.set_vals()
 
+    def sleep(self, sec):
+        """ "sleep" for a number of sec
+        without stoping tkinter stuff
+        :sec: number of milliseconds to delay before returning
+        """
+        now = time.time()
+        end_time = now + sec
+        while time.time() < end_time:
+            self.mw.update()
+        return
     
     def redo(self):
         self.set_vals()
@@ -152,8 +199,25 @@ class SelectControlWindow(Toplevel):
         ctl_var = self.ctls_vars[field_name]
         if ctl_var is None:
             raise SelectError("No variable for %s" % field_name)
-        
-        value = ctl_var.get()
+        while True:
+            try:
+                value = ctl_var.get()
+                break
+            except:
+                ctl = self.ctls[field_name]
+                ctl_str = ctl.get()
+                ctl_var_type = content_var_type(ctl_var)
+                default_val_str = self.get_prop_val(field_name, None)
+                default_val = str2val(default_val_str, ctl_var_type)
+                
+                sr = SelectInput(master=self, title="GameControl",
+                                  message=f"Bad format:'{ctl_str}' for {field_name}: ",
+                                  default=default_val)
+                value = sr.result
+                if value is not None:
+                    break
+                    
+        self.set_ctl_val(field_name, value)        
         self.set_prop_val(field_name, value)
 
 
