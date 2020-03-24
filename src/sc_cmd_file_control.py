@@ -13,7 +13,6 @@ from select_error import SelectError
 from select_trace import SlTrace
 from select_control_window import SelectControlWindow
 from select_command_stream import SelectCommandStream
-from dots_commands import DotsCommands    
 from select_stream_command import SelectStreamCmd    
     
     
@@ -23,7 +22,8 @@ class SelectCommandFileControl(SelectControlWindow):
     CONTROL_NAME_PREFIX = "command_file_control"
     DEF_WIN_X = 500
     DEF_WIN_Y = 300
-    
+    snapshot_suffix = "_SN_"
+    snapshot_ndig = 3         # Number of digits
 
     def __init__(self, *args,
                  title="File Control",
@@ -32,6 +32,8 @@ class SelectCommandFileControl(SelectControlWindow):
                  run_cmd=None,
                  new_board=None,
                  in_file=None,
+                 save_as_file=None,
+                 save_as_dir=None,
                  src_file = None,
                  src_dir=None,
                  src_lst=False,
@@ -45,6 +47,8 @@ class SelectCommandFileControl(SelectControlWindow):
         """ Initialize subclassed SelectControlWindow singleton
         """
         self.run_cmd = run_cmd
+        self.save_as_file = save_as_file
+        self.save_as_dir = save_as_dir
         self.src_dir = src_dir
         self.src_lst = src_lst
         self.stx_lst = stx_lst
@@ -60,7 +64,7 @@ class SelectCommandFileControl(SelectControlWindow):
         self.is_to_line_nos = []
         self.is_to_line_pats = []   # Compiled rex
         self.stop_pressed = False
-        
+        self.command_stream = None
         super().__init__(*args,
                       title=title, control_prefix=control_prefix,
                       **kwargs)    
@@ -92,44 +96,52 @@ class SelectCommandFileControl(SelectControlWindow):
         self.title = title
         if src_file is not None:
             self.set_ctl_val("input.src_file_name", src_file)
-        self.command_stream = SelectCommandStream(
-            execution_control=self,
-            src_file=src_file,
-            src_dir=src_dir,
-            src_lst=src_lst,
-            stx_lst=stx_lst,
-            )
-        self.control_form()
+        if self.play_control is not None:
+            self.set_command_stream()
+        self.control_display()
 
         if self.run:
             self.run_file()
-            
-    def control_form(self):
+
+
+    def set_command_stream(self):
+        """ Setup links between command control
+        and stream
+        """
+        self.command_stream = SelectCommandStream(
+                execution_control=self,
+                src_file=self.src_file_name,
+                src_dir=self.src_dir,
+                src_lst=self.src_lst,
+                stx_lst=self.stx_lst,
+                )
+        self.command_stream.set_play_control(self.play_control)
+        self.play_control.set_cmd_stream(self.command_stream)
+        self.command_stream.set_cmd_stream_proc(self.play_control.cmd_stream_proc)
+    
+    def add_event_queue(self, proc):
+        """ Add processing function to
+        processing queue
+        :proc: process to be called at appropriate time
+        """
+        if self.play_control is not None:
+            return self.play_control.add_event_queue(proc)
+        
+        SlTrace.lg(f"add_event_queue ignored because no play_control")
+                        
+    def control_display(self):
         """ Setup control form
         entry / modification
         """
-        win_width =  500
-        win_height = 200
-        win_x0 = 600
-        win_y0 = 100
-                    
-        ###self.mw.withdraw()       # Hide main window
-        win_setting = "%dx%d+%d+%d" % (win_width, win_height, win_x0, win_y0)
-
-        
-        self.mw.geometry(win_setting)
-        self.mw.title(self.title)
-        top_frame = Frame(self.mw)
-        self.mw.protocol("WM_DELETE_WINDOW", self.delete_window)
-        top_frame.pack(side="top", fill="x", expand=True)
-        self.top_frame = top_frame
-        inputs_frame = Frame(top_frame)
+        super().control_display()       # Do base work        
+        inputs_frame = Frame(self.top_frame)
         inputs_frame.pack()
         
+        base_field_name = "input"
         field_name = "src_dir_name"
         dir_frame = Frame(inputs_frame)
         dir_frame.pack(side="top", fill="x", expand=True)
-        self.set_fields(dir_frame, "input", title="")
+        self.set_fields(dir_frame, base_field_name, title="")
         if self.src_dir is None:
             self.src_dir = "../csrc"
         self.src_dir = os.path.abspath(self.src_dir)
@@ -138,35 +150,71 @@ class SelectCommandFileControl(SelectControlWindow):
 
         field_name = "src_file_name"
         file_frame = Frame(inputs_frame)
-        self.set_fields(file_frame, "input", title="")
+        self.set_fields(file_frame, base_field_name, title="")
+        prop_key = f"{base_field_name}.{field_name}"
         if self.src_file_name is not None:
-            self.set_prop_val("input." + field_name, self.src_file_name)
+            self.set_prop_val(prop_key, self.src_file_name)
         else:
-            self.src_file_name = self.get_prop_val("input." + field_name, "")
+            self.src_file_name = self.get_prop_val(prop_key, "")
         file_name = self.src_file_name
-        self.set_ctl_val("input." + field_name, file_name)
+        self.set_ctl_val(prop_key, file_name)
         if os.path.isabs(file_name):
             dir_name = os.path.dirname(file_name)   # abs path => set dir,name
             self.set_ctl_val("input.dir_name", dir_name)    # reset
             file_name = os.path.basename(file_name)
-        self.set_entry(field=field_name, label="Src File", value=file_name, width=15)
+        self.set_entry(field=field_name, label="Src File", value=file_name, width=20)
         self.set_button(field=field_name + "_search", label="Search", command=self.src_file_search)
 
-        self.set_sep()
-        field_name = "new_src_file"
-        self.set_check_box(field=field_name + "_ck", label="", value=False)
-        self.set_entry(field=field_name, label="New Src File", value="NA", width=15)
+        save_as_frame = Frame(self.top_frame)
+        save_as_frame.pack()
         
-        self.set_vert_sep(top_frame)
+        base_field_name = "save_as"
+        field_name = "save_as_dir"
+        save_as_dir_frame = Frame(save_as_frame)
+        save_as_dir_frame.pack(side="top", fill="x", expand=True)
+        self.set_fields(save_as_dir_frame, base_field_name, title="Save Game")
+        prop_key = f"{base_field_name}.{field_name}"
+        self.save_as_dir_key = prop_key
+        if self.save_as_dir is None:
+            self.save_as_dir = "../gm_snaps"
+        self.save_as_dir = os.path.abspath(self.save_as_dir)
+        self.set_entry(field=field_name, label="Dir", value=self.save_as_dir, width=60)
+        self.set_button(field=field_name + "_search", label="Search", command=self.save_as_dir_search)
+
+        field_name = "save_as_file"
+        save_as_file_frame = Frame(save_as_frame)
+        self.set_fields(save_as_file_frame, base_field_name, title="")
+        self.save_as_file_key = prop_key = f"{base_field_name}.{field_name}"
+        if self.save_as_file is not None:
+            self.set_prop_val(prop_key, self.save_as_file)
+        else:
+            self.save_as_file = self.get_prop_val(prop_key, "")
+        self.set_ctl_val(prop_key, file_name)
+        if file_name.startswith("+"):
+            pass            # Leave special case alone
+        elif file_name == "":
+            pass            # Ask for explicit file
+        elif os.path.isabs(file_name):
+            dir_name = os.path.dirname(file_name)   # abs path => set dir,name
+            self.set_ctl_val(f"{base_field_name}.save_as_dir", dir_name)    # reset
+            file_name = os.path.basename(file_name)
+        self.set_entry(field=field_name, label="Save Game File", value=file_name, width=20)
+        self.set_button(field=field_name + "_save", label="SAVE", command=self.game_save_as)
+
+
+        
+        self.set_vert_sep(self.top_frame)
         field_name = "running"
-        run_frame1 = Frame(top_frame)
+        run_frame1 = Frame(self.top_frame)
         run_frame1.pack(side="top", fill="x", expand=True)
         self.set_fields(run_frame1, field_name, title="Running")
         self.set_button(field="Run", label="Run", command=self.run_button)
+        self.set_check_box(field="src_lst", label="List Src", value=self.src_lst)
+        self.set_check_box(field="stx_lst", label="List Exp", value=self.stx_lst)
         self.set_entry(field="cmd_delay", label="cmd delay", value = .5, width=5)
         self.set_button(field="stop", label="Stop", command=self.stop_button)
         
-        run_frame2 = Frame(top_frame)
+        run_frame2 = Frame(self.top_frame)
         run_frame2.pack(side="top", fill="x", expand=True)
         self.set_fields(run_frame2, field_name, title="")
         self.set_sep()
@@ -176,9 +224,9 @@ class SelectCommandFileControl(SelectControlWindow):
         self.set_check_box(field="loop", label="Loop", value=False)
         self.set_entry(field="loop_time", label="Loop time", value=5., width=5)
         
-        self.set_vert_sep(top_frame)
+        self.set_vert_sep(self.top_frame)
         field_name = "debugging"
-        debugging_frame = Frame(top_frame)
+        debugging_frame = Frame(self.top_frame)
         debugging_frame.pack(side="top", fill="x", expand=True)
         self.set_fields(debugging_frame, field_name, title="Debugging")
         self.set_button(field="step", label="Step", command=self.step_button)
@@ -198,7 +246,40 @@ class SelectCommandFileControl(SelectControlWindow):
         self.cont_to_line_pressed = False
         if not self.is_running():
             self.start_continue()
- 
+
+    def get_snapshot_name(self, orig_name):
+        """ Compute, hopefully unique snapshot name
+        :orig_name: orginal name with or without suffix
+                    Adds suffix before .extension if one
+                    No check currently on saved files
+        """
+        snapshot_dir = os.path.dirname(orig_name)
+        basename = os.path.basename(orig_name)
+        mext = re.match(r'^(.*)(\.[^.]+)$', basename)
+        if mext:
+            basename_beg = mext.group(1)
+            basename_ext = mext.group(2)
+        else:
+            basename_beg = basename
+        files = os.listdir(snapshot_dir)
+        snfiles = [file for file in files if file.startswith(basename_beg + self.snapshot_suffix)]
+        max_num = 0
+        fpat_str = f'^.*{self.snapshot_suffix}(' + r'\d' * self.snapshot_ndig + r')\.[^.]+$'
+        mpat = re.compile(fpat_str)
+        for file in snfiles:
+            mfile = mpat.match(file)
+            if mfile:
+                num = int(mfile.group(1))
+                if num > max_num:
+                    max_num = num
+        max_num += 1            # Go to next larger number
+        snapshot_add_str = (f"{self.snapshot_suffix}"
+                            f"{max_num:0{self.snapshot_ndig}}")
+        sn_name = basename_beg + snapshot_add_str            
+        if mext:
+            sn_name += basename_ext
+        sn_name = os.path.join(snapshot_dir, sn_name)    
+        return sn_name
  
   
  
@@ -266,12 +347,16 @@ class SelectCommandFileControl(SelectControlWindow):
             if self.mw is not None and self.mw.winfo_exists():
                 self.mw.update()
             time.sleep(.01)
+            self.play_control.event_check()     # Process any pending events
         
 
 
     def stop_button(self):
         """ Stop file run
         """
+        self.add_event_queue(self.stop_button_1)
+        
+    def add_event_queue_1(self):
         SlTrace.lg("Stop Button")
         self.stop_pressed = True
 
@@ -279,6 +364,9 @@ class SelectCommandFileControl(SelectControlWindow):
     def cont_to_end_button(self):
         """ Debugging continue to end button
         """
+        self.add_event_queue(self.cont_to_end_button_1)
+        
+    def cont_to_end_button_1(self):
         SlTrace.lg("TBD")
         self.step_pressed = False
         self.cont_to_end_pressed = True
@@ -290,6 +378,9 @@ class SelectCommandFileControl(SelectControlWindow):
     def cont_to_line_button(self):
         """ Debugging continue to line button
         """
+        self.add_event_queue(self.cont_to_line_button_1)
+        
+    def cont_to_line_button_1(self):
         SlTrace.lg("Continue to Line")
         self.step_pressed = False
         self.cont_to_end_pressed = False
@@ -299,25 +390,57 @@ class SelectCommandFileControl(SelectControlWindow):
         self.is_to_line_pats = []   # Compiled rex
 
         value = self.get_val("debugging.line1", "")
-        if re.match(r'[1-9]\d*', value):
-            self.is_to_line_nos.append(int(value))
-        else:
-            self.is_to_line_pats.append(re.compile(value))
+        if value != "":
+            if re.match(r'[1-9]\d*', value):
+                self.is_to_line_nos.append(int(value))
+            else:
+                self.is_to_line_pats.append(re.compile(value))
 
         value = self.get_val("debugging.line2", "")
-        if re.match(r'[1-9]\d*', value):
-            self.is_to_line_nos.append(int(value))
-        else:
-            self.is_to_line_pats.append(re.compile(value))
+        if value != "":
+            if re.match(r'[1-9]\d*', value):
+                self.is_to_line_nos.append(int(value))
+            else:
+                self.is_to_line_pats.append(re.compile(value))
 
         value = self.get_val("debugging.line3", "")
-        if re.match(r'[1-9]\d*', value):
-            self.is_to_line_nos.append(int(value))
-        else:
-            self.is_to_line_pats.append(re.compile(value))
+        if value != "":
+            if re.match(r'[1-9]\d*', value):
+                self.is_to_line_nos.append(int(value))
+            else:
+                self.is_to_line_pats.append(re.compile(value))
         
         if not self.is_running():
             self.start_continue()
+
+
+    def save_as_file_search(self):
+        start_dir = self.save_as_dir
+        filename =  filedialog.askopenfile("r",
+            initialdir = start_dir,
+            title = "Select file",
+            filetypes = (("all files","*.*"), ("csrc files","*.csrc")))
+        if filename is None:
+            return
+        
+        fullname = filename.name
+        dir_name = os.path.dirname(fullname)
+        base_name = os.path.basename(fullname)
+        self.save_as_dir = dir_name
+        self.save_as_file = base_name
+        self.set_ctl_val("input.save_as_dir", dir_name)
+        self.set_ctl_val("input.save_as_file", base_name)
+        filename.close()
+
+
+    def save_as_dir_search(self):
+        start_dir = self.save_as_dir
+        filedir =  filedialog.askdirectory(
+            initialdir = start_dir,
+            title = "Save As Dir")
+        name = filedir
+        self.save_as_dir = name
+        self.set_ctl_val("input.save_as_dir", name)
 
 
     def src_dir_search(self):
@@ -330,18 +453,49 @@ class SelectCommandFileControl(SelectControlWindow):
         self.set_ctl_val("input.src_dir_name", name)
 
 
+    def game_save_as(self):
+        initial_dir = self.get_val_from_ctl(self.save_as_dir_key)
+        if initial_dir == "":
+            initial_dir = os.path.abspath("../gm_snaps")
+        src_file = self.get_val_from_ctl("input.src_file_name")
+        game_save_file = self.get_val_from_ctl(self.save_as_file_key)
+        if game_save_file is None or game_save_file == "":
+            file_name =  filedialog.asksaveasfilename(
+                initialdir = initial_dir,
+                title = "Game State Files",
+                filetypes = (("game files","*.py"),
+                             ("all files","*.*")))
+        elif game_save_file.startswith("+"):
+            game_path = os.path.join(initial_dir, src_file)
+            file_name = self.get_snapshot_name(os.path.abspath(game_path))
+        else:
+            file_name = game_save_file
+        if not re.match(r'^.*\.[^.]*$', file_name):
+            file_name += ".py"
+        SlTrace.lg(f"save game as filename {file_name}")
+
+        if file_name is not None:
+            if not os.path.isabs(file_name):
+                src_dir = self.get_val_from_ctl("input.src_dir_name")
+                file_name = os.path.join(src_dir, file_name)
+            self.play_control.save_game_file(file_name)
+
+
     def src_file_search(self):
         start_dir = self.src_dir
         filename =  filedialog.askopenfile("r",
             initialdir = start_dir,
             title = "Select file",
             filetypes = (("all files","*.*"), ("csrc files","*.csrc")))
+        if filename is None:
+            return
+        
         fullname = filename.name
         dir_name = os.path.dirname(fullname)
         base_name = os.path.basename(fullname)
         self.src_dir = dir_name
-        self.set_ctl_val("input.src_dir", dir_name)
         self.src_file_name = base_name
+        self.set_ctl_val("input.src_dir_name", dir_name)
         self.set_ctl_val("input.src_file_name", base_name)
         filename.close()
             
@@ -356,20 +510,31 @@ class SelectCommandFileControl(SelectControlWindow):
     def start_continue(self):
         """ Start/continue program running
         """
+        self.add_event_queue(self.start_continue_1)
+        
+    def start_continue_1(self):
+        """ continue
+        """
         self.running = True
         
         while True:
             self.set_vals()
             if self.get_val("running.new_game"):
                 if self.new_game is not None:
-                    self.new_game()
+                    self.reset_board()
             new_board = self.get_val_from_ctl("running.new_board")
             if new_board:
                 if self.play_control is not None:
                     self.play_control.reset()
             src_file = self.get_val_from_ctl("input.src_file_name")
+            if not os.path.isabs(src_file):
+                src_dir = self.get_val_from_ctl("input.src_dir_name")
+                if src_dir is not None and src_dir != "":
+                    src_file = os.path.join(src_dir, src_file)
             if self.play_control is not None:
-                res = self.play_control.run_file(src_file=src_file)
+                src_lst = self.get_val_from_ctl("running.src_lst")
+                stx_lst = self.get_val_from_ctl("running.stx_lst")
+                res = self.play_control.run_file(src_file=src_file, src_lst=src_lst, stx_lst=stx_lst)
             else:
                 res = self.run_file(src_file)
                 
@@ -387,16 +552,20 @@ class SelectCommandFileControl(SelectControlWindow):
             return True
 
     
-    def run_file(self, src_file=None, cmd_execute=None):
+    def run_file(self, src_file=None, cmd_execute=None, src_lst=None, stx_lst=None):
         """ Run stream command file
         :src_file: source file name (absolute path or relative)
             If no extension: search for none, then supported extensions(.csrc, .py)
         :cmd_execute: function to call for each stcmd
+        :src_lst: if present, set src listing option
+        :stx_lst: if present, set expanded listing option
         :returns: True iff OK run
         """
         if cmd_execute is not None:
             self.cmd_execute = cmd_execute
-        self.command_stream.open(src_file=src_file)
+        if self.command_stream is None:
+            self.set_command_stream()
+        self.command_stream.open(src_file=src_file, src_lst=src_lst, stx_lst=stx_lst)
         while True:
             stcmd = self.get_cmd()
             if stcmd is None:
@@ -421,15 +590,25 @@ class SelectCommandFileControl(SelectControlWindow):
             closes current file, if any, reopen
             :src_file: new file name, if present default: use current name
         """
-        self.command_stream.reset(src_file=src_file)
+        if self.command_stream is not None:        
+            self.command_stream.reset(src_file=src_file)
 
+    def reset_board(self):
+        """ Reset game board to pre-game
+        """
+        if self.play_control is not None:
+            self.play_control.reset()
 
     def set_play_control(self, play_control):
         """ Connect command stream processing to game control
         :play_control:  game control
         """
         self.play_control = play_control        # Local reference
-        self.command_stream.set_play_control(play_control)
+
+    def set(self):
+        self.set_vals()
+        if self.set_cmd is not None:
+            self.set_cmd(self)
 
 
     def set_cmd_stream_proc(self, cmd_stream_proc):
@@ -543,7 +722,7 @@ class SelectCommandFileControl(SelectControlWindow):
     
 
     
-    def procFile(self, src_file=None, exe_command=None):
+    def procFile(self, src_file=None, exe_command=None, src_lst=None, stx_lst=None):
         """
         Process input files:
         :src_file: file input name default use stream_command's
@@ -552,7 +731,7 @@ class SelectCommandFileControl(SelectControlWindow):
             default: use self.src_file_name
         :exe_command: command to execute for each stream command
         """
-        return self.command_stream.procFile(src_file=src_file)
+        return self.command_stream.procFile(src_file=src_file, src_lst=src_lst, stx_lst=stx_lst)
 
     def set_debugging(self, debugging=True):
         self.debugging=debugging

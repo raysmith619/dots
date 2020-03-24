@@ -503,14 +503,17 @@ class SelectPart(object):
         if (self.row is not None and self.col is not None
             and self.row > 0 and self.col > 0):
             st += " row=%d col=%d" % (self.row, self.col)
+        if hasattr(self, "player") and self.player is not None:
+            st += f" {self.player.name}"
         if self.is_turned_on():
             st += " turned_on"
         if self.is_highlighted():
             st += " highlighted"
         if self.is_selected():
             st += " selected"
-        if hasattr(self, "loc"):
-            st += " at %s" % self.loc
+        if SlTrace.trace("show_loc"):
+            if hasattr(self, "loc"):
+                st += " at %s" % self.loc
         if self.centered_text:
             for ct in self.centered_text:
                 st += "\n       centered_text: %s" % ct

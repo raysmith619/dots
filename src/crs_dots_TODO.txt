@@ -1,0 +1,28 @@
+crs_dots_TODO.txt
+
+More program testing
+More strategy testing.
+verification
+How best to test/verify game strategies?
+
+Commands / Menus:
+snapshot / save state in loadable form (dots_commands.py)
+
+step - run  game one move(micro-move)
+unstep - backup game  one move(micro-move)
+
+	Should Undo/ReDo act this way on running programs?
+How should Undo/Redo act on running programs?
+How should we handle this operation with possible random choices in auto players.
+	step - make one step from manual, file, auto player algorithm
+	unstep - backup to previous state (before step)
+	undo (same as unstep)
+	redo - place in state before previous undo
+	
+What duplication is useful? E.g. Run/Pause on multiple control windows.
+
+Menu of game setups for easy setting
+	Easy setting of players, game control, trace options
+eg. Gp:level=-2 Gm:level=2 auto loop run
+	Possibly integrated with game snapshots
+	

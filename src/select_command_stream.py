@@ -1,4 +1,4 @@
-# command_file.py
+# select_command_stream.py
 """
 Command Stream
 Facilitates reading human readable commands from files(stream input)
@@ -24,8 +24,9 @@ import traceback
 
 from select_error import SelectError
 from select_trace import SlTrace
-from dots_commands import DotsCommands
+import dots_commands
 from select_stream_command import SelectStreamCmd, SelectStreamToken
+from select_report import SelectReport
     
 class SelectCommandStream:
     CONTROL_NAME_PREFIX = "command_file"
@@ -94,7 +95,7 @@ class SelectCommandStream:
         self.new_file = True    # Not opened
         self.stream_stack = stream_stack
         self.debugging=debugging
-        self.dots_commands = DotsCommands(self)
+        self.dots_commands = dots_commands.DotsCommands(self, play_control=execution_control)
         
         
     def src_dir_search(self):
@@ -131,29 +132,41 @@ class SelectCommandStream:
         return self.run_file()  # Local - default
     
     
-    def run_file(self, src_file=None, cmd_execute=None):
+    def run_file(self, src_file=None, cmd_execute=None, src_lst=None, stx_lst=None):
         """
         Run command file (Local version)
+        :src_file: source file name
+        :cmd_execute: override cmd to execute for each command in file
         """
         SlTrace.lg("run_file")
+        if src_lst is not None:
+            self.set_src_lst(src_lst)
+        if stx_lst is not None:
+            self.set_stx_lst(stx_lst)
+
         if src_file is None:
             src_file = self.get_val_from_ctl("src_file_name")
         if re.match(r'^\s*$', src_file) is not None:
             SlTrace.lg("Blank src file name - ignored")
             return
-
+        if cmd_execute is not None:
+            self.cmd_execute = cmd_execute
         file_type = self.get_file_type(src_file)
         path = self.get_file_path(src_file)
-        if self.new_file:
+        if file_type.lower() == "py" or self.new_file:
             self.open(src_file)        
         while True:
             cmd = self.get_cmd()
             if cmd is None:
                 break
-            SlTrace.lg("cmd: %s" % cmd, "cexecute")
+            
+            if cmd.name.lower() == "eof":
+                return True
+            
+            SlTrace.lg(f"cmd: {cmd}", "cexecute")
             if self.cmd_execute is not None:
                 if not self.cmd_execute(cmd):
-                    raise SelectError("cmd_execute(%cmd) failure" % cmd)
+                    raise SelectError(f"cmd_execute({cmd}) failure")
         
 
 
@@ -181,7 +194,7 @@ class SelectCommandStream:
         self.dots_commands.set_cmd_stream_proc(cmd_stream_proc)
 
 
-    def open(self, src_file=None):
+    def open(self, src_file=None, src_lst=None, stx_lst=None):
         """ Open command file
         Opens output files, if specified
         :src_file: Source file default, if no extension ext="csrc"
@@ -193,6 +206,10 @@ class SelectCommandStream:
         """
         self.lineno = 0         # Src line number
         self.eof = True         # Cleared on open, set on EOF
+        if src_lst is not None:
+            self.set_src_lst(src_lst)
+        if stx_lst is not None:
+            self.set_stx_lst(stx_lst)
         if src_file is None:
             if self.src_file_name is None:
                 raise SelectError("open: no src_file and no self.src_file_name")
@@ -259,8 +276,10 @@ class SelectCommandStream:
             path = SlTrace.getSourcePath(src_file + ".csrc", report=False, req=False)
         if path is None:
             if req:
-                raise SelectError("open can't find %s(.py, .csrc) in %s"
-                              % (src_file, SlTrace.getSourceDirs(string=True)))
+                dir_str = SlTrace.getSourceDirs(string=True)
+                SelectReport(None, "File Control",
+                              f"open can't find {src_file}(.py, .csrc) in {dir_str}")
+
         return path    
             
 
@@ -302,7 +321,7 @@ class SelectCommandStream:
         toks = []
         tok = None
         if self.file_type == 'py':
-            return SelectStreamCmd(SelectStreamCmd.EXECUTE_FILE)
+            return SelectStreamCmd(SelectStreamCmd.EXECUTE_FILE, self.src_file_path)
 
         while True:
             tok = self.get_tok()
@@ -610,14 +629,14 @@ class SelectCommandStream:
         .py ==> python script
         .bwif ==> BlockWorld scrip
     """
-    def procFile(self, src_file=None):
+    def procFile(self, src_file=None, src_lst=None, stx_lst=None):
         path = self.get_file_path(src_file)
         file_type = self.get_file_type(src_file)
         try:
             if file_type == "py":
-                return self.procFilePy(path)
+                return self.procFilePy(path, src_lst=None, stx_lst=None)
                 
-            return self.procFileCsrc(path)
+            return self.procFileCsrc(path, src_lst=None, stx_lst=None)
         except:
             raise SelectError("File processing error in " + path)
             return False
@@ -641,7 +660,7 @@ class SelectCommandStream:
     """
     Process (Execute) standard python/Jython file
     """
-    def procFilePy(self, src_file):
+    def procFilePy(self, src_file, src_lst=None, stx_lst=None):
         path = self.get_file_path(src_file)
         with open(path) as f:
             try:

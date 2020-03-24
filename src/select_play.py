@@ -3,6 +3,7 @@ import os
 from tkinter import *
 import random    
 import time
+from datetime import date
 from datetime import datetime  
 from datetime import timedelta
 import copy  
@@ -12,8 +13,11 @@ import cProfile, pstats, io         # profiling support
 from select_fun import *
 from select_trace import SlTrace
 from select_error import SelectError
+from select_fail import SelectFail
+from select_report import SelectReport
 from sc_player_control import PlayerControl        
 from select_command_play import SelectCommandPlay
+from select_command_stream import SelectCommandStream
 from select_play_cmd import SelectPlayCommand
 from select_command_manager import SelectCommandManager
 from select_part import SelectPart
@@ -26,8 +30,33 @@ from select_kbd_cmd import SelectKbdCmd
 from dots_commands import DotsCommands
 
 from gr_input import gr_input
+from psutil._psutil_windows import proc_cmdline
+from docutils.nodes import Part
 
+class PlayMove:
+    SELECT_EDGE = "select_edge"     # May select edge to be markes
+    MARK_EDGE = "mark_edge"         # May mark an already selected edge
+    UNDO_MOVE = "undo_move"         # May undo a previous (select, mark)
+    REDO_MOVE = "redo_move"         # May redo a previous select, mark
+    HV_H = "horizontal"
+    HV_V = "vertical"
+    
+    def __init__(self, move_type, row=None, col=None, hv=None, player=None,
+                    part=None, move_no=None):
+        self.move_type = move_type
+
+        self.row = row
+        self.col = col
+        self.hv = hv
+                                    # Optional - possibly only for debugging / analysis
+        self.player = player
+        self.part = part
+        self.move_no = move_no
+        
+        
 class SelectPlay:
+    current_play = None             # Most recent - used for debugging
+    
     def __init__(self, board=None, mw=None,
                  display_game=True,
                  profile_running=False,
@@ -82,6 +111,10 @@ class SelectPlay:
         :src_lst: True - list source as run
         :stx_lst: True - list command stream as run
         """
+        SelectPlay.current_play = self              # For debugging
+        self.play_moves = []                    # List of played moves, including undo, redo, etc.
+        
+        self.event_queue = []           # Event queue
         self.display_game = display_game
         self.numgame = numgame
         self.profile_running = profile_running
@@ -103,10 +136,8 @@ class SelectPlay:
         self.msg_frame_base = msg_frame         # Container for actual frame
         self.msg_frame = None                   # Actual frame
         self.cmd_stream = cmd_stream
-        self.cmd_stream_proc = SelectPlayCommand(self, cmd_stream)
-        if self.cmd_stream is not None:
-            self.cmd_stream.set_play_control(self)
-            self.cmd_stream.set_cmd_stream_proc(self.cmd_stream_proc)
+        if cmd_stream is not None:
+            self.set_cmd_stream(cmd_stream)
         self.undo_len = undo_len
         self.undo_micro_move = undo_micro_move
         self.command_manager = SelectCommandManager(self,
@@ -171,8 +202,7 @@ class SelectPlay:
         if self.board.area.down_click_call is None:
             raise SelectError("board.area.down_click_call is not set")
         if self.numgame is not None and self.ngame >= self.numgame:
-            SlTrace.lg("running_loop: ngame={:d} > numgame {:d}".
-                       format(self.ngame, self.numgame))
+            SlTrace.lg(f"running_loop: ngame={self.ngame} > numgame {self.numgame}")
             self.running = False
             self.run = False
             return
@@ -193,30 +223,21 @@ class SelectPlay:
                 break
             SlTrace.lg("running_loop active", "running_loop")
             self.mw.update_idletasks()
+            if self.event_check():
+                continue                # Gobble up pending events
+            
             if (self.cmd_stream is not None
                     and not self.cmd_stream.is_eof()):
                 self.run_file()
-                continue    # Check if more 
-            if self.running and self.run:
-                if self.board is None:
-                    SlTrace.lg("sp.board is None")
-                    break
-                SlTrace.lg("running_loop self.running and self.run", "running_loop")
+                continue    # Check if more
+            else:
                 if self.first_time:
-                    if self.numgame is not None and self.ngame > self.numgame:
-                        self.running = False
-                        self.run = False
+                    if not self.start_game():
                         break
-                    self.start_game()
                     self.first_time = False
-                else:
-                    SlTrace.lg("running_loop self.start_move", "running_loop")
-                    if self.start_move():
-                        SlTrace.lg("running_loop successful start_move", "running_loop")
-                        self.next_move_no()
-                    SlTrace.lg("running_loop after start_move", "running_loop")
+            if not self.make_move():
+                break 
                         
-                
         SlTrace.lg("running_loop after loop", "running_loop")
         BlinkerMultiState.disable()
                                 
@@ -224,13 +245,58 @@ class SelectPlay:
             SlTrace.lg("running_loop doing on_end", "running_loop")
             self.mw.after(0, self.on_end)       # After run processing
 
+    def make_move(self):
+        """ Make next move in run loop if we can
+        :returns: True if successful, else False to break
+        loop
+        """
+        if self.running and self.run:
+            if self.board is None:
+                SlTrace.lg("sp.board is None")
+                return False
+            
+            SlTrace.lg("running_loop self.running and self.run", "running_loop")
+            SlTrace.lg("running_loop self.start_move", "running_loop")
+            if self.start_move():
+                SlTrace.lg("running_loop successful start_move", "running_loop")
+                self.next_move_no()
+            SlTrace.lg("running_loop after start_move", "running_loop")
+        return True
+
+    def add_event_queue(self, proc):
+        """ Add to event queue, to be processed when appropriate
+        :proc: event processing function
+        """
+        self.event_queue.append(proc)
+        if not self.running:
+            self.mw.after(self.run_check_ms, self.running_loop) # Start running loop
+        
+        
+    def event_check(self):
+        """ Check for and process any pending events such as run_button
+        :returns: True if an event was processed
+        """
+        if len(self.event_queue) > 0:
+            event = self.event_queue.pop(0)     # oldest
+            self.event_queue_proc(event)
+            return True
+        return False
     
-    def run_file(self, src_file=None):
+    def event_queue_proc(self,event):
+        """ Process event by calling function
+        """
+        event()
+    
+    def run_file(self, src_file=None, src_lst=None, stx_lst=None):
         """ Run file command
         :src_file: source file name
                  default: self.src_file_name
         """
+        if self.cmd_stream is None:
+            SlTrace.lg(f"run_file creating stream for file:{src_file}")
+            self.cmd_stream = SelectCommandStream(src_file=src_file)
         res = self.cmd_stream.run_file(src_file=src_file,
+                    src_lst=src_lst, stx_lst=stx_lst,
                     cmd_execute=self.play_stream_command)
         return res
 
@@ -386,6 +452,7 @@ class SelectPlay:
         for square in squares:
             square.part_check(prefix="annotate_squares")
         for square in squares:
+            square.turn_on(player=player, move_no=self.get_move_no())
             ###sc = select_copy(square)
             sc = square
             self.add_prev_parts(square)
@@ -403,6 +470,21 @@ class SelectPlay:
         self.mw.update_idletasks()
 
 
+    def set_cmd_stream(self, cmd_stream):
+        """ Connect with command stream
+        :cmd_stream: new cmd_stream
+        SelectPlay (cmd_stream) --> SelectCommandFileControl
+                    <-- (play_control) via cmd_stream.set_play_control(self)
+                    
+                   (cmd_stream_proc) --> SelectPlayCommand --> SelectCommandFileControl(cmd_stream_proc)
+
+        """
+        self.cmd_stream = cmd_stream
+        self.cmd_stream.play_control = self
+        self.cmd_stream.set_play_control(self)
+        self.cmd_stream_proc = SelectPlayCommand(self, cmd_stream)
+        ###self.cmd_stream.set_cmd_stream_proc(self.cmd_stream_proc)
+    
 
     def set_changed(self, parts):
         """ Set part as changed since last display
@@ -789,6 +871,8 @@ class SelectPlay:
         :edge: edge being marked
         :player: player selecting edge
         """
+        self.add_play_move(PlayMove.MARK_EDGE, part=edge,
+                            player=player, move_no=move_no)
         edge.highlight_clear(display=False)
         edge.turn_on(player=player, move_no=move_no, display=False)
         return
@@ -893,6 +977,28 @@ class SelectPlay:
         else:
             self.add_new_mods(part)
 
+    def add_play_move(self, move_type, row=None, col=None, hv=None, player=None,
+                    part=None, move_no=None):
+
+        """ Add played move, for file snap shot, and other support operations
+        :move_type: type of move
+        :row: row (from part if not present)
+        :col: col (from part if not present)
+        :hv: horizontal/vertical (from part if not present)
+        :player: player's turn (optional)
+        :part: part played, if present (used to get row, col, hv)
+        :move_no: game move (optional)
+        """
+        if move_type == PlayMove.MARK_EDGE or move_type == PlayMove.SELECT_EDGE:
+            if row is None:
+                row = part.row
+            if col is None:
+                col = part.col
+            if hv is None:
+                hv = PlayMove.HV_H if part.sub_type() == "h" else PlayMove.HV_V
+        pm = PlayMove(move_type, row=row, col=col, hv=hv, player=player, part=part, move_no=move_no)
+        self.play_moves.append(pm)
+        
     def add_prev_mods(self, parts):
         """ Add part before any modifications
         :parts: part or list before modification
@@ -1015,6 +1121,7 @@ class SelectPlay:
                     default: command_manager.undo_micro_move
         :returns: True iff successful
         """
+        self.add_play_move(PlayMove.UNDO_MOVE)
         while self.is_waiting_for_message():
             self.end_message()
             
@@ -1030,6 +1137,7 @@ class SelectPlay:
                     default: command_manager.undo_micro_move
         :returns: True iff successful
         """
+        self.add_play_move(PlayMove.REDO_MOVE)
         while self.is_waiting_for_message():
             self.end_message()
             
@@ -1081,7 +1189,7 @@ class SelectPlay:
         return
 
 
-    def manual_play(self, player):
+    def manual_play(self):
         """ Do manual play, checking for action
         :player: player to move
         :returns: return True iff a move was sensed, else False
@@ -1269,16 +1377,16 @@ class SelectPlay:
         """ Get moves which provide a minimum distance to sqaree completion
         """
         return self.board.get_square_distance_list(min_dist=min_dist, move_list=move_list)
-    
-    
-    def start_move(self):
-        """ Start move
-        :returns: True iff move has been made, and next move is coming
+
+
+    def move_check(self):
+        """ Anounce move and check if move possible
+        :returns: False if no move possible
         """
+        
         if not self.run:
             return False
         
-
         if self.get_num_legal_moves() == 0:
             SlTrace.lg("NO more legal moves!", "nolegalmoves")
             ###return False       
@@ -1292,6 +1400,16 @@ class SelectPlay:
         if player is None:
             return False
         
+        return True
+    
+    def start_move(self):
+        """ Start move
+        :returns: True iff move has been made, and next move is coming
+        """
+        if not self.move_check():
+            return False
+        
+        player = self.get_player()
         if player.auto:
             self.auto_play_pause()
             if self.auto_play(player):
@@ -1301,7 +1419,7 @@ class SelectPlay:
                 if self.stream_cmd_play(player=player):
                     return True
             else:    
-                if self.manual_play(player):
+                if self.manual_play():
                     return True
         
         return False        # No move -no new move
@@ -1344,6 +1462,72 @@ class SelectPlay:
         ###    ###self.on_end()
         ###    self.mw.after(0, self.on_end)
 
+    def save_game_file(self, game_file_name):
+        """ Save current track state to file
+        """
+        SlTrace.lg(f"save_game_file {game_file_name}")
+        with open(game_file_name, "w") as fout:
+            print(f"# {game_file_name}", file=fout)
+            today = date.today()
+            d2 = today.strftime("%B %d, %Y")
+            print(f"# On: {d2}\n", file=fout)
+            print(f"from dots_commands import *", file=fout)
+            print(f"", file=fout)
+            players = self.get_players()
+            playing_labels = [player.label for player in players]
+            playing_str = ",".join(playing_labels)
+            print(f"""set_playing("{playing_str}")""", file=fout)
+            player_fields = self.player_control.get_player_control_fields()
+            max_line = 60
+            indent_str = "        "
+            for player in players:
+                play_str = f'set_play(label_name="{player.name}"'
+                line_str = play_str         # Keep track how long line is
+                if len(line_str) > max_line:
+                    play_str += "\n" + indent_str
+                    line_str = indent_str
+                for field in player_fields:
+                    if play_str != "":
+                        play_str += ", "
+                        line_str += ", "
+                    if len(line_str) > max_line:
+                        play_str += "\n" + indent_str
+                        line_str = indent_str
+                    val = getattr(player, field)
+                    if isinstance(val, str):
+                        val = f'"{val}"'     # Surround with quotes
+                    play_str += f"{field}={val}"
+                    line_str += f"{field}={val}"
+                play_str += ")"
+                print(play_str, file=fout)
+            print(f"start_game()", file=fout)        # Required for any game playing commands
+            move_type_d = {
+                PlayMove.MARK_EDGE : "mark",
+                PlayMove.SELECT_EDGE : "select",
+                PlayMove.UNDO_MOVE : "undo",
+                PlayMove.REDO_MOVE : "redo",
+                }
+            for pm in self.play_moves:
+                if pm.move_type not in move_type_d:
+                    raise SelectError("save_file move type: {pm.move_type} uninplemented")
+                gfun = move_type_d[pm.move_type]
+                hv_str = '"h"' if pm.hv == PlayMove.HV_H else '"v"'
+                if pm.move_type == PlayMove.MARK_EDGE:
+                    line_str = f"{gfun}({hv_str}, {pm.row}, {pm.col})"
+                    print(line_str, file=fout)
+                elif pm.move_type == PlayMove.SELECT_EDGE:
+                    line_str = f"{gfun}({hv_str}, {pm.row}, {pm.col})"
+                    print(line_str, file=fout)
+                elif pm.move_type == PlayMove.UNDO_MOVE:
+                    line_str = f"{gfun}()"
+                    print(line_str, file=fout)
+                elif pm.move_type == PlayMove.REDO_MOVE:
+                    line_str = f"{gfun}()"
+                    print(line_str, file=fout)
+                else:
+                    raise SelectError("save_file move type: {pm.move_type} uninplemented")
+        return True
+            
 
     def save_properties(self):
         """ Save profile
@@ -1381,6 +1565,56 @@ class SelectPlay:
         if self.select_cmd is not None:
             self.do_cmd()
 
+    """
+    Game State Verification commands
+    """
+    def game_check(self, mode, row=None, col=None, set=True,
+                   show_fail=True):
+        """ Check if state has been met
+        :mode: part or check mode
+                "h" - horizontal edge
+                "v" - vertical edge
+                "sq" - square
+        :row: row number
+        :col: column number
+        :set: expected state: True: turned on
+        :show_fail: announce failures
+        """
+        
+        if mode == "h" or mode == "v":
+            part = self.get_part(type="edge", sub_type=mode, row=row, col=col)
+            if part is None:
+                raise SelectError(f"game_check: no edge({mode}) found at row={row} col={col}")                     
+            is_on = part.is_turned_on()
+            if is_on != set:
+                result = False
+                msg = (f"Unexpected test result: {result}"
+                       f" for line({mode}) at row={row} col={col}")
+                SlTrace.lg(f"game_check: {msg}")
+                if show_fail:
+                    raise SelectFail(msg)
+                return False
+        elif mode == "sq":
+            part = self.get_part(type="region", row=row, col=col)
+            is_on = part.is_turned_on()
+            if is_on != set:
+                result = False
+                msg = (f"Unexpected test result: {result}"
+                       f" for square at row={row} col={col}")
+                SlTrace.lg(f"game_check: {msg}")
+                if show_fail:
+                    raise SelectFail(msg)
+                return False
+        else:
+            raise SelectFail(f"Unrecognized game_check mode({mode}")
+        
+        return True
+
+    def play_move(self):
+        """ Play machine move(s)
+        """
+        return self.make_move()
+            
     def game_control_window_set_cmd(self, gcw):
         self.game_control_updates()
 
@@ -1456,7 +1690,17 @@ class SelectPlay:
         self.update_score_window()
 
             
+    
     def start_game(self):
+        """ Start game
+        :returns: True if a good start, else False
+                    if we should stop
+        """
+        if self.numgame is not None and self.ngame > self.numgame:
+            self.running = False
+            self.run = False
+            return False
+        self.reset()
         self.player_control.setup_game()
         self.in_game = True
         self.new_move = True
@@ -1476,7 +1720,7 @@ class SelectPlay:
         ###self.set_move_no(1)
         self.do_cmd()
         self.set_move_no(1)
-
+        return True
 
     def set_move_no(self, move_no):
         self.command_manager.set_move_no(move_no)
@@ -1651,9 +1895,42 @@ class SelectPlay:
             return None         # No previous player
         prev_player = prev_cmd.new_player
         return prev_player
-    
-    
-    
+
+    def set_play(self, label_name=None, case_sensitive=False, **kwargs):
+        """ Set player control for a player, or all players
+        :label_name: player name or Label
+                default: set all playing players' settings to these values
+        :case_sensitive: do case sensitive comparison
+                        default: case insensitive comparison
+        """
+        if label_name is None:
+            players = self.get_players()
+        else:
+            label_name = label_name.lower()
+            players = self.get_players(all=True)
+        for player in players:
+            if not case_sensitive:
+                player_name = player.name.lower()
+                player_label = player.label.lower()
+            else:
+                player_name = player.name
+                player_label = player.label
+            if (label_name is None or label_name == player_name
+                    or label_name == player_label):
+                for kwarg in kwargs:
+                    setattr(player, kwarg, kwargs[kwarg])
+                if label_name is not None:
+                    break           # Set single player requested
+        for kw in kwargs:
+            if hasattr(player, kw):
+                setattr(player, kw, kwargs[kw])
+            else:
+                SelectReport(None, "GameLoad Error", f"{kw} not a player attribute")
+                
+        if self.player_control is not None:
+            self.player_control.set_ctls()      # Update form
+            self.player_control.set_vals()      # Update properties
+            
     def set_player(self, player):
         self.player_control.set_player(player)
         
@@ -1731,6 +2008,9 @@ class SelectPlay:
         :returns: True iff successful
         """
         part = self.get_part(sub_type=ptype, row=row, col=col)
+        hv = PlayMove.HV_H if ptype == "h" else PlayMove.HV_V
+        self.add_play_move(PlayMove.SELECT_EDGE, row=row, col=col, hv=hv)
+
         if part is None:
             return False
         
@@ -1745,8 +2025,7 @@ class SelectPlay:
         """
         if player is None:
             player = self.get_player()
-        plr = self.player_control.get_player(player.position)
-        plr.set_score(score)
+        player.set_score(score)
         
         
             

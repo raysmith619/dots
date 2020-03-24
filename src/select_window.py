@@ -6,6 +6,7 @@ Program Level Menu control
 import os
 from tkinter import *
 from select_trace import SlTrace
+from select_report import SelectReport
 from trace_control_window import TraceControlWindow
 from arrange_control import ArrangeControl
 
@@ -92,11 +93,8 @@ class SelectWindow(Frame):
         if file_open_cmd is None:
             file_open_cmd = self.File_Open_tbd
         filemenu = Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Open", command=file_open_cmd)
-        file_save_cmd = self.file_save
-        if file_save_cmd is None:
-            file_save_cmd = self.File_Save_tbd
-        filemenu.add_command(label="Save", command=file_save_cmd)
+        filemenu.add_command(label="Open", command=self.file_open)
+        filemenu.add_command(label="Save", command=self.file_save)
         filemenu.add_separator()
         filemenu.add_command(label="Log", command=self.LogFile)
         filemenu.add_command(label="Properties", command=self.Properties)
@@ -202,8 +200,10 @@ class SelectWindow(Frame):
     def File_Open_tbd(self):
         print("File_Open_menu to be determined")
 
-    def File_Save_tbd(self):
-        print("File_Save_menu to be determined")
+    def File_Save(self):
+        """ Save current game state for possible restoration
+        """
+        SelectReport("No File Save operation implemented")
 
     def add_menu_command(self, label=None, call_back=None):
         """ Add simple menu command to top menu

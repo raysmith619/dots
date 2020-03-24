@@ -83,10 +83,20 @@ class PlayerControl(SelectControlWindow):
         super().control_display()       # Do base work        
         self.load_player_info()
         self.control_display_base()
-    
+
+    def get_player_control_fields(self, all=False):
+        """ Get player control fields
+        :all: True - return all field names
+                default: False - just player saved fields
+        """
+        fields = []
+        for field in self. player_fields:
+            if all or not field in self.only_form_fields:   # TBD check this ???
+                fields.append(field)
+        return fields  
 
     def load_player_info(self):
-        """ Display / Control of players
+        """ Load players' attributes from properties 
         :ctlbase: base control object
         values stored in properties file
         All values stored under "player_control.".<player_id>

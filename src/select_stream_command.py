@@ -11,11 +11,16 @@ class SelectStreamCmd:
                                         # execute_file()
                                         # to execute
     
-    def __init__(self, name, args=[]):
+    def __init__(self, name, args=None):
+        """
+        :args: one or more arguments
+        """
         self.name = name.lower()        # case insensitive
-        self.args = []
-        for arg in args:
-            self.args.append(arg)
+        if args is None:
+            args = []
+        if not isinstance(args, list):
+            args = [args]
+        self.args = args
 
     
     def is_type(self, typeck):
@@ -29,13 +34,8 @@ class SelectStreamCmd:
         string = self.name
         if self.args:
             for arg in self.args:
-                if arg.type == SelectStreamToken.NUMBER:
-                    st = arg.str
-                elif arg.type == SelectStreamToken.QSTRING:        
-                    st = arg.delim + arg.str + arg.delim
-                else:
-                    st = arg.str
-                string += " " + st
+                string += ", "
+                string += f"{arg}"
         return string
 
 class SelectStreamToken:

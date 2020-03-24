@@ -43,8 +43,8 @@ class SelectColor:
     progs.append(SCP_RANDOM)
     SCP_ASCEND = "ascend"
     progs.append(SCP_ASCEND)
-    SCP_DESCEND = "descend"
-    progs.append(SCP_DESCEND)
+    SCP_DECEND = "descend"
+    progs.append(SCP_DECEND)
     
     
     def __init__(self, ncolor=100, spec=None, prog=None,
@@ -64,7 +64,7 @@ class SelectColor:
                 "ascend"
                 SCP_ASCEND - ascending from SCC_MIN to SCC_MAX
                 "descend" or
-                SCP_DESCEND - descending from SCC_MAX to SCC_MIN
+                SCP_DECEND - descending from SCC_MAX to SCC_MIN
         :cmax: maximum number interpretation depends on prog
         :cmin: minimum number interpretation depends on prog
         :ncolor: Number of colors
@@ -168,7 +168,7 @@ class SelectColor:
             for _ in range(ncolor):
                 clist.append(int(val))
                 val += inc
-        elif prog == self.SCP_DESCEND:
+        elif prog == self.SCP_DECEND:
             inc = -(cmax-cmin)/ncolor
             val = cmax
             for _ in range(ncolor):
@@ -259,12 +259,12 @@ if __name__ == "__main__":
         color = ct.get_color()
         print("color:%d(%X)" % (color, color))
         
-    ct = SelectColor(ncolor, use_red=False, use_green=False, prog=SelectColor.SCP_ASCEND)
+    ct = SelectColor(ncolor, prog=SelectColor.SCP_ASCEND)
     for _ in range(ncolor):
         color = ct.get_color()
         print("color:%d(%X)" % (color, color))
         
-    ct = SelectColor(ncolor, use_blue=False, use_green=False, prog=SelectColor.SCP_DECEND)
+    ct = SelectColor(ncolor, prog=SelectColor.SCP_DECEND)
     for _ in range(ncolor):
         color = ct.get_color()
         print("color:%d(%X)" % (color, color))

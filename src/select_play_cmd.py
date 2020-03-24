@@ -34,6 +34,10 @@ class SelectPlayCommand:
         if stcmd_name == "execute_file":
             file_name = self.get_arg(stcmd, 1, "")            
             return self.play_control.cmd_stream.procFile(file_name)
+
+        if stcmd_name.lower() == "eof":
+            self.command_stream.set_eof()
+            return True
         
         if stcmd_name == "lg":
             """ Version of Sl1Trace.lg(text[ flag_string})
@@ -330,7 +334,7 @@ class SelectPlayCommand:
             self.play_control.command_manager.list_stack()
             return True
         
-        raise SelectError("Unsuported command %s" % stcmd)
+        raise SelectError(f"Unsuported command {stcmd}")
         return False
         
         
@@ -516,19 +520,13 @@ class SelectPlayCommand:
                 raise SelectError("Missing REQUIRED argno:%d" % argno)
             return default
         
-        argtype = type(default)
-        argstr = stcmd.args[argno-1].str
-        if argtype == int:
-            return int(argstr)
+        return stcmd.args[argno-1]
 
-        if argtype == float:
-            return float(argstr)
-
-        if argtype == bool:
-            return bool(argstr)
-
-        return argstr 
-
+    def mark(self, ptype, row=None, col=None):
+        """ select and mark edge
+        """
+        self.select(ptype, row=row, col=col)
+        return self.enter()
 
     def select(self, ptype, row=None, col=None, keep=False):
         """ Select part
@@ -548,10 +546,20 @@ class SelectPlayCommand:
         
         return self.play_control.select(ptype, row=row, col=col, keep=keep)
 
+    def set_play(self, name_label=None, **kwargs):
+        return self.play_control.set_play(name_label=name_label, **kwargs)
+    
+    def start_game(self):
+        """ Start game
+        """
+        return self.play_control.start_game()
 
     def enter(self):
         """ Enter command - add current Edge
         """
+        if not self.play_control.move_check():
+            return False
+        
         edge = self.get_current_edge()
         if edge is None:
             self.beep()

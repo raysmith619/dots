@@ -8,6 +8,7 @@ import sys
 import time
 import traceback
 from tkinter import *    
+from tkinter import filedialog
 import argparse
 import cProfile, pstats, io         # profiling support
 import objgraph
@@ -22,6 +23,7 @@ mw = Tk()       # MUST preceed users of SelectControl for tkinter vars ...Var()
                 # e.g. SelectPlay -> ScoreWindow -> SelectControl
 from select_error import SelectError
 from select_trace import SlTrace
+from select_report import SelectReport
 
 from select_control import SelectControl
 from select_part import SelectPart
@@ -87,8 +89,8 @@ def str2bool(v):
 cF = SelectControl(control_prefix="dots_control")       # Late comer for this pgm
 cmd_file_name = None        # Command file, if one
 ###cmd_file_name = "3down.scrc"  # Command file, if one
-src_lst = True                  # List source as run
-stx_lst = True                # List Stream Trace cmd
+src_lst = False                  # List source as run
+stx_lst = False                # List Stream Trace cmd
 
 loop = False        # Repeat game after end after waiting interval
 loop_after = 5      # If looping, delay in seconds
@@ -100,6 +102,7 @@ playing = None      # If present comma separated list of playing (labels)
 play_level = None   # If present comma separated list of playing levels
 results_dir = None  # Results directory None -> default
 results_files = True # True - produce results files
+snapshot_dir = "snaps"   # Game Snapshots directory
 run_game = False	# Run game upon starting
 show_id = False     # Display component id numbers
 show_players = True # Display players info/control
@@ -141,7 +144,7 @@ parser.add_argument('--display_game', type=str2bool, dest='display_game', defaul
 parser.add_argument('--ew_display', type=int, dest='ew_display', default=ew_display)
 parser.add_argument('--ew_select', type=int, dest='ew_select', default=ew_select)
 parser.add_argument('--ew_standoff', type=int, dest='ew_standoff', default=ew_standoff)
-parser.add_argument('-f', '--file', dest='cmd_file_name', default=cmd_file_name)
+parser.add_argument('-f', '--cmd_file_name', '--file', dest='cmd_file_name', default=cmd_file_name)
 parser.add_argument('-r', '--run', action='store_true', dest='run_game', default=run_game,
                         help=("Run program upon loading"
                           " (default:%s" % run_game))
@@ -149,7 +152,7 @@ parser.add_argument('-l', '--src_lst', action='store_true', default=src_lst,
                     help=("List source as run"
                           " (default:%s" % src_lst))
 parser.add_argument('-x', '--stx_lst', action='store_true', default=stx_lst,
-                    help=("List commands expanded as run"
+                        help=("List commands expanded as run"
                           " (default:%s" % stx_lst))
 parser.add_argument('--loop', type=str2bool, dest='loop', default=loop)
 parser.add_argument('--loop_after', type=float, dest='loop_after', default=loop_after)
@@ -166,6 +169,9 @@ parser.add_argument('--run_game', type=str2bool, dest='run_game', default=run_ga
 parser.add_argument('--show_id', type=str2bool, dest='show_id', default=show_id)
 parser.add_argument('--show_players', type=str2bool, dest='show_players', default=show_players)
 parser.add_argument('--show_score', type=str2bool, dest='show_score', default=show_score)
+parser.add_argument('--snapshot_dir', dest='snapshot_dir', default=snapshot_dir,
+                        help=("Game state snapshot directory "
+                              f" (default: {snapshot_dir}"))
 parser.add_argument('--speed_step', type=float, dest='speed_step', default=speed_step)
 parser.add_argument('--stroke_move', type=str2bool, dest='stroke_move', default=stroke_move)
 parser.add_argument('--trace', dest='trace', default=trace)
@@ -197,6 +203,7 @@ run_game = args.run_game
 show_id = args.show_id
 show_players = args.show_players
 show_score = args.show_score
+snapshot_dir = args.snapshot_dir
 speed_step = args.speed_step
 src_lst = args.src_lst
 stx_lst = args.stx_lst
@@ -267,6 +274,30 @@ msg_frame = None            # message enclosed frame
 mw.lift()
 mw.attributes("-topmost", True)
 
+# file open/save functions
+def file_open():
+    SelectReport(mw, message="file_open not implemented yet")
+
+def file_save():
+    """ Save current game state
+    """
+    SlTrace.lg("file_save")
+    if sp is None:
+        SelectReport(mw, message="No Game in progress")
+        return
+    
+    initial_dir = os.path.abspath("../gm_snaps")
+    filename =  filedialog.asksaveasfilename(
+        initialdir = initial_dir,
+        title = "Game State Files",
+        filetypes = (("game files","*.py"),
+                     ("all files","*.*")))
+    if not re.match(r'^.*\.[^.]+$', filename):
+        filename += ".py"
+    
+    SlTrace.lg("filename %s" % filename)
+    game_file = filename
+    sp.save_game_file(game_file)
 ###@profile    
 def setup_app():
     """ Setup / Resetup app window
@@ -286,6 +317,8 @@ def setup_app():
                         pgmExit=play_exit,
                         cmd_proc=True,
                         cmd_file=None,
+                        file_open=file_open,
+                        file_save=file_save,
                         arrange_selection=False,
                         game_control=game_control
                         )
@@ -536,9 +569,9 @@ def set_dots_button():
                         show_ties=show_ties,
                         undo_micro_move=undo_micro_move,
                         undo_len=undo_len)
-        if command_stream is not None:
-            command_stream.set_play_control(sp)
-            command_stream.set_cmd_stream_proc(sp.cmd_stream_proc)
+        ###if command_stream is not None:
+        ###    command_stream.set_play_control(sp)
+        ###    command_stream.set_cmd_stream_proc(sp.cmd_stream_proc)
         
         player_control.set_play_control(sp)
         score_window.set_play_control(sp)
@@ -674,8 +707,18 @@ def new_board():
 def cmd_file():
     """ Setup command file processing
     """
-    SelectCommandFileControl(title="Command File", src_file=cmd_file_name,
-                     cmd_execute=sp.user_cmd)    
+    global sp
+    
+    if sp is None:
+        raise SelectError("cmd_file: sp is None")
+    command_stream = SelectCommandFileControl(title="Command File",
+                        src_file=cmd_file_name,
+                        cmd_execute=sp.user_cmd,
+                        play_control=sp)    
+    if command_stream is not None:
+        command_stream.set_play_control(sp)
+        ###command_stream.set_cmd_stream_proc(sp.cmd_stream_proc)
+   
 
 
 def run_cmd():

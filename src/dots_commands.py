@@ -26,12 +26,16 @@ class DotsCommands:
         :debugging: True - Just testing no command execution enabled
         """
         global dC                       # Static link to dots commands
+        ###if not isinstance(command_stream, select_command_stream.SelectCommandStream):
+        ###    raise SelectError(f"DotsCommands requires SelectCommandStream NOT {type(command_stream)}")
+        
         self.command_stream = command_stream
         self.play_control = play_control
         self.debugging = debugging
         self.debugging_res = True       # Default debugging
         self.new_file = True
         self.reset()
+        self.src_lines = None
         dC = self                       # set link to dots commands
 
 
@@ -69,8 +73,9 @@ class DotsCommands:
         if dC is None or not hasattr(dC, "command_stream"):
             raise SelectError("Missing required command_stream")
         
+        src_lineno = None
         if (self.is_src_lst() or self.is_stx_lst()
-                or self.is_stepping()):
+                or self.is_step()):
             if self.new_file:
                 self.src_line_prev = -1
                 with open(self.get_src_file_path()) as f:
@@ -120,7 +125,7 @@ class DotsCommands:
                         arg = kwargs[kw]
                         fun_str += ", " + kw + "=" + repr(arg)
                     fun_str += ")"
-                    SlTrace.lg("         SCMD: %s" % fun_str)
+                    SlTrace.lg(f"         SCMD: {fun_str}")
         
         if self.play_control is None and not self.is_debugging():
             raise SelectError("DotsCommands play_control link is missing")
@@ -169,7 +174,7 @@ class DotsCommands:
     def is_stx_lst(self):
         """ Are we listing executing commands?
         """
-        return self.command_stream.is_src_lst()
+        return self.command_stream.is_stx_lst()
     
     
     def ck_res(self):
@@ -204,23 +209,56 @@ class DotsCommands:
             return self.ck_res()    # Debugging short circuit
         
         return self.cmd_stream_proc.enter()
-     
+        
+    def mark(self, *args, **kwargs):
+        if self.ck(*args, **kwargs):
+            return self.ck_res()    # Debugging short circuit
+        return self.cmd_stream_proc.mark(*args, **kwargs)
+
+    
+    def start_game(self, *args, **kwargs):
+        if self.ck(*args, **kwargs):
+            return self.ck_res()    # Debugging short circuit
+        
+        return self.cmd_stream_proc.start_game(*args, **kwargs)
+        
     def select(self, *args, **kwargs):
         if self.ck(*args, **kwargs):
             return self.ck_res()    # Debugging short circuit
         return self.cmd_stream_proc.select(*args, **kwargs)
     
-    def set_player(self, *args, **kwargs):
+    def set_play(self, *args, **kwargs):
         if self.ck(*args, **kwargs):
             return self.ck_res()    # Debugging short circuit
 
-        return self.cmd_stream_proc.set_player(*args, **kwargs)
+        return self.cmd_stream_proc.set_play(*args, **kwargs)
 
     def undo(self):
         if self.ck():
             return self.ck_res()    # Debugging short circuit
         
         return self.play_control.undo()
+
+    def redo(self):
+        if self.ck():
+            return self.ck_res()    # Debugging short circuit
+        
+        return self.play_control.redo()
+
+    """
+    Game State Verification commands
+    """
+    def game_check(self, *args, **kwargs):
+        if self.ck():
+            return self.ck_res()    # Debugging short circuit
+        
+        return self.play_control.game_check(*args, **kwargs)
+
+    def play_move(self, *args, **kwargs):
+        if self.ck():
+            return self.ck_res()    # Debugging short circuit
+        
+        return self.play_control.play_move(*args, **kwargs)
     
     
 dC = DotsCommands.get_cmds()
@@ -234,17 +272,38 @@ def enter():
 def lg(*args, **kwargs):
     return dC.lg(*args, **kwargs)
 
+def mark(*args, **kwargs):
+    return dC.mark(*args, **kwargs)
+    
 def select(*args, **kwargs):
     return dC.select(*args, **kwargs)
 
 def set_playing(*args, **kwargs):
     return dC.set_playing(*args, **kwargs)
 
-def set_player(*args, **kwargs):
-    return dC.set_player(*args, **kwargs)
+def set_play(*args, **kwargs):
+    return dC.set_play(*args, **kwargs)
+
+def start_game(*args, **kwargs):
+    return dC.start_game(*args, **kwargs)
 
 def undo():
     """ Undo command
     """
     return dC.undo()
-       
+
+def redo():
+    """ Redo command
+    """
+    return dC.redo()
+
+"""
+Verification Commands
+Testing expected game State
+"""
+def game_check(*args, **kwargs):
+    return dC.game_check(*args, **kwargs)
+
+def play_move(*args, **kwargs):
+    return dC.play_move(*args, **kwargs)
+

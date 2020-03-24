@@ -39,8 +39,8 @@ class DotsShadow:
         self.select_dots = select_dots
         self.nrows = nrows
         self.ncols = ncols
-        self.squares = np.zeros([nrows, ncols])
-        self.lines = np.zeros([nrows+1, ncols+1, 2])     # row, col, [horiz=0, vert=1]
+        self.squares = np.zeros([nrows, ncols], dtype=int)
+        self.lines = np.zeros([nrows+1, ncols+1, 2], dtype=int)     # row, col, [horiz=0, vert=1]
         
                                                     # Mark illegal edges as used
         for ir in range(nrows+1):
@@ -198,6 +198,15 @@ class DotsShadow:
                     min_dist = dist
                     
         return min_dist
+
+    def get_player(self):
+        """ Get current player for debugging purposes
+        """
+        import select_play
+        
+        play_control = select_play.SelectPlay.current_play
+        player = play_control.get_player()
+        return player
         
     
     def does_complete_square(self, nr, nc, hv):
@@ -214,19 +223,31 @@ class DotsShadow:
             raise SelectError(f"hv:{hv} out of range")
         ir = nr - 1
         ic = nc - 1
-        SlTrace.lg(f"ir={ir} ic={ic} hv={hv}", "complete_square")
+        SlTrace.lg(f"ir={ir} ic={ic} hv={hv}", "complete_square looking")
         if hv == 0:     # Horizontal
             if ir > 0:
                                                             # Square above
-                if (self.lines[ir, ic, 1] > 0               # left vertical edge
+                if (self.lines[ir-1, ic, 1] > 0               # left vertical edge
                         and self.lines[ir-1, ic, 0] > 0     # top horizontal edge
-                        and self.lines[ir, ic+1, 1] == 0):  # right vertical edge
+                        and self.lines[ir-1, ic+1, 1] == 0):  # right vertical edge
+                    if SlTrace.trace("complete_square"):
+                        self.show_play(nr, nc, hv, desc="Square above")
+                        self.line_desc(nr, nc, hv, desc="Completing line before")
+                        self.line_desc(ir-1, ic, 0, index=True, desc="left vertical edge")
+                        self.line_desc(ir-1, ic, 0, index=True, desc="top horizontal edge")
+                        self.line_desc(ir-1, ic+1, 1, index=True, desc="right vertical edge")
                     return True            
                 
             if ir < self.nrows:                             # Square below
                 if (self.lines[ir+1, ic, 1] > 0             # left vertical edge
-                        and self.lines[ir+1, ic, 0] > 0     # bottom horizontal edge
-                        and  self.lines[ir+1, ic, 1] > 0): # right vertical edge
+                        and self.lines[ir+1, ic, 0] > 0       # bottom horizontal edge
+                        and  self.lines[ir, ic+1, 1] > 0): # right vertical edge
+                    if SlTrace.trace("complete_square"):
+                        self.show_play(nr, nc, hv, desc="Square below")
+                        self.line_desc(nr, nc, hv, desc="Completing line before")
+                        self.line_desc(ir+1, ic, 1, index=True, desc="left vertical edge")
+                        self.line_desc(ir+1, ic,0, index=True, desc="bottom horizontal edge")
+                        self.line_desc(ir+1, ic+1,1, index=True, desc="right vertical edge")
                     return True
                 
         else:     # Vertical
@@ -235,13 +256,25 @@ class DotsShadow:
                 if (self.lines[ir+1, ic-1, 0] > 0           # bottom horizontal edge
                         and self.lines[ir, ic-1, 1] > 0     # left vertical edge
                         and self.lines[ir, ic-1, 0] > 0):   # top horizontal edge
+                    if SlTrace.trace("complete_square"):
+                        self.show_play(nr, nc, hv, desc="Square to left")
+                        self.line_desc(nr, nc, hv, desc="Completing line before")
+                        self.line_desc(ir+1, ic-1, 0, index=True, desc="bottom horizontal edgee")
+                        self.line_desc(ir, ic-1, 1, index=True, desc="left vertical edge")
+                        self.line_desc(ir, ic-1, 0, index=True, desc="top horizontal edge")
                     return True     # complete sq on left
 
                                                             # Square to right
             if ic < self.ncols:                             # but not right most column
                 if (self.lines[ir+1, ic, 0] > 0             # bottom horizontal edge
-                        and self.lines[ir+1, ic, 1] > 0     # right vertical edge     
-                        and self.lines[ir+1, ic, 0] > 0):    # top horizontal edge
+                        and self.lines[ir, ic+1, 1] > 0     # right vertical edge     
+                        and self.lines[ir, ic, 0] > 0):    # top horizontal edge
+                    if SlTrace.trace("complete_square"):
+                        self.show_play(nr, nc, hv, desc="Square to right")
+                        self.line_desc(nr, nc, hv, desc="Completing line before")
+                        self.line_desc(ir+1, ic, 0, index=True, desc="bottom horizontal edge")
+                        self.line_desc(ir+1, ic, 1, index=True, desc="right vertical edge")
+                        self.line_desc(ir+1, ic, 0, index=True, desc="top horizontal edge")
                     return True     # complete sq on right
                     
         return False            # Completed squares            
@@ -265,6 +298,39 @@ class DotsShadow:
         
         return None
 
+    def show_play(self, nr, nc, hv, desc=None):
+        if desc is None:
+            desc = ""
+        player = self.get_player()
+        name = player.name if player is not None else "Unknown"
+        
+        
+        SlTrace.lg(f"{name} found completing square nr={nr} nc={nc} hv={hv} {desc}")
+
+    def line_desc(self, row, col, hv, index=False, desc=None):
+        """ line description
+        ;row: row or row index
+        :col: col or col index
+        :hv:  0 horizontal, 1 vertical
+        :index: use zero based, default use 1 based
+        :desc: optional description
+        """
+        if index:
+            ir = row
+            row = row+1
+            ic = col
+            col = col+1
+        else:
+            ir = row-1
+            ic = col-1
+        line_val = self.lines[ir, ic, hv]
+        direct = "horizontal" if hv == 0 else "vertical"
+        if desc is None:
+            desc = ""
+        SlTrace.lg(f"line row={row} col={col} {direct} : lines[{ir},{ic},{hv}] = {line_val} {desc}")
+        part = self.lines_obj[ir, ic, hv]
+        SlTrace.lg(f"        part: {part}") 
+            
 
     def set_part(self, part):
         """ Add reference to actual part for reference / conversion
