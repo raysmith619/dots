@@ -30,6 +30,7 @@ class SelectCommandFileControl(SelectControlWindow):
                  control_prefix=CONTROL_NAME_PREFIX,
                  run=False,
                  run_cmd=None,
+                 paused=True,
                  new_board=None,
                  in_file=None,
                  save_as_file=None,
@@ -57,6 +58,7 @@ class SelectCommandFileControl(SelectControlWindow):
         self.new_board = new_board
         self.cmd_execute = None
         self.running = False
+        self.paused = paused
         self.debugging = debugging
         self.step_pressed = False
         self.cont_to_end_pressed = False
@@ -209,7 +211,8 @@ class SelectCommandFileControl(SelectControlWindow):
         run_frame1.pack(side="top", fill="x", expand=True)
         self.set_fields(run_frame1, field_name, title="Running")
         self.set_button(field="Run", label="Run", command=self.run_button)
-        self.set_check_box(field="src_lst", label="List Src", value=self.src_lst)
+        self.set_check_box(field="paused", label="paused", value=self.paused)
+        self.set_check_box(field="src_lst", label="List Src", value=self.stx_lst)
         self.set_check_box(field="stx_lst", label="List Exp", value=self.stx_lst)
         self.set_entry(field="cmd_delay", label="cmd delay", value = .5, width=5)
         self.set_button(field="stop", label="Stop", command=self.stop_button)
@@ -531,6 +534,7 @@ class SelectCommandFileControl(SelectControlWindow):
                 src_dir = self.get_val_from_ctl("input.src_dir_name")
                 if src_dir is not None and src_dir != "":
                     src_file = os.path.join(src_dir, src_file)
+            self.play_control.run_cmd()
             if self.play_control is not None:
                 src_lst = self.get_val_from_ctl("running.src_lst")
                 stx_lst = self.get_val_from_ctl("running.stx_lst")
@@ -541,6 +545,13 @@ class SelectCommandFileControl(SelectControlWindow):
             if not res:
                 SlTrace.lg("run file failed")
                 return False       # Quit if run fails
+            
+            self.play_control.first_time = False        # Assume file did game start if wanted
+            paused =  self.get_val_from_ctl("running.paused")
+            if paused:
+                self.running = False
+                self.play_control.pause_cmd()
+                return True
             
             is_looping = self.get_val("running.loop") 
             if is_looping:
@@ -630,6 +641,9 @@ class SelectCommandFileControl(SelectControlWindow):
     def is_eof(self):
         """ Are we at end of file?
         """
+        if self.command_stream is None:
+            return True         # Treat as eof
+        
         return self.command_stream.is_eof()
     
     def set_eof(self, eof=True):

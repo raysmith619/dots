@@ -895,6 +895,6 @@ if __name__ == '__main__':
     frame.pack()
     SlTrace.setProps()
     SlTrace.setFlags("")
-    plc = PlayerControl(frame, title="player_control", display=True)
+    plc = PlayerControl(frame, title="Player Control", display=True)
         
     root.mainloop()

@@ -10,6 +10,7 @@ import copy
 import cProfile, pstats, io         # profiling support
 ###from pstats import SortKey
 
+from play_move import PlayMove
 from select_fun import *
 from select_trace import SlTrace
 from select_error import SelectError
@@ -27,32 +28,10 @@ from active_check import ActiveCheck
 from sc_score_window import ScoreWindow
 from select_blinker_state import BlinkerMultiState
 from select_kbd_cmd import SelectKbdCmd
-from dots_commands import DotsCommands
 
 from gr_input import gr_input
 from psutil._psutil_windows import proc_cmdline
 from docutils.nodes import Part
-
-class PlayMove:
-    SELECT_EDGE = "select_edge"     # May select edge to be markes
-    MARK_EDGE = "mark_edge"         # May mark an already selected edge
-    UNDO_MOVE = "undo_move"         # May undo a previous (select, mark)
-    REDO_MOVE = "redo_move"         # May redo a previous select, mark
-    HV_H = "horizontal"
-    HV_V = "vertical"
-    
-    def __init__(self, move_type, row=None, col=None, hv=None, player=None,
-                    part=None, move_no=None):
-        self.move_type = move_type
-
-        self.row = row
-        self.col = col
-        self.hv = hv
-                                    # Optional - possibly only for debugging / analysis
-        self.player = player
-        self.part = part
-        self.move_no = move_no
-        
         
 class SelectPlay:
     current_play = None             # Most recent - used for debugging
@@ -229,6 +208,7 @@ class SelectPlay:
             if (self.cmd_stream is not None
                     and not self.cmd_stream.is_eof()):
                 self.run_file()
+                self.first_time = False     # Assume file did that
                 continue    # Check if more
             else:
                 if self.first_time:
@@ -978,16 +958,32 @@ class SelectPlay:
             self.add_new_mods(part)
 
     def add_play_move(self, move_type, row=None, col=None, hv=None, player=None,
-                    part=None, move_no=None):
+                    playing=None,
+                    part=None, move_no=None,
+                    label_name=None,
+                    mode=None,
+                    is_set=None,
+                    show_fail=None,
+                    case_sensitive=None,
+                    kwargs=None,
+                    pre_comment=None, line_comment=None):
 
         """ Add played move, for file snap shot, and other support operations
         :move_type: type of move
         :row: row (from part if not present)
         :col: col (from part if not present)
         :hv: horizontal/vertical (from part if not present)
+        :mode: h,v,sq for game_check
+        :is_set: test check True =condition is set
+        :show_fail: True raise exception if fail
         :player: player's turn (optional)
         :part: part played, if present (used to get row, col, hv)
         :move_no: game move (optional)
+        :label_name: player's label/Name or None - every player
+        :case_sensitive: True use case for checking
+        :kwargs: dictionary of additional arguments/values
+        :pre_comment: comments preceeding move default: look at DotsCommands
+        :line_comment: comment to end of line
         """
         if move_type == PlayMove.MARK_EDGE or move_type == PlayMove.SELECT_EDGE:
             if row is None:
@@ -996,8 +992,34 @@ class SelectPlay:
                 col = part.col
             if hv is None:
                 hv = PlayMove.HV_H if part.sub_type() == "h" else PlayMove.HV_V
-        pm = PlayMove(move_type, row=row, col=col, hv=hv, player=player, part=part, move_no=move_no)
+        if pre_comment is None:
+            pre_comment = self.get_pre_comment()
+        if line_comment is None:
+            line_comment = self.get_line_comment()
+        pm = PlayMove(move_type, row=row, col=col, hv=hv, player=player,
+                      part=part, move_no=move_no,
+                      playing=playing,
+                      label_name=label_name,
+                      case_sensitive=case_sensitive,
+                      mode=mode,
+                      is_set=is_set,
+                      show_fail=show_fail,
+
+                      kwargs=kwargs,
+                      pre_comment=pre_comment, line_comment=line_comment)
         self.play_moves.append(pm)
+
+    def get_line_comment(self):
+        if (self.cmd_stream is not None
+                and not self.cmd_stream.is_eof()):
+            return self.cmd_stream.get_line_comment()
+        
+        return None
+    
+    def get_pre_comment(self):
+        if (self.cmd_stream is not None
+                and not self.cmd_stream.is_eof()):
+            return self.cmd_stream.get_pre_comment()
         
     def add_prev_mods(self, parts):
         """ Add part before any modifications
@@ -1477,35 +1499,21 @@ class SelectPlay:
             playing_labels = [player.label for player in players]
             playing_str = ",".join(playing_labels)
             print(f"""set_playing("{playing_str}")""", file=fout)
-            player_fields = self.player_control.get_player_control_fields()
             max_line = 60
             indent_str = "        "
             for player in players:
-                play_str = f'set_play(label_name="{player.name}"'
-                line_str = play_str         # Keep track how long line is
-                if len(line_str) > max_line:
-                    play_str += "\n" + indent_str
-                    line_str = indent_str
-                for field in player_fields:
-                    if play_str != "":
-                        play_str += ", "
-                        line_str += ", "
-                    if len(line_str) > max_line:
-                        play_str += "\n" + indent_str
-                        line_str = indent_str
-                    val = getattr(player, field)
-                    if isinstance(val, str):
-                        val = f'"{val}"'     # Surround with quotes
-                    play_str += f"{field}={val}"
-                    line_str += f"{field}={val}"
-                play_str += ")"
-                print(play_str, file=fout)
+                self.print_set_play(player, max_line=max_line, file=fout,
+                                    indent_str=indent_str)
             print(f"start_game()", file=fout)        # Required for any game playing commands
             move_type_d = {
                 PlayMove.MARK_EDGE : "mark",
                 PlayMove.SELECT_EDGE : "select",
                 PlayMove.UNDO_MOVE : "undo",
                 PlayMove.REDO_MOVE : "redo",
+                PlayMove.PLAY_MOVE : "play_move",
+                PlayMove.SET_PLAYING : "set_playing",
+                PlayMove.GAME_CHECK : "game_check",
+                PlayMove.SET_PLAY : "set_play"
                 }
             for pm in self.play_moves:
                 if pm.move_type not in move_type_d:
@@ -1514,20 +1522,91 @@ class SelectPlay:
                 hv_str = '"h"' if pm.hv == PlayMove.HV_H else '"v"'
                 if pm.move_type == PlayMove.MARK_EDGE:
                     line_str = f"{gfun}({hv_str}, {pm.row}, {pm.col})"
-                    print(line_str, file=fout)
                 elif pm.move_type == PlayMove.SELECT_EDGE:
                     line_str = f"{gfun}({hv_str}, {pm.row}, {pm.col})"
-                    print(line_str, file=fout)
                 elif pm.move_type == PlayMove.UNDO_MOVE:
                     line_str = f"{gfun}()"
-                    print(line_str, file=fout)
                 elif pm.move_type == PlayMove.REDO_MOVE:
                     line_str = f"{gfun}()"
-                    print(line_str, file=fout)
+                elif pm.move_type == PlayMove.SET_PLAY:
+                    if pm.pre_comment is not None:
+                        print(pm.pre_comment, file=fout)
+                    temp_player = SelectPlayer(self, id=0)    # Not real
+                    for field in pm.kwargs:
+                        val = pm.kwargs[field]
+                        setattr(temp_player, field, val)
+                    self.print_set_play(temp_player, file=fout)
+                    if pm.line_comment is not None:
+                        print(pm.line_comment, file=fout)
+                    continue            # Done with this move
+                
+                elif pm.move_type == PlayMove.SET_PLAYING:
+                    playing_str = "" if pm.playing is None else f'"{pm.playing}"'
+                    line_str = f"{gfun}({playing_str})"     # Do we drop this ???
+                elif pm.move_type == PlayMove.GAME_CHECK:
+                    line_str = f"{gfun}("
+                    if pm.mode is not None:
+                        if not line_str.endswith("("):
+                            line_str += ", "
+                        line_str += f'"{pm.mode}"'
+                    if pm.row is not None:
+                        if not line_str.endswith("("):
+                            line_str += ", "
+                        line_str += str(pm.row)
+                    if pm.col is not None:
+                        if not line_str.endswith("("):
+                            line_str += ", "
+                        line_str += str(pm.col)
+                    if pm.is_set is not None:
+                        if not line_str.endswith("("):
+                            line_str += ", "
+                        line_str += f"is_set={pm.is_set}"
+                    if pm.show_fail is not None:
+                        if not line_str.endswith("("):
+                            line_str += ", "
+                        line_str += f"show_fail={pm.show_fail}"
+                    line_str += ")"    
+                elif pm.move_type == PlayMove.PLAY_MOVE:
+                    line_str = f"{gfun}()"
                 else:
-                    raise SelectError("save_file move type: {pm.move_type} uninplemented")
+                    raise SelectError(f"save_file move type:"
+                                      f" {pm.move_type} uninplemented")
+                pre_comment = pm.pre_comment
+                if pre_comment is not None:
+                    print(pre_comment, file=fout)
+                line_comment = pm.line_comment
+                if line_comment is not None:
+                    line_str += line_comment
+                print(line_str, file=fout)
+               
         return True
-            
+
+    def print_set_play(self, player, max_line=60,
+                       indent_str = " "*8, file=None):
+        if file is None:
+            raise SelectError("print_set_play: file REQUIRED")
+        player_fields = self.player_control.get_player_control_fields()
+        
+        play_str = f'set_play(label_name="{player.name}"'
+        line_str = play_str         # Keep track how long line is
+        if len(line_str) > max_line:
+            play_str += "\n" + indent_str
+            line_str = indent_str
+        for field in player_fields:
+            if play_str != "":
+                play_str += ", "
+                line_str += ", "
+            if len(line_str) > max_line:
+                play_str += "\n" + indent_str
+                line_str = indent_str
+            val = getattr(player, field)
+            if isinstance(val, str):
+                val = f'"{val}"'     # Surround with quotes
+            play_str += f"{field}={val}"
+            line_str += f"{field}={val}"
+        play_str += ")"
+        print(play_str, file=file)
+
 
     def save_properties(self):
         """ Save profile
@@ -1568,7 +1647,7 @@ class SelectPlay:
     """
     Game State Verification commands
     """
-    def game_check(self, mode, row=None, col=None, set=True,
+    def game_check(self, mode, row=None, col=None, is_set=True,
                    show_fail=True):
         """ Check if state has been met
         :mode: part or check mode
@@ -1577,16 +1656,16 @@ class SelectPlay:
                 "sq" - square
         :row: row number
         :col: column number
-        :set: expected state: True: turned on
+        :is_set: expected state: True: turned on
         :show_fail: announce failures
         """
-        
+        self.add_play_move(PlayMove.GAME_CHECK, mode=mode, row=row, is_set=is_set, show_fail=show_fail)
         if mode == "h" or mode == "v":
             part = self.get_part(type="edge", sub_type=mode, row=row, col=col)
             if part is None:
                 raise SelectError(f"game_check: no edge({mode}) found at row={row} col={col}")                     
             is_on = part.is_turned_on()
-            if is_on != set:
+            if is_on != is_set:
                 result = False
                 msg = (f"Unexpected test result: {result}"
                        f" for line({mode}) at row={row} col={col}")
@@ -1597,7 +1676,7 @@ class SelectPlay:
         elif mode == "sq":
             part = self.get_part(type="region", row=row, col=col)
             is_on = part.is_turned_on()
-            if is_on != set:
+            if is_on != is_set:
                 result = False
                 msg = (f"Unexpected test result: {result}"
                        f" for square at row={row} col={col}")
@@ -1613,6 +1692,7 @@ class SelectPlay:
     def play_move(self):
         """ Play machine move(s)
         """
+        self.add_play_move(PlayMove.PLAY_MOVE)
         return self.make_move()
             
     def game_control_window_set_cmd(self, gcw):
@@ -1903,6 +1983,9 @@ class SelectPlay:
         :case_sensitive: do case sensitive comparison
                         default: case insensitive comparison
         """
+        self.add_play_move(PlayMove.SET_PLAY, label_name=label_name,
+                           case_sensitive=case_sensitive,
+                           kwargs=kwargs)
         if label_name is None:
             players = self.get_players()
         else:
@@ -1958,6 +2041,14 @@ class SelectPlay:
         self.add_message(text, font_size=20, time_sec=1)
         SlTrace.lg("completed_square_end", "square")
         self.trace_scores("completed_square end")
+
+    def set_playing(self, playing=None):
+        """ Set players playing via
+        comma separated string
+        :playing: comma separated string of playing player's Labels
+        """
+        self.add_play_move(PlayMove.SET_PLAYING, playing=playing)
+        return self.player_control.set_playing(playing=playing)
 
     def trace_scores(self, prefix=None):
         """ Trace(log) playing scores

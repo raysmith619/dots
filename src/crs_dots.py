@@ -728,7 +728,10 @@ def run_cmd():
     global run_game
     run_game = True
     if sp is not None:
-        sp.run_cmd()
+        if sp.running:
+            sp.run_cmd()
+            return              # Currently running (paused?)
+    
         mw.after(0, sp.running_loop)   # One call from mainloop
     
 def new_game():

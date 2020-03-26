@@ -299,6 +299,18 @@ class SelectCommandStream:
         self.tok = None         # Token if found
         self.line = None        # Remaining unparsed line
         return True
+
+    def get_line_comment(self):
+        if self.dots_commands is not None:
+            return self.dots_commands.get_line_comment()
+        
+        return None
+
+    def get_pre_comment(self):
+        if self.dots_commands is not None:
+            return self.dots_commands.get_pre_comment()
+        
+        return None
     
     
     def get_cmd(self):

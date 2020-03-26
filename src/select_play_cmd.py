@@ -568,7 +568,7 @@ class SelectPlayCommand:
         
         if edge.is_turned_on():
             self.beep()
-            SlTrace.lg("enter() edge alreay turned on")
+            SlTrace.lg(f"enter() edge: {edge} alreay turned on")
             return True
         
         edge.display_clear()
@@ -608,6 +608,6 @@ class SelectPlayCommand:
         if self.play_control.player_control is None:
             raise SelectError("control_player_control not set")
             
-        self.play_control.player_control.set_playing(playing)
+        self.play_control.set_playing(playing=playing)
         return True
     

@@ -3,11 +3,12 @@
 Python command support  for dots game for python file Execution
 """
 import sys
+import re
 import traceback
 
 from select_error import SelectError
 from select_trace import SlTrace
-from _ast import arg
+###from _ast import arg
 
 dC = None               # Global reference, set by CommandFile
 class DotsCommands:
@@ -36,6 +37,11 @@ class DotsCommands:
         self.new_file = True
         self.reset()
         self.src_lines = None
+        self.pre_comment = None         # Current instruction comments
+        self.line_comment = None
+        self.re_comment_line = re.compile(r'^\s*#')
+        self.re_doc_start = re.compile(r'.*"""')
+        self.re_line_comment = re.compile(r'^.*\S.*?(\s*#.*)')
         dC = self                       # set link to dots commands
 
 
@@ -54,6 +60,7 @@ class DotsCommands:
 
     def set_cmd_stream_proc(self, cmd_stream_proc):
         """ Connect command stream processing to command processing
+        
         :play_control:  game control
         """
         self.cmd_stream_proc = cmd_stream_proc
@@ -99,6 +106,15 @@ class DotsCommands:
                 if src_tbfr is not None and src_tbfr_fun is None:
                     src_tbfr_fun = tbfr
             if src_lineno is not None:
+                """ An attempt to partition text into
+                    pre_comment - lines preceding command
+                    line_comment - comment, including leading whitespace
+                                    on the line of command
+                    This is a bit of a hack
+                """
+                doing_doc_string = False    # collecting multi-line
+                pre_comment = None
+                line_comment = None
                 src_line_index = src_lineno-1
                 if src_line_index < self.src_line_prev:
                     self.src_line_prev = src_line_index # looping?
@@ -106,10 +122,29 @@ class DotsCommands:
                     if idx >= len(self.src_lines):
                         break
                     lineno = idx + 1
-                    src_line = self.src_lines[idx].rstrip()
+                    src_line = self.src_lines[idx]
+                    if doing_doc_string:
+                        if self.re_doc_start.match(src_line):   # A HACK ???
+                            doing_doc_string = False
+                        pre_comment += src_line
+                    elif self.re_comment_line.match(src_line):
+                        if pre_comment is None:
+                            pre_comment = ""
+                        pre_comment += src_line
+                    elif self.re_doc_start.match(src_line):
+                        if pre_comment is None:
+                            pre_comment = ""
+                        pre_comment += src_line
+                        doing_doc_string = True
+                    elif self.re_line_comment.match(src_line):
+                        m = self.re_line_comment.match(src_line)
+                        line_comment = m.group(1)
+                    src_line_trim = src_line.rstrip()
                     if self.is_src_lst():
-                        SlTrace.lg("   %4d: %s" % (lineno, src_line))
+                        SlTrace.lg("   %4d: %s" % (lineno, src_line_trim))
                         self.src_line_prev = idx        # Update as printed
+                    self.pre_comment = pre_comment
+                    self.line_comment = line_comment
             if self.is_stx_lst():
                 if src_tbfr_fun is not None:
                     fun_name = src_tbfr_fun.name
@@ -181,6 +216,22 @@ class DotsCommands:
         """ debugging ck return
         """
         return self.debugging_res
+
+    def get_line_comment(self):
+        """ Get line comment first call then None
+        to avoid double hits
+        """
+        ret = self.line_comment
+        self.line_comment = None
+        return ret
+
+    def get_pre_comment(self):
+        """ Get comment first call then None
+        to avoid double hits
+        """
+        ret =  self.pre_comment
+        self.pre_comment = None       
+        return ret
 
     def set_debugging(self, debugging = True):
         """ Set to debug command language, elimitting
