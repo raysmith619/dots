@@ -91,7 +91,7 @@ class SelectPlay:
         :stx_lst: True - list command stream as run
         """
         SelectPlay.current_play = self              # For debugging
-        self.play_moves = []                    # List of played moves, including undo, redo, etc.
+        self.clear_game_moves()                     # Initialize game moves list
         
         self.event_queue = []           # Event queue
         self.display_game = display_game
@@ -1008,6 +1008,13 @@ class SelectPlay:
                       kwargs=kwargs,
                       pre_comment=pre_comment, line_comment=line_comment)
         self.play_moves.append(pm)
+
+    def clear_game_moves(self):
+        """ Clear stored game moves
+        """
+        self.play_moves = []
+
+
 
     def get_line_comment(self):
         if (self.cmd_stream is not None

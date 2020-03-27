@@ -522,13 +522,13 @@ class SelectCommandFileControl(SelectControlWindow):
         
         while True:
             self.set_vals()
-            if self.get_val("running.new_game"):
-                if self.new_game is not None:
-                    self.reset_board()
-            new_board = self.get_val_from_ctl("running.new_board")
+            new_board = self.get_val("running.new_board")
             if new_board:
                 if self.play_control is not None:
                     self.play_control.reset()
+            if self.get_val("running.new_game"):
+                self.clear_game_moves()
+                ###self.new_game()
             src_file = self.get_val_from_ctl("input.src_file_name")
             if not os.path.isabs(src_file):
                 src_dir = self.get_val_from_ctl("input.src_dir_name")
@@ -678,6 +678,10 @@ class SelectCommandFileControl(SelectControlWindow):
 
     """ Control functions for game control
     """
+    def clear_game_moves(self):
+        if self.play_control is not None:
+            self.play_control.clear_game_moves()
+
     def new_game(self):
         self.set_vals()
         if self.play_control is not None:
