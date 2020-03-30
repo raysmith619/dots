@@ -12,6 +12,14 @@ The game is usually played by two players with alternating moves.  Each move con
 ## Running the game:
 The game is started by executing "python crs_dots.py" in the "src" directory.  The setup of the game windows and settings is specified by the crs_dots.properties file.
 
+## Game Setup / Control
+Running the game is controlled via a number of sizable and positionable windows:
+### Dots Game window
+- Display game play
+- Menus control top level operation
+### Player Control
+- List players and each player's attributes
+ Including Name, Label, Playing, Position, Color, Background color, Automated/Manual, play level 
 ## Processing game results:
 Executing the game creates a new results file, usually stored in the "../gmres" or "../test_gmres" directory.  Examples of results files can be found in the "test_gmres" directory.
 
