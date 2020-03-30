@@ -17,9 +17,29 @@ Running the game is controlled via a number of sizable and positionable windows:
 ### Dots Game window
 - Display game play
 - Menus control top level operation
+![Game control screen shot](Docs/dots_game_screen.png)
 ### Player Control
 - List players and each player's attributes
- Including Name, Label, Playing, Position, Color, Background color, Automated/Manual, play level 
+ Including Name, Label, Playing, Position, Color, Background color, Automated/Manual, play level
+ ![Players control screen shot](Docs/dots_player_screen.png)
+### Score Display
+- List current player's scores
+- Provide Undo/Redo
+![Score control screen shot](Docs/dots_score_screen.png)
+### Game Control
+- Progress control
+- Automation control
+- Scoring control
+- Board size specification
+![Game screen shot](Docs/dots_game_cotrol_screen.png)
+### Game File Control
+- Specifies Playable game files, which can be run
+- Supports snapshoting current game state into files for subsequent replay
+- Supports game file debugging, e.g. stepping through game file execution
+![File control screen shot](Docs/dots_file_control_screen.png)
+
+ 
+
 ## Processing game results:
 Executing the game creates a new results file, usually stored in the "../gmres" or "../test_gmres" directory.  Examples of results files can be found in the "test_gmres" directory.
 
