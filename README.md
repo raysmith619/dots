@@ -19,9 +19,9 @@ Running the game is controlled via a number of sizable and positionable windows:
 - Menus control top level operation
 ![Game control screen shot](Docs/dots_game_screen.png)
 ### Player Control
-- List players and each player's attributes
- Including Name, Label, Playing, Position, Color, Background color, Automated/Manual, play level
- ![Players control screen shot](Docs/dots_player_screen.png)
+- List players and each player's attributes, including Name, Label, Playing, Position, Color, Background color, Automated/Manual, play level
+- Add / Delete players
+![Player control screen shot](Docs/dots_player_control_screen.png)
 ### Score Display
 - List current player's scores
 - Provide Undo/Redo
