@@ -460,6 +460,10 @@ class SelectDots(object):
         """
         self.display_tracking.add_display_tags(part, tags)
 
+
+    def clear_blinking(self):
+        self.area.clear_blinking()
+
     def display_clear(self, part, display=False):
         """ Clear out display of current edge
         """

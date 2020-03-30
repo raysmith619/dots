@@ -139,13 +139,16 @@ class SelectWindow(Frame):
         """ Arrange windows
             Get location and size for properties if any
         """
+        ###'''
         win_x = self.get_prop_val("win_x", 50)
-        if win_x < 0 or win_x > 1400:
-            win_x = 50
+        if win_x < 0 or win_x > 1800:
+            win_x = 1000
         win_y = self.get_prop_val("win_y", 50)
-        if win_y < 0 or win_y > 1400:
-            win_y = 50
-        
+        if win_y < 0 or win_y > 1600:
+            win_y = 500
+        ###'''
+        ###win_x = self.get_prop_val("win_x", self.master.winfo_x())
+        ###win_y = self.get_prop_val("win_y", self.master.winfo_y())
         win_width = self.get_prop_val("win_width", self.master.winfo_width())
         win_height = self.get_prop_val("win_height", self.master.winfo_height())
         geo_str = "%dx%d+%d+%d" % (win_width, win_height, win_x, win_y)

@@ -136,7 +136,7 @@ class SelectKbdCmd:
             ec_code = -1
         if ec_keysym is None:
             ec_keysym = "NA"
-        SlTrace.lg("key press: '%s' %s(x%02X)" % (ec, ec_keysym, ec_code))
+        SlTrace.lg("key press: '%s' %s(x%02X)" % (ec, ec_keysym, ec_code), "key_press")
         if self.multi_key_cmd is None:
             if ec_keysym == "m":
                 self.multi_key_cmd_str = ec_keysym
@@ -449,7 +449,7 @@ class SelectKbdCmd:
         x,y = self.game_control.get_xy()
         parts = self.game_control.get_parts_at(x,y)
         if parts:
-            SlTrace.lg("x=%d y=%d" % (x,y))
+            SlTrace.lg("x=%d y=%d" % (x,y), "kbd_xy")
             for part in parts:
                 if ec == "i":
                     SlTrace.lg("    %s\n%s" % (part, part.str_edges()))

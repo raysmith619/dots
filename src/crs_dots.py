@@ -313,7 +313,7 @@ def setup_app():
         
     if first_set_app:
         app = SelectWindow(mw,
-                        title="crs_dots",
+                        title="Dots",
                         pgmExit=play_exit,
                         cmd_proc=True,
                         cmd_file=None,
@@ -325,8 +325,10 @@ def setup_app():
         app.add_menu_command("CmdFile", cmd_file)
         app.add_menu_separator()
         app.add_menu_command("NewGame", new_game)
+        app.add_menu_separator()
         app.add_menu_command("Run", run_cmd)
         app.add_menu_command("Pause", pause_cmd)
+        app.add_menu_command("Step", step_cmd)
         app.add_menu_separator()
         app.add_menu_separator()
         app.add_menu_command("Players", show_players_window)
@@ -718,8 +720,15 @@ def cmd_file():
     if command_stream is not None:
         command_stream.set_play_control(sp)
         ###command_stream.set_cmd_stream_proc(sp.cmd_stream_proc)
-   
 
+def step_cmd():
+    """ Step (one move) game
+    """
+    global sp
+    global run_game
+    if sp is not None:
+        if sp.running:
+            sp.step_cmd()
 
 def run_cmd():
     """ Run / continue game

@@ -310,6 +310,12 @@ class DotsCommands:
             return self.ck_res()    # Debugging short circuit
         
         return self.play_control.play_move(*args, **kwargs)
+
+    def play_move_till(self, *args, **kwargs):
+        if self.ck():
+            return self.ck_res()    # Debugging short circuit
+        
+        return self.play_control.play_move_till(*args, **kwargs)
     
     
 dC = DotsCommands.get_cmds()
@@ -357,4 +363,7 @@ def game_check(*args, **kwargs):
 
 def play_move(*args, **kwargs):
     return dC.play_move(*args, **kwargs)
+
+def play_move_till(*args, **kwargs):
+    return dC.play_move_till(*args, **kwargs)
 

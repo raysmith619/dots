@@ -573,6 +573,14 @@ class SelectArea(object):
                     SlTrace.lg("")
         return parts
 
+    def get_event_parts(self, event):
+        """ Get parts at given event
+        :event: bound event
+        """
+        x,y = self.get_event_xy(event)
+        parts = self.get_parts_at(x,y)
+        return parts
+        
 
     
 
@@ -744,10 +752,9 @@ class SelectArea(object):
         return False                        # No processing
 
     def button_click(self, event):
+        x,y = self.get_event_xy(event)
+        parts = self.get_event_parts(event)
         if SlTrace.trace("part_info"):
-            cnv = event.widget
-            x,y = cnv.canvasx(event.x), cnv.canvasy(event.y)
-            parts = self.get_parts_at(x,y)
             if parts:
                 SlTrace.lg("x=%d y=%d" % (x,y))
                 for part in parts:
@@ -759,8 +766,6 @@ class SelectArea(object):
         self.is_down = True
         if self.inside:
             SlTrace.lg("Click in canvas event:%s" % event, "motion")
-            cnv = event.widget
-            x,y = cnv.canvasx(event.x), cnv.canvasy(event.y)
             SlTrace.lg("x=%d y=%d" % (x,y), "down")
                 
         if self.has_highlighted():
@@ -782,15 +787,22 @@ class SelectArea(object):
                     SlTrace.lg("select %s tag=%s (%s)"
                            % (part.part_type, part.display_tag,
                               part), "highlight")
-    
+
+    def get_event_xy(self, event):
+        """ convert event to canvas x,y
+        :event: triggered event
+        :returns: x,y pair
+        """
+        cnv = event.widget
+        x,y = cnv.canvasx(event.x), cnv.canvasy(event.y)
+        return (x,y)
     
 
     def down (self, event):
         if SlTrace.trace("part_info"):
-            cnv = event.widget
-            x,y = cnv.canvasx(event.x), cnv.canvasy(event.y)
-            parts = self.get_parts_at(x,y)
+            parts = self.get_event_parts(event)
             if parts:
+                x,y = self.get_event_xy(event)
                 SlTrace.lg("x=%d y=%d" % (x,y))
                 for part in parts:
                     SlTrace.lg("    %s\n%s" % (part, part.str_edges()))
@@ -801,8 +813,7 @@ class SelectArea(object):
         self.is_down = True
         if self.inside:
             SlTrace.lg("Click in canvas event:%s" % event, "motion")
-            cnv = event.widget
-            x,y = cnv.canvasx(event.x), cnv.canvasy(event.y)
+            x,y = self.get_event_xy(event)
             SlTrace.lg("x=%d y=%d" % (x,y), "down")
                 
         if self.has_highlighted():
@@ -859,6 +870,13 @@ class SelectArea(object):
             self.canvas.unbind ("<Motion>", self.motion_bind_id)
             self.motion_bind_id = None
 
+    def clear_blinking(self):
+        self.list_blinking("force clear")
+        for part in self.parts:
+            if part.blinker is not None:
+                part.blinker.stop()
+                part.blinker = None
+                
     
     def list_blinking(self, prefix=None):
         if prefix is None:
@@ -927,8 +945,7 @@ class SelectArea(object):
 
 
     def on_motion(self, event):
-        cnv = event.widget
-        x,y = cnv.canvasx(event.x), cnv.canvasy(event.y)
+        x,y = self.get_event_xy(event)
         SlTrace.lg("on_motion: x,y=%d,%d" % (x,y), "on_motion")
         if not self.enable_moves_:
             return                  # Low-level ignore
@@ -1401,9 +1418,7 @@ class SelectArea(object):
     def up (self, event):
         self.is_down = False
         ###event.widget.itemconfigure (tk.CURRENT, fill =self.defaultcolor)
-        cnv = event.widget
-        x,y = cnv.canvasx(event.x), cnv.canvasy(event.y)
-        ###got = event.widget.coords (tk.CURRENT, x, y)
+        x,y = self.get_event_xy(event)
         SlTrace.lg("up at x=%d y=%d" % (x,y), "on_up")
         SlTrace.lg("up is ignored", "on_up")
         return

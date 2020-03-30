@@ -1,7 +1,7 @@
 # select_play.py
 import os
 from tkinter import *
-import random    
+import random
 import time
 from datetime import date
 from datetime import datetime  
@@ -165,9 +165,11 @@ class SelectPlay:
         self.restart_game = False        # Signal to restart after end
         self.game_stopped = False              # Stop loop (one time)
         self.show_ties = show_ties
-        self.running = False     # Initially not running
-        self.run = False         # Initially not running
+        self.running = False        # Initially not running
+        self.run = False            # Initially not running
+        self.to_pause = False       # True -> pause at end of move
         self.ngame = 0
+        self.mw.bind("<Control-Button-1>", self.on_control_button)
         
         if self.profile_running:
             self.pr = cProfile.Profile()
@@ -225,6 +227,68 @@ class SelectPlay:
             SlTrace.lg("running_loop doing on_end", "running_loop")
             self.mw.after(0, self.on_end)       # After run processing
 
+    def on_control_button(self, event):
+        """ Gain control after control button
+        Used to provide line/move removal
+        :event: bound event
+        """
+        parts = self.get_event_parts(event)
+        if SlTrace.trace("control_button"):
+            SlTrace.lg("on_control_button")
+        if parts is None:
+            return
+        
+        if SlTrace.trace("control_button"):
+            for part in parts:
+                SlTrace.lg(f"    {part}")
+        
+        for part in parts:
+            if part.is_edge():
+                if part.is_turned_on():
+                    self.remove_play_move(part=part)
+                else:
+                    self.restore_play_move(part=part)
+
+    def remove_play_move(self, part=None):
+        """ Remove move from game move list
+        :part: part used in move
+                removes all moves with this part
+        """
+        if part is None:
+            raise SelectError("part REQUIRED, missing")
+        
+        for pm in self.play_moves:
+            if pm.part is not None and part.part_id == pm.part.part_id:
+                pm.removed = True
+                part.select_clear()
+                part.turn_off()
+                ###part.highlight_clear()        
+        ###self.clear_blinking()           # Shouldn't have to do this        
+
+    def restore_play_move(self, part=None):
+        """ Remove move from game move list
+        :part: part used in move
+                removes all moves with this part
+        """
+        if part is None:
+            raise SelectError("part REQUIRED, missing")
+        
+        for pm in self.play_moves:
+            if pm.part is not None and part.part_id == pm.part.part_id:
+                pm.removed = False
+                part.turn_on(player=pm.player)
+                
+            
+    def get_event_parts(self, event):
+        """ get parts at event
+        :event: mouse/keyboard event
+        :returns: parts in event, None if none
+        """
+        if self.board is None:
+            return None
+        
+        return self.board.area.get_event_parts(event)
+            
     def make_move(self):
         """ Make next move in run loop if we can
         :returns: True if successful, else False to break
@@ -241,6 +305,9 @@ class SelectPlay:
                 SlTrace.lg("running_loop successful start_move", "running_loop")
                 self.next_move_no()
             SlTrace.lg("running_loop after start_move", "running_loop")
+        if self.to_pause:
+            self.pause_cmd()
+            self.to_pause = False
         return True
 
     def add_event_queue(self, proc):
@@ -319,7 +386,7 @@ class SelectPlay:
         self.board.area.list_selected(prefix=prefix)
         
         
-    def make_new_edge(self, edge=None, dir=None, rowcols=None, display=True):
+    def make_new_edge(self, edge=None, dir=None, rowcols=None, display=True, not_move=False):
         if edge is not None:
             self.new_edge(edge)
             return
@@ -333,7 +400,7 @@ class SelectPlay:
             self.beep()
             return
         
-        self.new_edge(edge)
+        self.new_edge(edge, not_move=not_move)
         if display:
             self.display_update()
                 
@@ -379,6 +446,11 @@ class SelectPlay:
         """
         self.run = True
 
+    def step_cmd(self):
+        """ Make next move
+        """
+        self.run = True
+        self.to_pause = True
 
     def run_cmd_file(self, src_file=None):
         """ Run command stream file
@@ -472,6 +544,11 @@ class SelectPlay:
         """
         self.command_manager.set_changed(parts)
         
+
+
+    def clear_blinking(self):
+        if self.board is not None:
+            self.board.clear_blinking()
         
     def clear_changed(self, parts):
         """ Clear part as changed
@@ -843,19 +920,51 @@ class SelectPlay:
         if self.cur_message is not None:
             self.cur_message.end_time = datetime.now()
             self.wait_message()
+
+    def mark(self, ptype, row=None, col=None):
+        """ mark edge
+        """
+        edge = self.get_part(sub_type=ptype, row=row, col=col)
+        player = self.get_player()
+        move_no = self.get_move_no()
+        self.add_play_move(PlayMove.MARK_EDGE, part=edge,
+                            player=player, move_no=move_no)
+        if not self.move_check():
+            return False
+        
+        if edge is None:
+            self.beep()
+            SlTrace.lg(f'mark("{ptype}", {row}, {col}): no edge')
+            return False
+        
+        if edge.is_turned_on():
+            self.beep()
+            SlTrace.lg(f'mark("{ptype}", {row}, {col}): {edge} alreay turned on')
+            return False
+        
+        edge.display_clear()
+        self.make_new_edge(edge=edge, display=True, not_move=True)
+        self.display_update()       # Ensure screen update
+        return True        
  
             
-    def mark_edge(self, edge, player, move_no=None):
+    def mark_edge(self, edge, player, move_no=None, not_move=False):
         """ Mark edge - set up current command
         Select  new edge, clearing other selected
         :edge: edge being marked
         :player: player selecting edge
         """
-        self.add_play_move(PlayMove.MARK_EDGE, part=edge,
+        if move_no is None:
+            move_no = self.get_move_no()
+        if not not_move:
+            self.add_play_move(PlayMove.MARK_EDGE, part=edge,
                             player=player, move_no=move_no)
+        if edge is None:
+            return False
+        
         edge.highlight_clear(display=False)
-        edge.turn_on(player=player, move_no=move_no, display=False)
-        return
+        edge.turn_on(player=player, move_no=move_no)
+        return True
     
     
     def message_delete(self):
@@ -1431,25 +1540,30 @@ class SelectPlay:
         
         return True
     
-    def start_move(self):
+    def start_move(self, from_local=True):
         """ Start move
+        :from_local: Get input from machine (auto/manual) if one
+                            default: True
         :returns: True iff move has been made, and next move is coming
         """
         if not self.move_check():
             return False
         
         player = self.get_player()
-        if player.auto:
-            self.auto_play_pause()
-            if self.auto_play(player):
-                return True
-        else:
-            if self.cmd_stream and not self.cmd_stream.is_eof():
-                if self.stream_cmd_play(player=player):
+        if from_local:
+            if player.auto:
+                self.auto_play_pause()
+                if self.auto_play(player):
                     return True
             else:    
                 if self.manual_play():
                     return True
+                
+            return False
+        
+        if self.cmd_stream and not self.cmd_stream.is_eof():
+            if self.stream_cmd_play(player=player):
+                return True
         
         return False        # No move -no new move
 
@@ -1518,13 +1632,17 @@ class SelectPlay:
                 PlayMove.UNDO_MOVE : "undo",
                 PlayMove.REDO_MOVE : "redo",
                 PlayMove.PLAY_MOVE : "play_move",
+                PlayMove.PLAY_MOVE_TILL : "play_move_till",
                 PlayMove.SET_PLAYING : "set_playing",
                 PlayMove.GAME_CHECK : "game_check",
                 PlayMove.SET_PLAY : "set_play"
                 }
             for pm in self.play_moves:
+                if pm.removed:      # Skip removed moves
+                    continue
+                    
                 if pm.move_type not in move_type_d:
-                    raise SelectError("save_file move type: {pm.move_type} uninplemented")
+                    raise SelectError(f"save_file move type: {pm.move_type} uninplemented")
                 gfun = move_type_d[pm.move_type]
                 hv_str = '"h"' if pm.hv == PlayMove.HV_H else '"v"'
                 if pm.move_type == PlayMove.MARK_EDGE:
@@ -1574,6 +1692,8 @@ class SelectPlay:
                         line_str += f"show_fail={pm.show_fail}"
                     line_str += ")"    
                 elif pm.move_type == PlayMove.PLAY_MOVE:
+                    line_str = f"{gfun}()"
+                elif pm.move_type == PlayMove.PLAY_MOVE_TILL:
                     line_str = f"{gfun}()"
                 else:
                     raise SelectError(f"save_file move type:"
@@ -1701,7 +1821,20 @@ class SelectPlay:
         """
         self.add_play_move(PlayMove.PLAY_MOVE)
         return self.make_move()
+    
+    def play_move_till(self):
+        self.add_play_move(PlayMove.PLAY_MOVE_TILL)
+        while True: 
+            player = self.get_player()
+            res = self.make_move()
+            if not res:
+                return res
             
+            next_player = self.get_player()
+            if next_player.id != player.id:
+                break
+        return res
+       
     def game_control_window_set_cmd(self, gcw):
         self.game_control_updates()
 
@@ -1868,7 +2001,7 @@ class SelectPlay:
     
     
 
-    def new_edge(self, edge):
+    def new_edge(self, edge, not_move=False):
         """ Process new edge selection
                 1. Adjust edge apperance appropriately
                 2. Announced new edge creation by user
@@ -1894,7 +2027,7 @@ class SelectPlay:
         scmd.add_prev_selects(prev_selects)
         ###edge.highlight_clear()                  # So undo won't re-highlight
         scmd.add_prev_parts(edge)               # Save previous edge state 
-        self.mark_edge(edge, prev_player, move_no=scmd.move_no)
+        self.mark_edge(edge, prev_player, move_no=scmd.move_no, not_move=not_move)
         edge.highlight_clear()                  # unhighlight after move
         self.add_new_parts(edge)
         self.update_score(self.next_move_no(), prev_player, edge)
@@ -2077,8 +2210,10 @@ class SelectPlay:
     def reset(self):
         """ Reset to new game settings
         """
-        if self.board is not None:
-            self.board.reset()
+        random.seed(1)              # Set determanistic play
+        if self.board is None:
+            self.setup_board()
+        self.board.reset()
         
 
     def reset_score(self):

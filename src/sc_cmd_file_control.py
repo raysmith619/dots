@@ -164,7 +164,7 @@ class SelectCommandFileControl(SelectControlWindow):
             dir_name = os.path.dirname(file_name)   # abs path => set dir,name
             self.set_ctl_val("input.dir_name", dir_name)    # reset
             file_name = os.path.basename(file_name)
-        self.set_entry(field=field_name, label="Src File", value=file_name, width=20)
+        self.set_entry(field=field_name, label="Src File", value=file_name, width=60)
         self.set_button(field=field_name + "_search", label="Search", command=self.src_file_search)
 
         save_as_frame = Frame(self.top_frame)
@@ -200,7 +200,7 @@ class SelectCommandFileControl(SelectControlWindow):
             dir_name = os.path.dirname(file_name)   # abs path => set dir,name
             self.set_ctl_val(f"{base_field_name}.save_as_dir", dir_name)    # reset
             file_name = os.path.basename(file_name)
-        self.set_entry(field=field_name, label="Save Game File", value=file_name, width=20)
+        self.set_entry(field=field_name, label="Save Game File", value=file_name, width=60)
         self.set_button(field=field_name + "_save", label="SAVE", command=self.game_save_as)
 
 
@@ -264,12 +264,22 @@ class SelectCommandFileControl(SelectControlWindow):
             basename_ext = mext.group(2)
         else:
             basename_beg = basename
+
+                                # Remove snap shot suffix(es):xxxxDDD
+        sn_endpat = str(r'^(.*?)'
+                     + r'(' + self.snapshot_suffix
+                              + r'\d' * self.snapshot_ndig
+                              + r')+$' 
+                     )
+        pm = re.compile(sn_endpat) 
+        m = pm.match(basename_beg)
+        if m:
+            basename_beg = m.group(1)
         files = os.listdir(snapshot_dir)
-        snfiles = [file for file in files if file.startswith(basename_beg + self.snapshot_suffix)]
         max_num = 0
-        fpat_str = f'^.*{self.snapshot_suffix}(' + r'\d' * self.snapshot_ndig + r')\.[^.]+$'
+        fpat_str = f'^{re.escape(basename_beg)}{self.snapshot_suffix}(' + r'\d' * self.snapshot_ndig + r')\.[^.]+$'
         mpat = re.compile(fpat_str)
-        for file in snfiles:
+        for file in files:
             mfile = mpat.match(file)
             if mfile:
                 num = int(mfile.group(1))

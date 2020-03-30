@@ -239,7 +239,15 @@ class SelectCommandStream:
         """ Check file name / existence
         :src_file:  file name
         """
+        if src_file is None:
+            SlTrace.lg("check_file: no file")
+            return False
+        
         path = self.get_file_path(src_file)
+        if path is None:
+            SlTrace.lg(f"Can't fine src_file:{src_file}")
+            return False
+        
         if self.src_lst:
             SlTrace.lg("check_file(%s)" % path)
 

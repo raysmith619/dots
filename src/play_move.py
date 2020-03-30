@@ -11,6 +11,7 @@ class PlayMove:
     SET_PLAY = "set_play"           # Set players playing settings
     SET_PLAYING = "set_playing"     # Set players
     PLAY_MOVE = "play_move"         # Play move from auto/manual
+    PLAY_MOVE_TILL = "play_move_till"   # Play move until next player's turn
     GAME_CHECK = "game_check"       # Test / verify game state
     HV_H = "horizontal"
     HV_V = "vertical"
@@ -51,10 +52,11 @@ class PlayMove:
         self.playing = playing
         self.label_name=label_name
         self.case_sensitive=case_sensitive
-        self.mode=mode,
-        self.is_set=is_set,
-        self.show_fail=show_fail,
+        self.mode=mode
+        self.is_set=is_set
+        self.show_fail=show_fail
         self.kwargs=kwargs
         self.pre_comment = pre_comment
         self.line_comment = line_comment
+        self.removed = False        # True if remove from game
         

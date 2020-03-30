@@ -523,10 +523,9 @@ class SelectPlayCommand:
         return stcmd.args[argno-1]
 
     def mark(self, ptype, row=None, col=None):
-        """ select and mark edge
+        """ mark edge
         """
-        self.select(ptype, row=row, col=col)
-        return self.enter()
+        return self.play_control.mark(ptype, row=row, col=col)
 
     def select(self, ptype, row=None, col=None, keep=False):
         """ Select part

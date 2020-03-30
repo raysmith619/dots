@@ -3,7 +3,7 @@
 perl -ane 'if (/^class\s+(\S+)/) {printf("%-30s %s\n", $1, $ARGV)}' *.py  | sort
 
 # title to file listing
-perl -ane ' if (/def __init/) { $in_init=1} elsif (/def \w/) {$in_init=0} if ($in_init && /title\s*=\s*"([^"]+)"/) {printf("%-30s %s\n", $1, $ARGV)}' *.py  | sort
+perl -ane ' if (/def __init|SelectWindow\(/) { $in_init=1} elsif (/def \w|\):?\s*$/) {$in_init=0} if ($in_init && /title\s*=\s*"([^"]+)"/) {printf("%-30s %s\n", $1, $ARGV)}' *.py  | sort
 
 ##Sample title to file listing:
 Arrange                        arrange_control.py
