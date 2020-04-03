@@ -26,7 +26,9 @@ from tkinter import *
 from select_error import SelectError
 from select_trace import SlTrace
 from select_player import SelectPlayer
+from player_info import PlayerInfo
 from select_control_window import SelectControlWindow, content_var
+from player_props import PlayerProps
 
         
 class ColumnInfo:
@@ -57,7 +59,7 @@ class PlayerControl(SelectControlWindow):
                      "color", "color_bg",
                      "voice", "help_play", "pause",
                      "auto", "level", "steven", "delete"]
-        
+    
             
     def __init__(self, *args, title=None, control_prefix=None,
               play_control=None, **kwargs):
@@ -80,10 +82,10 @@ class PlayerControl(SelectControlWindow):
                       **kwargs)
             
         self.score_control = None
-        super().control_display()       # Do base work        
-        self.load_player_info()
+        super().control_display()       # Do base work
+        self.player_props = PlayerProps(self)        
         self.control_display_base()
-
+        
     def get_player_control_fields(self, all=False):
         """ Get player control fields
         :all: True - return all field names
@@ -94,96 +96,7 @@ class PlayerControl(SelectControlWindow):
             if all or not field in self.only_form_fields:   # TBD check this ???
                 fields.append(field)
         return fields  
-
-    def load_player_info(self):
-        """ Load players' attributes from properties 
-        :ctlbase: base control object
-        values stored in properties file
-        All values stored under "player_control.".<player_id>
-        The player_id is constructed by replacing all
-        sequences of [^a-zA-Z_0-9]+ by "_" in the player name
-        to produce a legal properties file id string
-        Value strings:
-            id                  value type
-            ------------        -------------
-            name                string
-            label               string
-            playing             bool
-            position            int
-            mV                  int
-            color               string (fill)
-            voice               bool
-            help_play           bool
-            pause               float
-            auto                bool
-            level               int
-            steven              float
-        
-        Note: indicator display colors icolor, icolor2 are set to
-                color and color_bg respectively
-        """
-        ###Toplevel.__init__(self, parent)
-        """ Setup control names found in properties file
-        Updated as new control entries are added
-        """
-        prop_keys = SlTrace.getPropKeys()
-        player_pattern = r'(?:\.(\d+)\.(\w+))'
-        pattern = (self.control_prefix
-                    + player_pattern)
-        rpat = re.compile(pattern)
-        
-                            # by name
-        self.call_d = []    # Call back routines, if any
-        for prop_key in prop_keys:
-            rmatch = re.match(rpat, prop_key)
-            if rmatch:
-                prop_val = SlTrace.getProperty(prop_key)
-                SlTrace.lg(f"player match: {prop_key} = {prop_val}")
-                player_match_1 = rmatch[1]
-                player_id = int(player_match_1)
-                
-                if player_id not in self.players:
-                    player = SelectPlayer(self, player_id)
-                    self.players[player_id] = player        # Add to player dictionary
-                else:
-                    player = self.players[player_id]        # Get from player dictionary
-                player_attr = rmatch[2]
-                if player_attr == "move":
-                    player_attr = "position"
-                if not hasattr(player, player_attr):
-                    raise SelectError("Unrecognized player attribute %s in %s"
-                                      % (player_attr, prop_key))
-                else:
-                    pat = getattr(player, player_attr)
-                    if isinstance(pat, float):
-                        player_val = float(prop_val)
-                    elif isinstance(pat, bool):
-                        pvl = prop_val.lower()
-                        if (pvl == "yes"
-                                or pvl == "y"
-                                or pvl == "1"
-                                or pvl == "true"):
-                            player_val = True
-                        elif (pvl == "no"
-                                or pvl == "n"
-                                or pvl == "0"
-                                or pvl == "false"):
-                            player_val = False
-                        else:
-                            raise SelectError("Unrecognized boolean value (%s =)  %s"
-                                              % (player_attr, prop_val))
-                    elif isinstance(pat, int):
-                        prop_val = float(prop_val)  # incase n.0
-                        player_val = int(prop_val)
-                    else:
-                        player_val = prop_val
-                    setattr(player, player_attr, player_val)
-                    if player_attr == "color":
-                        player.icolor = player.color
-                    elif player_attr == "color_bg":
-                        player.icolor2 = player.color_bg
-       
-
+    
     def control_display_base(self):
         """ Display setup / re-setup for player info to support new players
         """
@@ -428,10 +341,12 @@ class PlayerControl(SelectControlWindow):
                 players.append(player)
         players.sort(key=lambda player: player.position)
         return players
-
-    def set(self):
+                
+    def set(self, push_info = True):
         """ Set info from form
         """
+        if push_info:
+            self.player_props.push_player_info()
         self.delete_players_checked()
         self.set_vals()
         self.control_display_base()
@@ -716,7 +631,7 @@ class PlayerControl(SelectControlWindow):
         """ Read form, and update internal values
         Set form fields,if playing, based on player's color and background color
         """
-        SlTrace.lg("set_vals")
+        SlTrace.lg("set_vals", "set_vals")
         players = list(self.players.values())       # In case of delete
         for player in players:                      # Update player from fields
             for field in player.ctls:
@@ -748,9 +663,10 @@ class PlayerControl(SelectControlWindow):
         """ Delete player for database
         :player: player to be deleted
         """
-        players = list(self.players.values())       # In case of delete
+        player_ids = [player_id for player_id in self.players.keys()]            # In case of delete
         delete_count = 0                            # Redo display if any deletion
-        for player in players:                      # Update player from fields
+        for player_id in player_ids:                # Update player from fields
+            player = self.players[player_id]
             field_var = player.ctls_vars["delete"]
             to_delete = field_var.get()
             if to_delete:
@@ -884,7 +800,24 @@ class PlayerControl(SelectControlWindow):
     def delete(self):
         if "delete" in self.call_d:
             self.call_d["delete"]()
-    
+
+    def reset(self):
+        """ Reset info to start up
+        """
+        self.player_props.reset()
+
+    def undo(self):
+        """
+        Undo previous player change(s)
+        """
+        self.player_props.undo()
+
+    def redo(self):
+        """
+        Redo previous player undo(s)
+        """
+        self.player_props.redo()
+        
 
         
 if __name__ == '__main__':

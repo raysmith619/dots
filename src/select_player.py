@@ -24,7 +24,7 @@ class SelectPlayer:
                  help_play = False,
                  auto = False,
                  level = 0,
-                 stay_even = 0,
+                 stay_even = 0.0,
                  pause = 0.,
                  score = 0,
                  played = 0,

@@ -131,7 +131,7 @@ class SelectWindow(Frame):
         win_width = self.master.winfo_width()
         win_height = self.master.winfo_height()
         self.set_prop_val("win_x", win_x)
-        self.set_prop_val("win_y", win_x)
+        self.set_prop_val("win_y", win_y)
         self.set_prop_val("win_width", win_width)
         self.set_prop_val("win_height", win_height)
     
@@ -141,10 +141,10 @@ class SelectWindow(Frame):
         """
         ###'''
         win_x = self.get_prop_val("win_x", 50)
-        if win_x < 0 or win_x > 1800:
+        if win_x < 0 or win_x > 1600:
             win_x = 1000
         win_y = self.get_prop_val("win_y", 50)
-        if win_y < 0 or win_y > 1600:
+        if win_y < 0 or win_y > 1400:
             win_y = 500
         ###'''
         ###win_x = self.get_prop_val("win_x", self.master.winfo_x())
