@@ -33,10 +33,10 @@ Including undo/redo and standard properties
 
 import re 
 
-from select_trace import SlTrace, str2val
+from crs_funs import str2val
+from select_trace import SlTrace
 from select_error import SelectError
 from player_info import PlayerInfo
-from select_player import SelectPlayer
 
 class PlayerProp:
                             # Index in properties key
@@ -78,12 +78,14 @@ class PlayerProp:
         del player_infos[idx]
         return pi
             
-    def get_player_infos(self):
+    def get_player_infos(self, snapshot=None):
         """ 
         :returns: list of PlayerInfo
             in ascending order of num
         """
-        prop_keys = SlTrace.getPropKeys()
+        if snapshot is None:
+            snapshot = SlTrace.snapshot_properties()
+        prop_keys = snapshot.getPropKeys()
         for prop_key in prop_keys:
             prop_fields = prop_key.split(".")
             if prop_fields[0] != self.control_prefix:
@@ -101,11 +103,15 @@ class PlayerProp:
         return infos
 
     
-    def add_player_prop(self, prop_fields, in_section=False):
+    def add_player_prop(self, prop_fields, snapshot=None, in_section=False):
         """ Add player property to given section
         :prop_fields: list of property keys - whole key
+        :snapshot: properties into which we add player
+                    default: current properties
         :in_section: in a section (e.g. "undo") default: False
         """
+        if snapshot is None:
+            snapshot = SlTrace.getDefaultProps()
         if in_section:
             player_idx = PlayerProp.SECT_PLAYER_NUM_IDX
             sect_num = prop_fields[PlayerProp.SECT_NUM_IDX]
@@ -122,7 +128,7 @@ class PlayerProp:
         prop_key = ".".join(prop_fields)
         
         player_attr = prop_fields[player_idx+1]     # Just after id
-        prop_val = SlTrace.getProperty(prop_key)
+        prop_val = snapshot.getProperty(prop_key, None)
         if player_attr == "move":
             player_attr = "position"
         if not hasattr(player, player_attr):
@@ -147,6 +153,9 @@ class PlayerProp:
         if prop_fields[PlayerProp.SECT_NAME_IDX] != self.sect_name:
             return      # Not our section
         
+        if prop_fields[PlayerProp.SECT_NUM_IDX].startswith("__"):
+            return      # Internal field
+        
         self.add_player_prop(prop_fields, in_section=True)
         
             
@@ -167,19 +176,26 @@ class PlayerProp:
             self.sect_parts[sect_n] = sect_part
         return sect_part
 
-    def save_props(self, player_infos):
+    def save_props(self, player_infos, stack_count=None):
         """ Save infos in properties 
             to be saved by normal properties saving
             Sets sect numbers to correspond to stack list position
             First removes properties of the form:
                     {self.control_prefix}\.{self.sect_name}\.\d+\.
-                      or (in self.sect_name is None)
+                      or (if self.sect_name is None)
                     {self.control_prefix}\.\d+\.
         :prop_infos: PlayerInfo or list, most recent == last, position == 1
+        :stack_count: current stack level, used for stack comparisons
         """
+
         if not isinstance(player_infos, list):
             player_infos = [player_infos]
         self.remove_props()
+        if stack_count is not None:
+            after_len = len(f"0.player.")
+            bk = self.get_base_key(0)[:-after_len]      # less "undo.0."
+            prop_key = f"{bk}__STACK_COUNT"       # To facilitate stack comparison
+            SlTrace.setProperty(prop_key, stack_count)
         for n, player_info in enumerate(reversed(player_infos),start=1):
             base_key = self.get_base_key(n)
             self.save_prop_player_info(player_info, base_key=base_key)
@@ -189,11 +205,11 @@ class PlayerProp:
         :player_infos:
         """
         base_key = self.get_base_key(include_num=False)
-        SlTrace.lg(f"remove_props: base_key={base_key}")
+        SlTrace.lg(f"remove_props: base_key={base_key}", "player_prop")
         if self.sect_name is None:
             base_pat = base_key + r'\d+'
             base_match = re.compile(base_pat)
-            SlTrace.lg(f"base_pat={base_pat}")
+            SlTrace.lg(f"base_pat={base_pat}", "player_prop")
         prop_keys = SlTrace.getPropKeys()
         for prop_key in prop_keys:
             if prop_key.startswith(base_key):
@@ -202,7 +218,7 @@ class PlayerProp:
                     if m is None:
                         continue            # Not base: ...nnn
                     
-                SlTrace.lg(f"remove_props: key={prop_key}")
+                SlTrace.lg(f"remove_props: key={prop_key}", "player_prop")
                 SlTrace.deleteProperty(prop_key)
 
     def get_base_key(self, sect_num=None, include_num=True):
@@ -237,7 +253,7 @@ class PlayerProp:
         for field in player_fields:
             prop_key = f"{base_key}{player_id}.{field}"
             prop_val = str(getattr(player, field))
-            SlTrace.lg(f"save_prop_player: key={prop_key} val={prop_val}")
+            SlTrace.lg(f"save_prop_player: key={prop_key} val={prop_val}", "player_prop")
             SlTrace.setProperty(prop_key, prop_val)
 
             

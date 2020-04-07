@@ -7,12 +7,14 @@ The save/restore of the undo/redo stacks is done via PlayerControl via PlayerPro
 
 """
 import atexit
+import re
 
 from select_trace import SlTrace
 from select_error import SelectError
 
 from player_prop import PlayerProp
 from player_info import PlayerInfo
+from pandas._libs.writers import max_len_string_array
 
 class PlayerProps:
     
@@ -62,13 +64,10 @@ class PlayerProps:
         self.reset_info = player_info
         self.player_control.players = player_info.players
         self.undo_stack = PlayerProp(self.player_control, "undo").get_player_infos()
+        self.undo_stack_count = 0       # Keep track of change for comparison
         self.redo_stack = PlayerProp(self.player_control, "redo").get_player_infos()
+        self.redo_stack_count = 0       # Keep track of change for comparison
         atexit.register(self.save_player_info)
-
-    def onexit(self):
-        """ Called on exit to save player undo, redo stacks
-        by updating properties settings which are saved at end
-        """
         
     def pop_player_info(self, stack="undo"):
         """ recover player info
@@ -78,8 +77,10 @@ class PlayerProps:
         """
         if stack == "undo":
             pi = self.undo_stack.pop()
+            self.undo_stack_count -= 1      # Keep track of level change
         elif stack == "redo":
             pi = self.redo_stack.pop()
+            self.redo_stack_count -= 1      # Keep track of level change
         else:
             raise SelectError(f"Unrecognized stack type:{stack}")
         return pi
@@ -106,8 +107,10 @@ class PlayerProps:
         player_info = PlayerInfo(self.player_control, players=self.player_control.players)
         if stack == "undo":
             self.undo_stack.append(player_info)
+            self.undo_stack_count += 1      # Keep track of level change
         elif stack == "redo":
             self.redo_stack.append(player_info)
+            self.undo_stack_count += 1      # Keep track of level change
         else:
             raise SelectError(f"Unrecognized stack type:{stack}")
         
@@ -125,14 +128,18 @@ class PlayerProps:
     def save_player_info(self):
         """ Save player states plus undo/redo info for properties saving
         """
+        max_undo_save = 20
         SlTrace.lg("Saving player current info")
         player_info = PlayerInfo(self.player_control, players=self.player_control.players)
         PlayerProp(self.player_control).save_props(player_info)
-        SlTrace.lg("Saving player undo info")
-        PlayerProp(self.player_control, "undo").save_props(self.undo_stack)
-        SlTrace.lg("Saving player redo info")
-        PlayerProp(self.player_control, "redo").save_props(self.redo_stack)
-
+        SlTrace.lg(f"Saving player undo info max={max_undo_save}", "player_prop")
+        PlayerProp(self.player_control, "undo").save_props(self.undo_stack[-max_undo_save:], stack_count=self.undo_stack_count)
+        SlTrace.lg(f"Saving player redo info max={max_undo_save}", "player_prop")
+        PlayerProp(self.player_control, "redo").save_props(self.redo_stack[-max_undo_save:], stack_count=self.undo_stack_count)
+        if SlTrace.trace("set_updates_prop"):
+            SlTrace.properties_change_print(req_match=r'.*\.(redo|undo)', req_match_not=True)
+        if SlTrace.trace("undo_prop"):
+            self.properties_stack_print(self.player_control.CONTROL_NAME_PREFIX)
     def reset(self):
         """ Reset info to start up
         """
@@ -143,6 +150,7 @@ class PlayerProps:
         """
         Undo previous player change(s)
         """
+        SlTrace.lg("undo", "trace_undo")
         if not self.check_player_info_stack():
             SlTrace.lg("Nothing to undo")
             return
@@ -150,11 +158,14 @@ class PlayerProps:
         self.push_player_info("redo")
         pi = self.pop_player_info()
         self.restore_player_info(pi)
+        if SlTrace.trace("set_updates_prop"):
+            self.save_player_info()
 
     def redo(self):
         """
         Redo previous player undo(s)
         """
+        SlTrace.lg("redo", "trace_undo")
         if not self.check_player_info_stack("redo"):
             SlTrace.lg("Nothing to redo")
             return
@@ -162,6 +173,98 @@ class PlayerProps:
         self.push_player_info("undo")
         pi = self.pop_player_info("redo")
         self.restore_player_info(pi)
+        if SlTrace.trace("set_updates_prop"):
+            self.save_player_info()
+
+    def properties_stack_print(self, base_print, snap_shot=None, incremental=True, max_len=None, title=None):
+        """ Print stacks
+        :base_prefix: section prefix, with or without trailing "." e.g. "player_control"
+        :snapshot: properties snapshot
+                default: current properties
+        :sect_name: section name e.g. "undo"
+        :incremental: just changes from previous entry
+        :title: printed before listing
+                default: sect_name
+        """
+        if max_len is None:
+            undo_len = 6
+            redo_len = 3
+        else:
+            undo_len = max_len
+            redo_len = undo_len/2
+        if SlTrace.trace("long_info"):
+            redo_len = undo_len = 20
+            
+        if title is None:
+            title = "player info stack"
+        self.properties_sect_print(base_print, snapshot=snap_shot, sect_name="undo", max_len=undo_len, incremental=incremental)
+        self.properties_sect_print(base_print, snapshot=snap_shot, sect_name="redo", max_len=redo_len, incremental=incremental)
+        
+        
+    
+    def properties_sect_print(self, base_prefix, snapshot=None, sect_name="undo", max_len=None, incremental=True, title=None):
+        """ Print properties sect
+        :base_prefix: section prefix, with or without trailing "." e.g. "player_control"
+        :snapshot: properties snapshot
+                default: current properties
+        :sect_name: section name e.g. "undo"
+        :max_len: print at most this many entries
+        :incremental: just changes from previous entry
+        :title: printed before listing
+                default: sect_name
+        """
+            
+        if title is None:
+            title = sect_name
+        SlTrace.lg(title)
+        if not base_prefix.endswith("."):
+            base_prefix += "."
+
+        player_info = self.player_info(base_prefix, snapshot)
+        player_infos = self.player_infos(base_prefix, snapshot, sect_name=sect_name)
+        nprint = 0
+        for i in range(len(player_infos)):
+            if i == 0:
+                continue
+            prev_player_info = player_infos[i]
+            if max_len is None or nprint < max_len:
+                player_info.change_print(prev_player_info, prefix=f"{i:2}", incremental=incremental)
+                nprint += 1
+            player_info = prev_player_info
+            
+
+    def player_info(self, base_prefix, snapshot=None):
+        """ Return current player info, based on properties
+        :startswith: each key starts with this
+        :returns: snapshot with current state but as if n the stack
+        """
+        if snapshot is None:
+            snapshot = SlTrace.snapshot_properties()
+        if not base_prefix.endswith("."):
+            base_prefix += "." 
+        sn = snapshot.snapshot_properties(sn=snapshot, req_match=re.escape(base_prefix) + r'\d+\.\w+')
+        pp = PlayerProp(self.player_control)
+        player_info = pp.get_player_infos(snapshot=sn)
+        return player_info[0]
+    
+
+    def player_infos(self, base_prefix, snapshot=None, sect_name=None):
+        """ Get current stack of player infos
+        :base_prefix: prop key beginning prefix
+        :snapshot: information snapshot
+                    default: current snapshot
+        :sect_name: section name e.g. "undo"
+        sect_num: number 1 being last pushed
+        """
+        if snapshot is None:
+            snapshot = SlTrace.snapshot_properties()
+        if not base_prefix.endswith("."):
+            base_prefix += "." 
+        sn = snapshot.snapshot_properties(sn=snapshot, req_match=re.escape(base_prefix) + sect_name + r'\.')
+        pp = PlayerProp(self.player_control, sect_name=sect_name)
+        player_infos = pp.get_player_infos(snapshot=sn)
+        return player_infos
+
             
     
 if __name__ == "__main__":

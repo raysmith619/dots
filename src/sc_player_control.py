@@ -85,7 +85,14 @@ class PlayerControl(SelectControlWindow):
         super().control_display()       # Do base work
         self.player_props = PlayerProps(self)        
         self.control_display_base()
-        
+        self.mw.protocol("WM_DELETE_WINDOW", self.delete_window)    
+
+    def delete_window(self):
+        SlTrace.lg("Closing Player Control Window")
+        self.player_props.save_player_info()
+        super().delete_window()
+        super().destroy()
+                
     def get_player_control_fields(self, all=False):
         """ Get player control fields
         :all: True - return all field names
@@ -352,7 +359,8 @@ class PlayerControl(SelectControlWindow):
         self.control_display_base()
         if self.set_cmd is not None:
             self.set_cmd(self)
-        
+        if SlTrace.trace("set_updates_prop"):
+            self.player_props.save_player_info()
         
     def add_new_player(self):
         """ Add new player

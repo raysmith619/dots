@@ -21,6 +21,7 @@ snapshot2 = None
 
 mw = Tk()       # MUST preceed users of SelectControl for tkinter vars ...Var()
                 # e.g. SelectPlay -> ScoreWindow -> SelectControl
+from crs_funs import str2bool
 from select_error import SelectError
 from select_trace import SlTrace
 from select_report import SelectReport
@@ -75,15 +76,6 @@ def play_exit():
     sys.exit()
     '''
     pgm_exit()
-    
-
-def str2bool(v):
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 ###sys.setrecursionlimit(500)
 cF = SelectControl(control_prefix="dots_control")       # Late comer for this pgm

@@ -10,6 +10,7 @@ from tkinter import *
 import argparse
 
 from select_trace import SlTrace
+from crs_funs import str2bool
 
 from dots_game_load import DotsGameLoad
 from dots_results_commands import DotsResultsCommands
@@ -20,14 +21,6 @@ def pgm_exit():
     SlTrace.lg("Properties File: %s"% SlTrace.getPropPath())
     SlTrace.lg("Log File: %s"% SlTrace.getLogPath())
     sys.exit(0)
-
-def str2bool(v):
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 ###sys.setrecursionlimit(500)
 cmd_file_name = None        # Command file, if one

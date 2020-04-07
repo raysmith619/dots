@@ -14,9 +14,8 @@ import os
 import time
 
 from select_error import SelectError
-from select_trace import SlTrace, str2val
+from select_trace import SlTrace
 from select_input import SelectInput
-from builtins import str, int
 
     
 
@@ -537,6 +536,7 @@ class SelectControlWindow(Toplevel):
     def destroy(self):
         """ Destroy window resources
         """
+        SlTrace.lg("SelectControlWindow destroy")
         if self.mw is not None:
             self.mw.destroy()
         self.mw = None
@@ -545,6 +545,7 @@ class SelectControlWindow(Toplevel):
     def delete_window(self):
         """ Handle window deletion
         """
+        SlTrace.lg("SelectControlWindow delete_window")
         if self.play_control is not None and hasattr(self.play_control, "close_score_window"):
             self.play_control.close_score_window()
         else:

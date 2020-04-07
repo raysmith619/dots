@@ -108,7 +108,7 @@ class SelectPlayer:
             in prepartation to delete the player
         """
         player_prop_key = self.get_prop_key("")
-        prop_keys = SlTrace.getPropKeys(player_prop_key)
+        prop_keys = SlTrace.getPropKeys(startswith=player_prop_key)
         SlTrace.lg(f"deleteProps for {self}")
         for key in prop_keys:
             prop_value = SlTrace.getProperty(key, None)
@@ -159,6 +159,15 @@ class SelectPlayer:
         """
         self.control.set_wins(self, wins)
 
+    def get_player_control_fields(self, all=None):
+        """ Get fields which are used for play control
+        :all: True all fields
+                default: just saved fields
+        :returns: list of field strings
+        """
+        return self.control.get_player_control_fields(all=all)
+    
+    
     def get_playing_num(self):
         """ get playing number (index +1)
         """
