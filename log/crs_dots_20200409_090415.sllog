@@ -1,0 +1,188 @@
+ 20200409_090415 Creating Log File Name: C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20200409_090415.sllog
+ 20200409_090415 Trace levels from properties file C:\Users\raysm\workspace\python\crs_dots\crs_dots.properties
+ 20200409_090415 loadTraceFlags: add_part,annotate_square,blink,blink_on_first,button,cexecute,clear_stacks,complete_square,complete_square looking,complete_test,control_button,controls,copy,dbg,delete_objects,delete_tags,display,down,edge_highlighted,edge_selected,edge_unselected,enter,execute,execute_part_change,execute_print,execute_select,execute_stack,execute_undo_stack,flush_outputs,full_stack,full_undo_stack,get_color,get_parts,highlight,in_stroke,is_over,kbd_xy,key_press,keybd,keycmd,leave,list_moves,list_props,long_info,memory,message,motion,motion_over_n,move,new_edge,no_blink,nolegalmoves,on_motion,on_up,part_check_ok,part_info,part_info_over,part_track_uncleared,pgm_stack,pgm_stack_list,play_strategy,player,player_prop,player_trace,prop_change,redo_stack_len,region_few_corners,region_rect,regno,running_loop,score,select_copy,selected,selected_selects,set_update_props,set_updates_prop,set_updates_prop_abs,set_vals,set_window_size,set_window_size(,show_id,show_loc,show_move,show_move_print,square,square_completion,stcmd_list,trace_flags,trace_undo,track_move_edge,undo_prop,undo_stack_len
+ 20200409_090415 Trace levels from properties file C:\Users\raysm\workspace\python\crs_dots\crs_dots.properties
+ 20200409_090415 loadTraceFlags: add_part,annotate_square,blink,blink_on_first,button,cexecute,clear_stacks,complete_square,complete_square looking,complete_test,control_button,controls,copy,dbg,delete_objects,delete_tags,display,down,edge_highlighted,edge_selected,edge_unselected,enter,execute,execute_part_change,execute_print,execute_select,execute_stack,execute_undo_stack,flush_outputs,full_stack,full_undo_stack,get_color,get_parts,highlight,in_stroke,is_over,kbd_xy,key_press,keybd,keycmd,leave,list_moves,list_props,long_info,memory,message,motion,motion_over_n,move,new_edge,no_blink,nolegalmoves,on_motion,on_up,part_check_ok,part_info,part_info_over,part_track_uncleared,pgm_stack,pgm_stack_list,play_strategy,player,player_prop,player_trace,prop_change,redo_stack_len,region_few_corners,region_rect,regno,running_loop,score,select_copy,selected,selected_selects,set_update_props,set_updates_prop,set_updates_prop_abs,set_vals,set_window_size,set_window_size(,show_id,show_loc,show_move,show_move_print,square,square_completion,stcmd_list,trace_flags,trace_undo,track_move_edge,undo_prop,undo_stack_len
+ 20200409_090415 SelectControl.__init__ 1
+ 20200409_090415 SelectControl.__init__ 1
+ 20200409_090415 crs_dots.py --cmd_file_name=path_of_opportunities
+
+ 20200409_090415 args: Namespace(btmove=1.0, cmd_file_name='path_of_opportunities', display_game=True, ew_display=7, ew_select=7, ew_standoff=8, height=600, loop=False, loop_after=5, min_xlen=10, numgame=None, nx=5, ny=5, play_level=None, playing=None, profile_running=False, results_dir=None, results_files=True, run_game=False, show_id=False, show_players=True, show_score=True, snapshot_dir='snaps', speed_step=-1, src_lst=False, stroke_move=False, stx_lst=False, trace='', undo_len=200, undo_micro_move=False, width=600)
+
+ 20200409_090415 history: shadow_get_legal_moves, MoveList
+ 20200409_090415 Game Results File C:\Users\raysm\workspace\python\crs_dots\gmres\dotsgame_20200409_090415.gmres
+ 20200409_090415 SelectGameControl
+ 20200409_090415 PlayerControl
+ 20200409_090416 ScoreWindow
+ 20200409_090416 
+Loop 1
+ 20200409_090416 Memory Used: 82 MB, Change: 81.78 MB
+ 20200409_090416 SelectArea.add_add_down_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x0000020B6E669128>>
+ 20200409_090416 SelectArea after add_down_click_call <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x0000020B6E669128>>
+ 20200409_090416 board.area.down_click_call: <bound method SelectPlay.down_click of <select_play.SelectPlay object at 0x0000020B6E669128>>
+ 20200409_090416 reset_score
+ 20200409_090416 PlayerControl
+ 20200409_090442 Saving player current info
+ 20200409_090442 Changed:
+ 20200409_090442     play_control.win_height : 231 => 211
+ 20200409_090442     player_control.1.level : 81 => 91
+ 20200409_090442 undo
+ 20200409_090443  0  level: 81 => 91 Grampy Gp blue
+ 20200409_090443 
+ 20200409_090443  1  level: 2 => 85 Avery Av pink
+ 20200409_090443 
+ 20200409_090443  2  level: 2 => 84 Willow2 W2 red
+ 20200409_090443 
+ 20200409_090443  3  level: 63 => 83 Batman Bt black
+ 20200409_090443 
+ 20200409_090443 redo
+ 20200409_090443  0  level: 71 => 91 Grampy Gp blue
+ 20200409_090443  0  level: 72 => 82 Grammy Gm red
+ 20200409_090443  0  level: 73 => 83 Batman Bt black
+ 20200409_090443  0  level: 74 => 84 Willow2 W2 red
+ 20200409_090443  0  level: 0 => 85 Avery Av pink
+ 20200409_090443 
+ 20200409_090443  1  level: 51 => 71 Grampy Gp blue
+ 20200409_090443  1  level: 42 => 72 Grammy Gm red
+ 20200409_090443  1  level: 43 => 73 Batman Bt black
+ 20200409_090443  1  level: 43 => 74 Willow2 W2 red
+ 20200409_090443 
+ 20200409_090455 Saving player current info
+ 20200409_090456 Changed:
+ 20200409_090456     player_control.2.level : 82 => 92
+ 20200409_090456 undo
+ 20200409_090457  0  level: 82 => 92 Grammy Gm red
+ 20200409_090457 
+ 20200409_090457  1  level: 81 => 91 Grampy Gp blue
+ 20200409_090457 
+ 20200409_090457  2  level: 2 => 85 Avery Av pink
+ 20200409_090457 
+ 20200409_090457  3  level: 2 => 84 Willow2 W2 red
+ 20200409_090457 
+ 20200409_090457 redo
+ 20200409_090457  0  level: 71 => 91 Grampy Gp blue
+ 20200409_090457  0  level: 72 => 92 Grammy Gm red
+ 20200409_090457  0  level: 73 => 83 Batman Bt black
+ 20200409_090457  0  level: 74 => 84 Willow2 W2 red
+ 20200409_090457  0  level: 0 => 85 Avery Av pink
+ 20200409_090457 
+ 20200409_090457  1  level: 51 => 71 Grampy Gp blue
+ 20200409_090457  1  level: 42 => 72 Grammy Gm red
+ 20200409_090457  1  level: 43 => 73 Batman Bt black
+ 20200409_090457  1  level: 43 => 74 Willow2 W2 red
+ 20200409_090457 
+ 20200409_090506 Saving player current info
+ 20200409_090507 Changed:
+ 20200409_090507     player_control.3.level : 83 => 93
+ 20200409_090507 undo
+ 20200409_090507  0  level: 83 => 93 Batman Bt black
+ 20200409_090507 
+ 20200409_090507  1  level: 82 => 92 Grammy Gm red
+ 20200409_090507 
+ 20200409_090507  2  level: 81 => 91 Grampy Gp blue
+ 20200409_090507 
+ 20200409_090507  3  level: 2 => 85 Avery Av pink
+ 20200409_090507 
+ 20200409_090507 redo
+ 20200409_090508  0  level: 71 => 91 Grampy Gp blue
+ 20200409_090508  0  level: 72 => 92 Grammy Gm red
+ 20200409_090508  0  level: 73 => 93 Batman Bt black
+ 20200409_090508  0  level: 74 => 84 Willow2 W2 red
+ 20200409_090508  0  level: 0 => 85 Avery Av pink
+ 20200409_090508 
+ 20200409_090508  1  level: 51 => 71 Grampy Gp blue
+ 20200409_090508  1  level: 42 => 72 Grammy Gm red
+ 20200409_090508  1  level: 43 => 73 Batman Bt black
+ 20200409_090508  1  level: 43 => 74 Willow2 W2 red
+ 20200409_090508 
+ 20200409_090520 Saving player current info
+ 20200409_090521 Changed:
+ 20200409_090521     player_control.4.level : 84 => 94
+ 20200409_090521 undo
+ 20200409_090521  0  level: 84 => 94 Willow2 W2 red
+ 20200409_090521 
+ 20200409_090521  1  level: 83 => 93 Batman Bt black
+ 20200409_090521 
+ 20200409_090521  2  level: 82 => 92 Grammy Gm red
+ 20200409_090521 
+ 20200409_090521  3  level: 81 => 91 Grampy Gp blue
+ 20200409_090521 
+ 20200409_090521 redo
+ 20200409_090522  0  level: 71 => 91 Grampy Gp blue
+ 20200409_090522  0  level: 72 => 92 Grammy Gm red
+ 20200409_090522  0  level: 73 => 93 Batman Bt black
+ 20200409_090522  0  level: 74 => 94 Willow2 W2 red
+ 20200409_090522  0  level: 0 => 85 Avery Av pink
+ 20200409_090522 
+ 20200409_090522  1  level: 51 => 71 Grampy Gp blue
+ 20200409_090522  1  level: 42 => 72 Grammy Gm red
+ 20200409_090522  1  level: 43 => 73 Batman Bt black
+ 20200409_090522  1  level: 43 => 74 Willow2 W2 red
+ 20200409_090522 
+ 20200409_090638 Saving player current info
+ 20200409_090639 Changed:
+ 20200409_090639     player_control.5.level : 85 => 95
+ 20200409_090639 undo
+ 20200409_090640  0  level: 85 => 95 Avery Av pink
+ 20200409_090640 
+ 20200409_090640  1  level: 84 => 94 Willow2 W2 red
+ 20200409_090640 
+ 20200409_090640  2  level: 83 => 93 Batman Bt black
+ 20200409_090640 
+ 20200409_090640  3  level: 82 => 92 Grammy Gm red
+ 20200409_090640 
+ 20200409_090640  4  level: 81 => 91 Grampy Gp blue
+ 20200409_090640 
+ 20200409_090640 redo
+ 20200409_090640  0  level: 71 => 91 Grampy Gp blue
+ 20200409_090640  0  level: 72 => 92 Grammy Gm red
+ 20200409_090640  0  level: 73 => 93 Batman Bt black
+ 20200409_090640  0  level: 74 => 94 Willow2 W2 red
+ 20200409_090640  0  level: 0 => 95 Avery Av pink
+ 20200409_090640 
+ 20200409_090640  1  level: 51 => 71 Grampy Gp blue
+ 20200409_090640  1  level: 42 => 72 Grammy Gm red
+ 20200409_090640  1  level: 43 => 73 Batman Bt black
+ 20200409_090640  1  level: 43 => 74 Willow2 W2 red
+ 20200409_090640 
+ 20200409_090640  2  level: 41 => 51 Grampy Gp blue
+ 20200409_090640 
+ 20200409_090640 
+ 20200409_090640  4  level: 33 => 43 Batman Bt black
+ 20200409_090640  4  level: 34 => 43 Willow2 W2 red
+ 20200409_090640 
+ 20200409_090659 Closing windows
+ 20200409_090659 Closeing results file C:\Users\raysm\workspace\python\crs_dots\gmres\dotsgame_20200409_090415.gmres
+ 20200409_090659 Saving player current info
+ 20200409_090700 No differences
+ 20200409_090700 undo
+ 20200409_090701  0  level: 85 => 95 Avery Av pink
+ 20200409_090701 
+ 20200409_090701  1  level: 84 => 94 Willow2 W2 red
+ 20200409_090701 
+ 20200409_090701  2  level: 83 => 93 Batman Bt black
+ 20200409_090701 
+ 20200409_090701  3  level: 82 => 92 Grammy Gm red
+ 20200409_090701 
+ 20200409_090701  4  level: 81 => 91 Grampy Gp blue
+ 20200409_090701 
+ 20200409_090701 redo
+ 20200409_090701  0  level: 71 => 91 Grampy Gp blue
+ 20200409_090701  0  level: 72 => 92 Grammy Gm red
+ 20200409_090701  0  level: 73 => 93 Batman Bt black
+ 20200409_090701  0  level: 74 => 94 Willow2 W2 red
+ 20200409_090701  0  level: 0 => 95 Avery Av pink
+ 20200409_090701 
+ 20200409_090701  1  level: 51 => 71 Grampy Gp blue
+ 20200409_090701  1  level: 42 => 72 Grammy Gm red
+ 20200409_090701  1  level: 43 => 73 Batman Bt black
+ 20200409_090701  1  level: 43 => 74 Willow2 W2 red
+ 20200409_090701 
+ 20200409_090701  2  level: 41 => 51 Grampy Gp blue
+ 20200409_090701 
+ 20200409_090701 
+ 20200409_090701  4  level: 33 => 43 Batman Bt black
+ 20200409_090701  4  level: 34 => 43 Willow2 W2 red
+ 20200409_090701 
+ 20200409_090701 Saving properties file  C:\Users\raysm\workspace\python\crs_dots\crs_dots.properties  20200409_090701
+ 20200409_090701 Closing log file C:\Users\raysm\workspace\python\crs_dots\log\crs_dots_20200409_090415.sllog
