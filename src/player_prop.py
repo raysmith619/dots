@@ -81,7 +81,7 @@ class PlayerProp:
     def get_player_infos(self, snapshot=None):
         """ 
         :returns: list of PlayerInfo
-            in ascending order of num
+            in decending order of num to add to stack
         """
         if snapshot is None:
             snapshot = SlTrace.snapshot_properties()

@@ -63,9 +63,11 @@ class PlayerProps:
         player_info = player_infos[0]
         self.reset_info = player_info
         self.player_control.players = player_info.players
-        self.undo_stack = PlayerProp(self.player_control, "undo").get_player_infos()
+        undo_infos = PlayerProp(self.player_control, "undo").get_player_infos()
+        self.undo_stack = list(reversed(undo_infos))
         self.undo_stack_count = 0       # Keep track of change for comparison
-        self.redo_stack = PlayerProp(self.player_control, "redo").get_player_infos()
+        redo_infos = PlayerProp(self.player_control, "redo").get_player_infos()
+        self.redo_stack = list(reversed(redo_infos))
         self.redo_stack_count = 0       # Keep track of change for comparison
         atexit.register(self.save_player_info)
         
@@ -125,6 +127,15 @@ class PlayerProps:
         if self.player_control.set_cmd is not None:
             self.player_control.set_cmd(self)
 
+    def clear_info_stacks(self):
+        """ Clear out info stacks
+        Mostly for debugging purposes
+        NOTE: Don't save properties file unless  you want to remove proerties info
+        """
+        SlTrace.lg("Clearing undo/redo stack info")
+        self.undo_stack = []
+        self.redo_stack = []
+        
     def save_player_info(self):
         """ Save player states plus undo/redo info for properties saving
         """
@@ -137,12 +148,21 @@ class PlayerProps:
         SlTrace.lg(f"Saving player redo info max={max_undo_save}", "player_prop")
         PlayerProp(self.player_control, "redo").save_props(self.redo_stack[-max_undo_save:], stack_count=self.undo_stack_count)
         if SlTrace.trace("set_updates_prop"):
-            SlTrace.properties_change_print(req_match=r'.*\.(redo|undo)', req_match_not=True)
+            if not SlTrace.trace("set_updates_prop_abs"):
+                sn1 = SlTrace.properties_properties_prev_sn()
+            else:
+                sn1 = None
+                
+            SlTrace.properties_change_print(sn1=sn1, req_match=r'.*\.(redo|undo)', req_match_not=True)
         if SlTrace.trace("undo_prop"):
             self.properties_stack_print(self.player_control.CONTROL_NAME_PREFIX)
+
     def reset(self):
         """ Reset info to start up
         """
+        if SlTrace.trace("clear_stacks"):
+            self.clear_info_stacks()
+            SlTrace.setLevel("clear_stacks", False)     # One shot
         self.push_player_info()     # So we can back out of this too
         self.restore_player_info(self.reset_info)
         
@@ -176,7 +196,7 @@ class PlayerProps:
         if SlTrace.trace("set_updates_prop"):
             self.save_player_info()
 
-    def properties_stack_print(self, base_print, snap_shot=None, incremental=True, max_len=None, title=None):
+    def properties_stack_print(self, base_prefix, snap_shot=None, incremental=True, max_len=None, title=None):
         """ Print stacks
         :base_prefix: section prefix, with or without trailing "." e.g. "player_control"
         :snapshot: properties snapshot
@@ -186,9 +206,11 @@ class PlayerProps:
         :title: printed before listing
                 default: sect_name
         """
+        undo_stack_len = SlTrace.trace("undo_stack_len", default=6)
+        redo_stack_len = SlTrace.trace("redo_stack_len", default=3)
         if max_len is None:
-            undo_len = 6
-            redo_len = 3
+            undo_len = undo_stack_len
+            redo_len = redo_stack_len
         else:
             undo_len = max_len
             redo_len = undo_len/2
@@ -197,8 +219,8 @@ class PlayerProps:
             
         if title is None:
             title = "player info stack"
-        self.properties_sect_print(base_print, snapshot=snap_shot, sect_name="undo", max_len=undo_len, incremental=incremental)
-        self.properties_sect_print(base_print, snapshot=snap_shot, sect_name="redo", max_len=redo_len, incremental=incremental)
+        self.properties_sect_print(base_prefix, snapshot=snap_shot, sect_name="undo", max_len=undo_len, incremental=incremental)
+        self.properties_sect_print(base_prefix, snapshot=snap_shot, sect_name="redo", max_len=redo_len, incremental=incremental)
         
         
     
@@ -224,11 +246,10 @@ class PlayerProps:
         player_infos = self.player_infos(base_prefix, snapshot, sect_name=sect_name)
         nprint = 0
         for i in range(len(player_infos)):
-            if i == 0:
-                continue
             prev_player_info = player_infos[i]
             if max_len is None or nprint < max_len:
                 player_info.change_print(prev_player_info, prefix=f"{i:2}", incremental=incremental)
+                SlTrace.lg("")
                 nprint += 1
             player_info = prev_player_info
             

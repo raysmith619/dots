@@ -382,7 +382,7 @@ class SelectControlWindow(Toplevel):
         self.set_prop_val("win_y", y)
         self.set_prop_val("win_width", width)
         self.set_prop_val("win_height", height)
-        if SlTrace.trace("set_window_size("):
+        if SlTrace.trace("set_window_size"):
             if ( not hasattr(self, "prev_x") or self.prev_x != x
                  or not hasattr(self, "prev_y") or self.prev_y != y
                  or not hasattr(self, "prev_width") or self.prev_width != width

@@ -123,10 +123,13 @@ class PlayerInfo:
         if prefix != "":
             prefix += " "
         fields = player.get_player_control_fields()
+        nprint = 0
         for field in fields:
             prev_attr = getattr(prev_player, field)
             attr = getattr(player, field)
             if prev_attr != attr or not incremental:
                 SlTrace.lg(f"{prefix}{field}: {prev_attr} => {attr} {player}")
-        
+                nprint += 1
+        if nprint > 1:
+            SlTrace.lg("")      # Separate multi fields for single player
         
