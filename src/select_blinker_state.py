@@ -49,6 +49,12 @@ class BlinkerMultiState:
             self.multifills.append(tg_fills)
         self.first_fill_index = 0      # Where the first fills go
         
+    def __str__(self):
+        string = "BlinkerMultiState:"
+        string += f" multitags: {self.multitags}"
+        if self.is_blinking:
+            string += " blinking"
+        return string
 
     def is_blinking(self):
         """ Check if still blinking

@@ -1,6 +1,11 @@
-# select_part.py        
-from tkinter import font
+# select_part.py
+
+import os        
+from tkinter import font,NW
 import copy
+import re
+from PIL import ImageTk, Image
+
 
 from select_fun import select_copy
 from select_error import SelectError
@@ -12,8 +17,8 @@ from select_position import SelectPosition
 from select_size import SelectSize
 from select_velocity import SelectVelocity
 from select_rotation import SelectRotation
-
-
+from canvas_tracked import CanvasTracked    # For debugging
+from image_hash import ImageHash
 
 
 def color_to_fill(color):
@@ -69,7 +74,7 @@ class SelectPart(object):
     region_fill_highlight = "lightgray"   # Default edge highlight color
     region_on_color = None
     region_off_color = None
-    
+    file_pattern = re.compile(r'<file:(.*)>$')  # in centered text string
     part_id = 0          # Unique handle ID
     player_control = None       # Player access        
             
@@ -427,6 +432,8 @@ class SelectPart(object):
         else:
             raise SelectError("SelectPart: neither point nor rect nor loc type")
 
+        self.image_hash = ImageHash()
+        
     def blinker_set(self, blinker):
         """ set blinker, clearing previous if any,
         :blinker: blinking object
@@ -719,10 +726,76 @@ class SelectPart(object):
             self.do_a_centered_text(ct)
             
     
+    def do_a_centered_file(self, file_path, ct, text=None):
+        """ Do one centered image file
+        :file_path:    file path if no .ext ".jpg" is assumed
+                if not absolute path ../images directory is assumed
+                Used directly as a key for stored image and reused directly
+                to check for image existence to eliminate duplicated file
+                and image processing. Note image\<name>, image/<name>.ext, and
+                os.path.abspath(image\<name>.ext will store image in separate
+                instances
+        :ct: positioning /sizing info CenteredText
+            in terms of text
+        :text: optional text to place if file not available
+        
+        """
+        image_key = file_path        # Used to store/retrieve processed image
+        image = self.image_hash.get_image(image_key)
+        if image is None:
+            if not re.match(r'.*\.[^.]*$', file_path):
+                file_path += ".jpg"
+            if not os.path.isabs(file_path):
+                file_path = os.path.join("..", "images", file_path)
+                if not os.path.isabs(file_path):
+                    file_path = os.path.abspath(file_path)
+            if not os.path.exists(file_path):
+                msg = f"No file found: {file_path}"
+                SlTrace.lg(msg)
+                ct.text = msg
+                return self.do_a_centered_text(ct)
+            try:
+                load_image = Image.open(file_path)
+            except:
+                raise SelectError(f"Can't open image file {file_path}")
+        
+            height = ct.height
+            width = ct.width
+            if text is None:
+                text = "?"
+            x = ct.x 
+            y = ct.y
+            margin = 1             # boundary margin
+            cx, cy, ctoright, ctotop = self.get_center_size()
+            if x is None:
+                x = cx
+            else:
+                x += cx
+            if y is None:
+                y = cy
+            else:
+                y += cy
+            if height is None:
+                height = 2*ctotop - margin*2
+            
+            if width is None:
+                width = 2*ctoright - margin*2
+            load_image = load_image.resize((int(width), int(height)), Image.ANTIALIAS)
+            image = ImageTk.PhotoImage(load_image)
+            self.image_hash.add_image(image_key, image)
+        c1x,c1y,_,_ = self.get_rect()
+        image_tag = self.sel_area.canvas.create_image(c1x, c1y, image=image, anchor=NW)
+        self.add_display_tags(image_tag)
+        
     def do_a_centered_text(self, ct):
         """ Do one centered text
         """
-        text = ct.text 
+        text = ct.text
+        match = self.file_pattern.match(text)
+        if match is not None:
+            file_path = match.group(1)
+            return self.do_a_centered_file(file_path, ct)
+         
         x = ct.x 
         y = ct.y
         font_name = ct.font_name
@@ -815,7 +888,9 @@ class SelectPart(object):
         """
         if not quiet and SlTrace.trace("delete_objects"):
             SlTrace.lg(f"delete_objects: {self} objects:{objs}")
-            
+        
+        if CanvasTracked.tag_track_delete is not None:
+            SlTrace.lg(f"delete_objects: tracking{CanvasTracked.tag_track_delete}")    
         if objs is None:
             return
         
@@ -834,6 +909,9 @@ class SelectPart(object):
         """
         if not quiet and SlTrace.trace("delete_tags"):
             SlTrace.lg(f"delete_tags: {self} tags:{tags}")
+
+        if CanvasTracked.tag_track_delete is not None:
+            SlTrace.lg(f"delete_tags: tracking{CanvasTracked.tag_track_delete}")    
             
         if tags is None:
             return
@@ -849,6 +927,8 @@ class SelectPart(object):
         :display: display after clearing
                     default: no display
         """
+        if CanvasTracked.tag_track_delete is not None:
+            SlTrace.lg(f"display_clear: tracking: {CanvasTracked.tag_track_delete} in {self}")
         self.board.display_clear(self, display=display)
 
     def display_clear_OBSOLETE_REWPLACED(self):
@@ -893,7 +973,7 @@ class SelectPart(object):
                     SlTrace.lg("Delete uncleared section %d %d" % (track_rec_id, track_track_no))
                     self.delete_tags(track_rec_id)
         ###self.sel_area.mw.update_idletasks()
-        self.sel_area.mw.update()
+        self.update()
 
  
     def draw_outline(self, color=None, width=None):
@@ -1769,4 +1849,9 @@ class SelectPart(object):
         """ Remove highlight from part, if any, restoring previous color.
         """
         self.highlight_clear()
-            
+
+    def update(self):
+        """ Update windows 
+        """
+        if self.sel_area is not None and self.sel_area.mw is not None:
+            self.sel_area.mw.update()

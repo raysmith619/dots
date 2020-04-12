@@ -25,6 +25,8 @@ class PlayerProps:
         self.undo_stack = []
         self.redo_stack = []
         self.load_player_info()
+        SlTrace.traceButton("clear_info_stacks", self.clear_info_stacks)
+        SlTrace.traceButton("show_info", self.show_info)
 
     def load_player_info(self):
         """ Load players info, plus undo, and redo stack
@@ -157,12 +159,22 @@ class PlayerProps:
         if SlTrace.trace("undo_prop"):
             self.properties_stack_print(self.player_control.CONTROL_NAME_PREFIX)
 
+    def show_info(self):
+        """ Show current info
+        """
+        SlTrace.lg("show_info")
+        if not SlTrace.trace("set_updates_prop_abs"):
+            sn1 = SlTrace.properties_properties_prev_sn()
+        else:
+            sn1 = None
+                
+        SlTrace.properties_change_print(sn1=sn1, req_match=r'.*\.(redo|undo)', req_match_not=True)
+        self.properties_stack_print(self.player_control.CONTROL_NAME_PREFIX)
+
+
     def reset(self):
         """ Reset info to start up
         """
-        if SlTrace.trace("clear_stacks"):
-            self.clear_info_stacks()
-            SlTrace.setLevel("clear_stacks", False)     # One shot
         self.push_player_info()     # So we can back out of this too
         self.restore_player_info(self.reset_info)
         

@@ -4,6 +4,7 @@ Tracking canvas display by part id
 """
 from select_trace import SlTrace
 from active_check import ActiveCheck
+from canvas_tracked import CanvasTracked
 
 class DisplayTracking():
     
@@ -88,6 +89,9 @@ class DisplayTracking():
         
         if not quiet and SlTrace.trace("delete_objects"):
             SlTrace.lg(f"delete_objects: {part} objects:{objs}")
+        if CanvasTracked.tag_track_delete is not None:
+            SlTrace.lg(f"delete_tags: tracking: {CanvasTracked.tag_track_delete}")
+            pass    
         
         if isinstance(objs, list):
             for obj in objs:
@@ -113,6 +117,9 @@ class DisplayTracking():
         
         if not quiet and SlTrace.trace("delete_tags"):
             SlTrace.lg(f"delete_tags: {self} tags:{tags}")
+        if CanvasTracked.tag_track_delete is not None:
+            SlTrace.lg(f"delete_tags: tracking: {CanvasTracked.tag_track_delete}")
+            pass    
         
         if isinstance(tags, list):
             for tag in tags:

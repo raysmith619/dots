@@ -16,7 +16,6 @@ from select_trace import SlTrace
 from select_error import SelectError
 from select_fail import SelectFail
 from select_report import SelectReport
-from sc_player_control import PlayerControl        
 from select_command_play import SelectCommandPlay
 from select_command_stream import SelectCommandStream
 from select_play_cmd import SelectPlayCommand
@@ -25,11 +24,10 @@ from select_part import SelectPart
 from select_player import SelectPlayer
 from select_message import SelectMessage
 from active_check import ActiveCheck        
-from sc_score_window import ScoreWindow
 from select_blinker_state import BlinkerMultiState
 from select_kbd_cmd import SelectKbdCmd
+from canvas_tracked import CanvasTracked
 
-from gr_input import gr_input
 from psutil._psutil_windows import proc_cmdline
 from docutils.nodes import Part
         
@@ -2172,6 +2170,9 @@ class SelectPlay:
         if SlTrace.trace("square"):
             SlTrace.lg(text)
         SlTrace.lg("completing edge: %s" % edge, "square")
+        if CanvasTracked.tag_track_delete is not None:
+            self.show_display()
+            SlTrace.lg(f"completed_square: tracking: {CanvasTracked.tag_track_delete} in {self}")
         self.annotate_squares(squares, edge=edge, player=player)
         self.update_score_squares(player, squares=squares)
         self.trace_scores("after self.update_score")

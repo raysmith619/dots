@@ -8,7 +8,7 @@ from select_error import SelectError
 from select_loc import SelectLoc
 from select_part import SelectPart
 from select_blinker_state import BlinkerMultiState
-
+from canvas_tracked import CanvasTracked
 
 
 class SelectEdge(SelectPart):
@@ -61,6 +61,8 @@ class SelectEdge(SelectPart):
         if ActiveCheck.not_active():
             return
         
+        if CanvasTracked.tag_track_delete is not None:
+            SlTrace.lg(f"display_clear: tracking: {CanvasTracked.tag_track_delete} in {self}")
         self.part_check(prefix="display")
         if SlTrace.trace("dbg"):
             SlTrace.lg("dbg")

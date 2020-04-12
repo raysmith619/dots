@@ -12,7 +12,24 @@ from select_error import SelectError
     
 class CanvasTracked(Canvas):
     track_no = 0        # Unique element tracking number
+    tag_track_delete = None
+    trigger = False     # TFD to catch track_tag_delete
     
+    @classmethod
+    def track_tag_delete(cls, tag):
+        """ Track deletion of this tag
+        :tag: to track
+        """
+        cls.tag_track_delete = tag
+        SlTrace.lg(f"track_tag_delete({tag})")
+        cls.trigger = True      # TFD
+
+    @classmethod
+    def clear_track_tag_delete(cls):
+        SlTrace.lg(f"clear_track_tag: {CanvasTracked.tag_track_delete}")
+        cls.tag_track_delete = None
+        cls.trigger = True
+        
     def __init__(self, master=None, cnf={}, parts_control=None, **kw):
     ###def __init__(self, master, name, *args, **kwargs):
         """ Set up canvas object tracking
@@ -20,12 +37,14 @@ class CanvasTracked(Canvas):
         :parts_control: parts info (e.g. SelectDots)
         """
         ###super(Canvas, self).__init__(master=master, cnf=cnf, **kw)
-        Canvas.__init__(self, master=master, cnf=cnf, **kw)
+        super().__init__(master=master, cnf=cnf, **kw)
         self.by_rec_id = {}
         self.by_track_no = {}
         self.start_track_no = CanvasTracked.track_no
         self.parts_control = parts_control
+        SlTrace.traceButton("clear_track_delete", CanvasTracked.clear_track_tag_delete)
 
+        
     def set_game_control(self, game_control):
         """ Connect with game control to allow info access
         """
@@ -52,6 +71,17 @@ class CanvasTracked(Canvas):
         return self.start_track_no
     
            
+    def create_image(self, *args, **kwargs):
+        """ Track image CREATED
+        """
+        rec_id = super().create_image(*args, **kwargs)
+        self.track_no = self.new_track_no()
+        call_stack = traceback.extract_stack()
+        track = (rec_id, self.track_no, call_stack)
+        self.by_track_no[self.track_no] = self.by_rec_id[rec_id] = track
+        return rec_id
+    
+           
     def create_rectangle(self, *args, **kwargs):
         """ Track rectangles CREATED
         """
@@ -65,13 +95,22 @@ class CanvasTracked(Canvas):
     def delete(self, rec_id):
         """ delete id/tag
         """
+        if self.trigger:
+            self.trigger = False
+        if self.tag_track_delete is not None:
+            if rec_id == self.track_tag_delete:
+                SlTrace.lg(f"delete tag: {rec_id}")
+                pass
         if rec_id in self.by_rec_id:
             track = self.by_rec_id[rec_id]
             del self.by_rec_id[rec_id]
             track_no = track[1]
             del self.by_track_no[track_no]
         super().delete(rec_id)
-
+        if self.tag_track_delete is not None:
+            self.update()
+            pass
+        
 
     def get_part(self, id=None, type=None, sub_type=None, row=None, col=None):
         """ Get basic part

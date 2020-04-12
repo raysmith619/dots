@@ -8,6 +8,7 @@ from active_check import ActiveCheck
 from select_error import SelectError
 from select_command import SelectCommand
 from select_command_manager import SelectCommandManager
+from canvas_tracked import CanvasTracked
 
 """
 Command processing, especially undo/Redo
@@ -190,6 +191,9 @@ class SelectCommandPlay(SelectCommand):
         self.select_print()
         self.cmd_stack_print("do_cmd(%s)"
                                         % (self.action), "execute_stack")
+        if CanvasTracked.tag_track_delete is not None:
+            self.show_display()
+            SlTrace.lg(f"display_update: tracking: {CanvasTracked.tag_track_delete} in {self}")
         res = self.execute()
         if res:
             if self.can_undo() or self.can_repeat():
@@ -350,6 +354,9 @@ class SelectCommandPlay(SelectCommand):
         
         ids = self.get_changed(clear=True)
         
+        if CanvasTracked.tag_track_delete is not None:
+            self.show_display()
+            SlTrace.lg(f"display_update: tracking: {CanvasTracked.tag_track_delete} in {self}")
         pdos = self.display_order(ids)    # Order display
         for new_part in pdos:
             part_id = new_part.part_id
@@ -357,6 +364,9 @@ class SelectCommandPlay(SelectCommand):
                 SlTrace.lg("new_part no connecteds")
                 ###continue 
             part = user_module.get_part(part_id)
+            if CanvasTracked.tag_track_delete is not None:
+                self.show_display()
+                SlTrace.lg(f"display_update: tracking: {CanvasTracked.tag_track_delete} in {self}")
             part.display()
 
 

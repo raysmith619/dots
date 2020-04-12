@@ -18,10 +18,10 @@ Grammy    Gm       (.)      pink     white   (.)   ( )
 
 [Add] [Change] [Remove]
 """
-###from memory_profiler import profile
-
+# ##from memory_profiler import profile
 
 from tkinter import *
+from tkinter.colorchooser import askcolor
 
 from select_error import SelectError
 from select_trace import SlTrace
@@ -32,6 +32,7 @@ from player_props import PlayerProps
 
         
 class ColumnInfo:
+
     def __init__(self, field_name,
                  hd=None, val=None):
         """ column info
@@ -45,33 +46,37 @@ class ColumnInfo:
             hd = field_name.capitalize()
         self.heading = hd
         self.val = val
-    
+        self.player_field_by_widget = {}  # 2-tuple (player, field) by widget
+
+        
 class PlayerControl(SelectControlWindow):
     CONTROL_NAME_PREFIX = "player_control"
     DEF_WIN_X = 500
     DEF_WIN_Y = 300
     
-    show_delete = True      # Show delete field
-    only_form_fields = {"delete" : show_delete}     # Fields only in form (not in player)
+    show_delete = True  # Show delete field
+    only_form_fields = {"delete" : show_delete}  # Fields only in form (not in player)
     player_fields = ["name", "label",
                      "playing",
                      "position",
                      "color", "color_bg",
                      "voice", "help_play", "pause",
                      "auto", "level", "steven", "delete"]
-    
             
     def __init__(self, *args, title=None, control_prefix=None,
               play_control=None, **kwargs):
         """ Initialize subclassed SelectControlWindow singleton
         """
+        self.max_color_len = len("#80ffff")  # For fields which have to contain hex color representation
+
                                         # Protect against early checking
-        self.players = {}               # Dictionary of SelectPlayer
-        self.playing = []               # Playing, in playing order
-        self.cur_pindex = None          # Current player index in self.playing list
-        self.controls_frame = None      # Set as no controls
-        self.is_players_displayed = False       # Set when displayed
-        self.players_frame = None       # Set when initialized
+        self.players = {}  # Dictionary of SelectPlayer
+        self.playing = []  # Playing, in playing order
+        self.cur_pindex = None  # Current player index in self.playing list
+        self.controls_frame = None  # Set as no controls
+        self.is_players_displayed = False  # Set when displayed
+        self.players_frame = None  # Set when initialized
+        self.player_field_by_widget = {}    
         if title is None:
             title = "Player Control"
         if control_prefix is None:
@@ -80,19 +85,48 @@ class PlayerControl(SelectControlWindow):
         super().__init__(*args,
                       title=title, control_prefix=control_prefix,
                       **kwargs)
-            
+        SlTrace.set_mw(self.mw)  # Setup for reporting    
         self.score_control = None
-        super().control_display()       # Do base work
+        super().control_display()  # Do base work
         self.player_props = PlayerProps(self)        
         self.control_display_base()
-        self.mw.protocol("WM_DELETE_WINDOW", self.delete_window)    
+        self.mw.protocol("WM_DELETE_WINDOW", self.delete_window)
+        self.selected_widget = None  # Last applicable field clicked
+        self.mw.bind ("<Button-1>", self.button_click)
+        self.mw.bind ("<Double-Button-1>", self.double_click)
 
+    def report(self, msg):
+        """ Report message with popup
+        identifying us as the area
+        :msg: message to display
+        """
+        msg_display = f"Player Control: {msg}"
+        SlTrace.lg(msg_display)
+        SlTrace.report(msg_display)
+        
     def delete_window(self):
         SlTrace.lg("Closing Player Control Window")
         self.player_props.save_player_info()
         super().delete_window()
         super().destroy()
-                
+
+    def double_click(self, event):
+        widget = event.widget
+        if widget in self.player_field_by_widget:
+            _, field = self.player_field_by_widget[widget]
+            if field.startswith("color"):
+                self.select_widget(widget)
+                self.choose_color(widget)
+                return
+            else:
+                self.select_widget(widget)
+                return
+
+    def button_click(self, event):
+        widget = event.widget
+        if widget in self.player_field_by_widget:
+            self.select_widget(widget)
+                        
     def get_player_control_fields(self, all=False):
         """ Get player control fields
         :all: True - return all field names
@@ -100,7 +134,7 @@ class PlayerControl(SelectControlWindow):
         """
         fields = []
         for field in self. player_fields:
-            if all or not field in self.only_form_fields:   # TBD check this ???
+            if all or not field in self.only_form_fields:  # TBD check this ???
                 fields.append(field)
         return fields  
     
@@ -121,9 +155,9 @@ class PlayerControl(SelectControlWindow):
         for field in self.player_fields:
             if field in self.only_form_fields:
                 if not self.only_form_fields[field]:
-                    continue            # Don't show field
+                    continue  # Don't show field
                 
-                val = False         # Default to bool
+                val = False  # Default to bool
             else:
                 val = None
                 if len(self.players) > 0:
@@ -134,11 +168,10 @@ class PlayerControl(SelectControlWindow):
             col_info = ColumnInfo(field, hd=heading, val=val)
             col_infos.append(col_info)
         self.col_infos = col_infos    
-        self.add_players_form()         # Create players' control forms
+        self.add_players_form()  # Create players' control forms
         self.control_display()
-
     
-    ###@profile
+    # ##@profile
     def control_display(self):
         """ display controls to enable
         entry / modification
@@ -146,6 +179,9 @@ class PlayerControl(SelectControlWindow):
         """ Contol buttons """
         control_button_frame = Frame(self.controls_frame)
         control_button_frame.pack(side="top", fill="x", expand=True)
+        color_button = Button(master=control_button_frame, text="Choose Color",
+                            command=self.choose_color)
+        color_button.pack(side="left", expand=True)
         add_button = Button(master=control_button_frame, text="Add Player",
                             command=self.add_new_player)
         add_button.pack(side="left", expand=True)
@@ -154,10 +190,66 @@ class PlayerControl(SelectControlWindow):
                             command=self.delete_player)
         delete_button.pack(side="left", expand=True)
         '''
-        self.mw.bind( '<Configure>', self.win_size_event)
+        self.mw.bind('<Configure>', self.win_size_event)
         self.arrange_windows()
         self.is_players_displayed = True
 
+    def select_widget(self, widget):
+        """ Mark widget of interest e.g. intensify boundary
+        :widget: widget, e.g. Entry, of interest
+        """
+        self.selected_widget = widget
+        cfg = {"borderwidth" : 3, 'highlightbackground' : "blue", "relief" : "solid"}
+        widget.config(cfg)
+
+    def unselect_widget(self, widget):
+        """ Mark widget of interest e.g. intensify boundary
+        :widget: widget, e.g. Entry, of interest
+        """
+        cfg = {"borderwidth" : 2, "relief" : "raised"}
+        widget.config(cfg)
+        self.selected_widget = None
+
+    def choose_color(self, widget=None):
+        """ Facilitate chaning color (forground and background) with tkinter.colorchooser)
+        :widget: widget to colorize
+                default: use selected widget, if one
+        """
+        if widget is None:
+            widget = self.selected_widget
+        if widget is None:
+            SlTrace.report("No entry is selected")
+            return
+        
+        if widget in self.player_field_by_widget:
+            (player, field) = self.player_field_by_widget[widget]
+            if not field.startswith("color"):
+                self.report(f"field {field} is not colorizable")
+                return
+            
+        else:
+            self.report("No appropriate widget found")
+            return
+        
+        SlTrace.lg(f"field:{field} player: {player}")    
+        _, color = askcolor()
+        if color is None:
+            SlTrace.report(f"No color selected")
+            return
+        
+        ctl_var = player.ctls_vars[field]
+        ctl_var.set(color)
+        field_ctl = player.ctls[field]
+        if field == "color":
+            player_cfg = {"fg" : color}
+        elif field == "color_bg":
+            player_cfg = {"bg" : color}
+        else:
+            self.report(f"unhandled field: {field}")
+            return
+        
+        field_ctl.config(player_cfg)
+        
     def add_player_form1(self, player):
         """ Add player to form
         :player: SelectPlayer
@@ -172,7 +264,7 @@ class PlayerControl(SelectControlWindow):
         self.set_field_headings(self.players_frame)
         for player in self.players.values():
             self.add_player_form(player)
-        self.set_vals()                     # Accent playing
+        self.set_vals()  # Accent playing
         
     def add_player_form_internal(self, player, players_frame=None):
         """ Add player to form
@@ -181,7 +273,6 @@ class PlayerControl(SelectControlWindow):
         for idx in self.player_fields.keys():
             self.set_player_frame(players_frame, player, idx)
         players_frame.rowconfigure(player.id, weight=1)
-        
 
     def get_next_player(self, set_player=True):
         """ get next candidate player
@@ -196,12 +287,11 @@ class PlayerControl(SelectControlWindow):
             pindex = 0
         pindex += 1
         if pindex >= len(self.playing):
-            pindex = 0                      # Wrap to first
+            pindex = 0  # Wrap to first
         player = self.playing[pindex]
         if set_player:
             self.cur_pindex = pindex
         return player
-    
     
     def get_first_position(self):
         """ get first playing player's position
@@ -213,7 +303,6 @@ class PlayerControl(SelectControlWindow):
         
         return self.playing[0].position
     
-    
     def get_next_position(self, position):
         """ Get next position after given,
         :position: starting at 1..len(playing)-1
@@ -224,7 +313,6 @@ class PlayerControl(SelectControlWindow):
         if len(self.playing) == 0:
             return None
         
-        
         next_player = self.get_next_player()
         return None if next_player is None else next_player.position
 
@@ -233,12 +321,10 @@ class PlayerControl(SelectControlWindow):
         """
         self.set_cmd = cmd
 
-
     def set_player(self, player):
         """ Record player  as next player
         """
         self.cur_player = player
-
 
     def set_play_level(self, play_level=None):
         """ Set players' level via
@@ -250,7 +336,7 @@ class PlayerControl(SelectControlWindow):
         def_level = "2"
         if len(play_levels) == 0:
             SlTrace.lg("Setting to default level: {}".format(def_level)) 
-            play_levels = def_level        # Default
+            play_levels = def_level  # Default
         player_idx = -1
         for player in players:
             player_idx += 1
@@ -269,7 +355,7 @@ class PlayerControl(SelectControlWindow):
         comma separated string
         :playing: comma separated string of playing player's Labels
         """
-        players = self.get_players(all=True)        # Get playing
+        players = self.get_players(all=True)  # Get playing
         if playing is None:
             player_str = ""
             for player in players:
@@ -308,17 +394,16 @@ class PlayerControl(SelectControlWindow):
                 None if no players
         """
         if len(self.playing) == 0:
-            return None             # None playing
+            return None  # None playing
         
         if position is None:
             pindex = self.cur_pindex
         else:
-            pindex = position-1
+            pindex = position - 1
         if pindex >= len(self.playing):
-            pindex = 0              # Wrap around to first
+            pindex = 0  # Wrap around to first
         player = self.playing[pindex]
         return player
-
 
     def get_player_num(self):
         """ Get current player's order number, starting with 1 for first play
@@ -326,15 +411,13 @@ class PlayerControl(SelectControlWindow):
         if len(self.playing) == 0:
             return None
         
-        return self.cur_pindex+1
-
+        return self.cur_pindex + 1
   
     def get_player_prop_key(self, player):
         """ Generate full properties name for this player
         """
         key = self.get_prop_key(str(player.id))
         return key
-        
     
     def get_players(self, all=False):
         """ Get players
@@ -349,7 +432,7 @@ class PlayerControl(SelectControlWindow):
         players.sort(key=lambda player: player.position)
         return players
                 
-    def set(self, push_info = True):
+    def set(self, push_info=True):
         """ Set info from form
         """
         if push_info:
@@ -361,6 +444,7 @@ class PlayerControl(SelectControlWindow):
             self.set_cmd(self)
         if SlTrace.trace("set_updates_prop"):
             self.player_props.save_player_info()
+        self.selected_widget = None  # Last applicable field clicked
         
     def add_new_player(self):
         """ Add new player
@@ -368,7 +452,7 @@ class PlayerControl(SelectControlWindow):
         next_id = 1
         while len(self.players) > 0 and next_id in self.players:
             next_id += 1
-        next_player = SelectPlayer(self, id=next_id)        # Next available id
+        next_player = SelectPlayer(self, id=next_id)  # Next available id
         self.add_player_form(next_player)
         SlTrace.lg(f"new_player:{next_player}")
 
@@ -423,15 +507,15 @@ class PlayerControl(SelectControlWindow):
         :returns:  proper column width, given heading and all values for this field
         """
         heading = self.get_heading(field_name)
-        width = len(heading)        # Start with heading as width
-        ### Requires players to be already present
+        width = len(heading)  # Start with heading as width
+        # ## Requires players to be already present
         for player in self.players.values():
             if hasattr(player, field_name):
                 val = getattr(player, field_name)
             else:
                 val = self.col_infos[self.get_col_infos_idx(field_name)].val
                 if val is None:
-                    val = False             # bool
+                    val = False  # bool
             if isinstance(val, bool):
                 pwidth = 1
             else:
@@ -439,7 +523,6 @@ class PlayerControl(SelectControlWindow):
             if pwidth > width:
                 width = pwidth
         return int(width)
-
     
     def get_field_name(self, heading):
         """ Convert heading into field name
@@ -449,7 +532,6 @@ class PlayerControl(SelectControlWindow):
         if field == "help":
             field = "help_play"
         return field
-
     
     def get_heading(self, field_name):
         """ Convert heading into field name
@@ -463,7 +545,17 @@ class PlayerControl(SelectControlWindow):
         heading = heading.capitalize()
         return heading
 
-    ###@profile
+    def max_color_width(self, width):
+        """ Enlarge width, if necessary to hold hex representation
+        :width: given width
+                default: use max hex rep
+        """
+        if width is None:
+            width = self.max_color_len
+        width = max(width, self.max_color_len)
+        return width
+        
+    # ##@profile
     def set_player_frame(self, frame, player, idx):
         """ Create player info line
         :frame: players frame
@@ -489,9 +581,9 @@ class PlayerControl(SelectControlWindow):
         elif field_name == "position":
             self.set_player_frame_position(frame, player, value, width=width)
         elif field_name == "color":
-            self.set_player_frame_color(frame, player, value, width=width)
+            self.set_player_frame_color(frame, player, value, width=self.max_color_width(width))
         elif field_name == "color_bg":
-            self.set_player_frame_color_bg(frame, player, value, width=width)
+            self.set_player_frame_color_bg(frame, player, value, width=self.max_color_width(width))
         elif field_name == "voice":
             self.set_player_frame_voice(frame, player, value, width=width)
         elif field_name == "help_play":
@@ -517,9 +609,6 @@ class PlayerControl(SelectControlWindow):
             if player.playing:
                 nplaying += 1
         return nplaying
-    
-    
-            
 
     def set_player_frame_name(self, frame, player, value, width=None):
         content = StringVar()
@@ -530,12 +619,14 @@ class PlayerControl(SelectControlWindow):
         player.ctls_vars["name"] = content
 
     def set_player_frame_label(self, frame, player, value, width=None):
+        field = "label"
         content = StringVar()
         content.set(value)
         val_entry = Entry(frame, textvariable=content, width=width)
         val_entry.pack(side="left", fill="none", expand=True)
-        player.ctls["label"] = val_entry
-        player.ctls_vars["label"] = content
+        player.ctls[field] = val_entry
+        player.ctls_vars[field] = content
+        self.player_field_by_widget[val_entry] = (player, field)
 
     def set_player_frame_playing(self, frame, player, value, width=None):
         content = BooleanVar()
@@ -554,25 +645,29 @@ class PlayerControl(SelectControlWindow):
         player.ctls_vars["position"] = content
 
     def set_player_frame_color(self, frame, player, value, width=None):
+        field = "color"
         content = StringVar()
         content.set(value)
         val_entry = Entry(frame, textvariable=content, width=width)
         val_entry.pack(side="left", fill="none", expand=True)
-        player.ctls["color"] = val_entry
-        player.ctls_vars["color"] = content
+        player.ctls[field] = val_entry
+        player.ctls_vars[field] = content
+        self.player_field_by_widget[val_entry] = (player, field)
 
     def set_player_frame_color_bg(self, frame, player, value, width=None):
+        field = "color_bg"
         content = StringVar()
         content.set(value)
         val_entry = Entry(frame, textvariable=content, width=width)
         val_entry.pack(side="left", fill="none", expand=True)
-        player.ctls["color_bg"] = val_entry
-        player.ctls_vars["color_bg"] = content
+        player.ctls[field] = val_entry
+        player.ctls_vars[field] = content
+        self.player_field_by_widget[val_entry] = (player, field)
 
     def set_player_frame_voice(self, frame, player, value, width=None):
         content = BooleanVar()
         content.set(value)
-        yes_button =  Checkbutton(frame, variable=content, width=width)
+        yes_button = Checkbutton(frame, variable=content, width=width)
         yes_button.pack(side="left", fill="none", expand=True)
         player.ctls["voice"] = yes_button
         player.ctls_vars["voice"] = content
@@ -625,7 +720,6 @@ class PlayerControl(SelectControlWindow):
         player.ctls["delete"] = yes_button
         player.ctls_vars["delete"] = content
 
-
     def set_ctls(self):
         """ Update control/display from internal values
         of those playing
@@ -634,20 +728,19 @@ class PlayerControl(SelectControlWindow):
             if player.playing:
                 player.set_ctls()
 
-
     def set_vals(self):
         """ Read form, and update internal values
         Set form fields,if playing, based on player's color and background color
         """
         SlTrace.lg("set_vals", "set_vals")
-        players = list(self.players.values())       # In case of delete
-        for player in players:                      # Update player from fields
+        players = list(self.players.values())  # In case of delete
+        for player in players:  # Update player from fields
             for field in player.ctls:
                 if field in self.only_form_fields:
                     pass
                 else:            
                     player.set_val_from_ctl(field)
-            for field in player.ctls:               # Setup form display attributes
+            for field in player.ctls:  # Setup form display attributes
                 field_ctl = player.ctls[field]
                 player_cfg = {"fg" : player.color, "bg" : player.color_bg}
                 if player.playing:
@@ -671,9 +764,9 @@ class PlayerControl(SelectControlWindow):
         """ Delete player for database
         :player: player to be deleted
         """
-        player_ids = [player_id for player_id in self.players.keys()]            # In case of delete
-        delete_count = 0                            # Redo display if any deletion
-        for player_id in player_ids:                # Update player from fields
+        player_ids = [player_id for player_id in self.players.keys()]  # In case of delete
+        delete_count = 0  # Redo display if any deletion
+        for player_id in player_ids:  # Update player from fields
             player = self.players[player_id]
             field_var = player.ctls_vars["delete"]
             to_delete = field_var.get()
@@ -687,9 +780,8 @@ class PlayerControl(SelectControlWindow):
         :score: to set
         """
         cplayer = self.players[player.id]
-        player.score = score        # Set possible copy
+        player.score = score  # Set possible copy
         cplayer.score = score
-
 
     def get_score(self, player):
         """ Get player score centrally 
@@ -698,16 +790,14 @@ class PlayerControl(SelectControlWindow):
         cplayer = self.players[player.id]
         return cplayer.score
 
-
     def set_played(self, player, played):
         """ Set player game centrally 
         :player: to set
         :played: to set
         """
         cplayer = self.players[player.id]
-        player.played = played        # Set possible copy
+        player.played = played  # Set possible copy
         cplayer.played = played
-
 
     def get_played(self, player):
         """ Get player game centrally 
@@ -716,7 +806,6 @@ class PlayerControl(SelectControlWindow):
         cplayer = self.players[player.id]
         return cplayer.played
 
-
     def get_ties(self, player):
         """ Get player game centrally 
         :player: to get
@@ -724,16 +813,14 @@ class PlayerControl(SelectControlWindow):
         cplayer = self.players[player.id]
         return cplayer.ties
 
-
     def set_ties(self, player, ties):
         """ Set player game centrally 
         :player: to set
         :ties: to set
         """
         cplayer = self.players[player.id]
-        player.ties = ties        # Set possible copy
+        player.ties = ties  # Set possible copy
         cplayer.ties = ties
-
 
     def get_wins(self, player):
         """ Get player game centrally 
@@ -742,16 +829,14 @@ class PlayerControl(SelectControlWindow):
         cplayer = self.players[player.id]
         return cplayer.wins
 
-
     def set_wins(self, player, wins):
         """ Set player game centrally 
         :player: to set
         :wins: to set
         """
         cplayer = self.players[player.id]
-        player.wins = wins        # Set possible copy
+        player.wins = wins  # Set possible copy
         cplayer.wins = wins
-        
         
     def set_all_scores(self, score=0, only_playing=False):
         """ Set all player scores
@@ -760,7 +845,7 @@ class PlayerControl(SelectControlWindow):
         """
         for _, player in self.players.items():
             if only_playing and not player.playing:
-                continue    # Not playing - leave alone
+                continue  # Not playing - leave alone
             player.set_score(score)
 
     def set_all_played(self, played=0, only_playing=False):
@@ -770,7 +855,7 @@ class PlayerControl(SelectControlWindow):
         """
         for _, player in self.players.items():
             if only_playing and not player.playing:
-                continue    # Not playing - leave alone
+                continue  # Not playing - leave alone
             player.set_played(played)
 
     def set_all_wins(self, wins=0, only_playing=False):
@@ -780,7 +865,7 @@ class PlayerControl(SelectControlWindow):
         """
         for _, player in self.players.items():
             if only_playing and not player.playing:
-                continue    # Not playing - leave alone
+                continue  # Not playing - leave alone
             player.set_wins(wins)
        
     def delete_window(self):
@@ -794,8 +879,6 @@ class PlayerControl(SelectControlWindow):
         """ relinquish resources
         """
         self.delete_window()
-        
-        
     
     def add(self):
         if "set" in self.call_d:
@@ -825,7 +908,6 @@ class PlayerControl(SelectControlWindow):
         Redo previous player undo(s)
         """
         self.player_props.redo()
-        
 
         
 if __name__ == '__main__':

@@ -27,7 +27,7 @@ class CenteredText:
         self.width = width
         self.text_tag = None        # Canvas text tag, if live
         self.text_bg_tag = None     # Canvas text background
-        
+        self.image = None   # http://effbot.org/pyfaq/why-do-my-tkinter-images-not-appear.htm
         
     def __str__(self):
         """ Centered Text description
