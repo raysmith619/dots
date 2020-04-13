@@ -167,6 +167,8 @@ class SelectPlay:
         self.run = False            # Initially not running
         self.to_pause = False       # True -> pause at end of move
         self.ngame = 0
+        self.prev_message = None    # Most recent longest message
+        
         self.mw.bind("<Control-Button-1>", self.on_control_button)
         
         if self.profile_running:
@@ -712,7 +714,8 @@ class SelectPlay:
     def enable_moves(self):
         """ Enable moves by user
         """
-        self.board.enable_moves()
+        if self.board is not None:
+            self.board.enable_moves()
 
 
     def display_print(self, tag, trace):
@@ -862,7 +865,13 @@ class SelectPlay:
         if not self.display_game:
             return
         
-        
+        if SlTrace.trace("message"):
+            if (self.prev_message is None
+                 or len(message.text) > len(self.prev_message)
+                 or len(message.text) > SlTrace.trace("message_len", default=25) > 25):
+                SlTrace.lg(f"{len(message.text)}: {message}")
+                self.prev_message = message.text
+                message.text = message.text[0:SlTrace.trace("message_len", default=25)]
         SlTrace.lg("do_message(%s)" % (message.text), "execute")
         if not self.run:
             return
@@ -877,8 +886,8 @@ class SelectPlay:
             self.msg_frame.destroy()        # Remove all message frames
             self.msg_frame = None
         self.msg_frame = Frame(self.msg_frame_base)
-        self.msg_frame.pack(side="top", expand=YES, fill=BOTH)
-        text = message.text
+        self.msg_frame.pack(side="top", expand=NO, fill=NONE)
+        text = f'{message.text:40}'
         color = message.color
         font_size = message.font_size
         if font_size is None:
@@ -1119,6 +1128,7 @@ class SelectPlay:
     def clear_game_moves(self):
         """ Clear stored game moves
         """
+        self.prev_message = None
         self.play_moves = []
 
 
@@ -1923,6 +1933,7 @@ class SelectPlay:
         self.in_game = True
         self.new_move = True
         self.manual_moves = []          # Initialize empty list
+        self.clear_game_moves()                     # Initialize game moves list
         self.player_control.set_all_scores(0, only_playing=True)
         SlTrace.lg("start_game", "execute")
         self.set_move_no(0)
@@ -2162,24 +2173,22 @@ class SelectPlay:
         player_name = player.name
         player_label = player.label
         if len(squares) == 1:
-            text = ("%s completed a square with label %s"
-                     % (player_name, player_label))
+            text = f"{player_name} completed a square"
         else:
-            text = ("%s completed %d squares with label %s"
-                    % (player_name, len(squares), player_label))
+            text = f"{player_name} completed {len(squares)} squares"
         if SlTrace.trace("square"):
             SlTrace.lg(text)
-        SlTrace.lg("completing edge: %s" % edge, "square")
+            SlTrace.lg(f"completing edge: {edge} label:{player_label}")
         if CanvasTracked.tag_track_delete is not None:
             self.show_display()
             SlTrace.lg(f"completed_square: tracking: {CanvasTracked.tag_track_delete} in {self}")
         self.annotate_squares(squares, edge=edge, player=player)
         self.update_score_squares(player, squares=squares)
         self.trace_scores("after self.update_score")
-        self.add_message(text, font_size=20, time_sec=1)
-        text = ("%s gets another turn." % player_name)
+        if SlTrace.trace("message_no_completed"):
+            self.add_message(text, time_sec=1)
+        text = (f"{player_name}'s extra turn")
         SlTrace.lg(text, "move")
-        self.add_message(text, font_size=20, time_sec=1)
         SlTrace.lg("completed_square_end", "square")
         self.trace_scores("completed_square end")
 

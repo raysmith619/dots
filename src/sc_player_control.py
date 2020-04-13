@@ -26,7 +26,6 @@ from tkinter.colorchooser import askcolor
 from select_error import SelectError
 from select_trace import SlTrace
 from select_player import SelectPlayer
-from player_info import PlayerInfo
 from select_control_window import SelectControlWindow, content_var
 from player_props import PlayerProps
 
@@ -303,7 +302,7 @@ class PlayerControl(SelectControlWindow):
         
         return self.playing[0].position
     
-    def get_next_position(self, position):
+    def get_next_position(self):
         """ Get next position after given,
         :position: starting at 1..len(playing)-1
         among playing players, wrapping if necessar

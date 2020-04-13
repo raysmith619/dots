@@ -77,6 +77,7 @@ class SelectPart(object):
     file_pattern = re.compile(r'<file:(.*)>$')  # in centered text string
     part_id = 0          # Unique handle ID
     player_control = None       # Player access        
+    image_hash = ImageHash()    # Keep hash of processed file images
             
     @staticmethod
     def is_point_equal(pt1, pt2):
@@ -105,7 +106,13 @@ class SelectPart(object):
             
             part1 = SelectPart(part.sel_area, part_type="edge", rect=olap_rect)
         return olap_rect
-    
+
+    @classmethod
+    def clear_image_cache(cls):
+        """ Clear image cache to force reload/scaling of images
+        """
+        cls.image_hash.clear_cache()
+            
     @classmethod
     def get_player_control(cls):
         if cls.player_control is None:
@@ -431,8 +438,6 @@ class SelectPart(object):
             self.loc = loc
         else:
             raise SelectError("SelectPart: neither point nor rect nor loc type")
-
-        self.image_hash = ImageHash()
         
     def blinker_set(self, blinker):
         """ set blinker, clearing previous if any,
@@ -783,6 +788,7 @@ class SelectPart(object):
             load_image = load_image.resize((int(width), int(height)), Image.ANTIALIAS)
             image = ImageTk.PhotoImage(load_image)
             self.image_hash.add_image(image_key, image)
+            load_image.close()      # Release resources
         c1x,c1y,_,_ = self.get_rect()
         image_tag = self.sel_area.canvas.create_image(c1x, c1y, image=image, anchor=NW)
         self.add_display_tags(image_tag)

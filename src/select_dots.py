@@ -109,6 +109,7 @@ class SelectDots(object):
         self.stroke_checking = stroke_checking
         self.area = None        # Set non None when created
         self.display_tracking = DisplayTracking(self)
+        SelectPart.clear_image_cache()      # In case images need reload/rescalling
         self.setup_area()
 
 

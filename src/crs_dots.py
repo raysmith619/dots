@@ -530,9 +530,9 @@ def set_dots_button():
             sp.destroy()
             sp = None
         board_frame = Frame(mw, width=width, height=height, bg="", colormap="new")
-        board_frame.pack(side="top", fill=NONE, expand=YES)
+        board_frame.pack(side="top", fill=NONE, expand=NO)
         msg_main_frame = Frame(mw)
-        msg_main_frame.pack(side="bottom", expand=YES, fill=BOTH)
+        msg_main_frame.pack(side="bottom", expand=NO, fill=BOTH)
         msg_frame = Frame(msg_main_frame)
         msg_frame.pack(side="bottom", expand=YES, fill=BOTH)
         board_change = False
