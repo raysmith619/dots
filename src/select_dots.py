@@ -24,6 +24,7 @@ class SelectDots(object):
     ###@profile    
     def __init__(self, frame, mw=None,
                   display_game=True,
+                  image_hash=None,
                   nrows=10,
                   ncols=None,
                   width=None, height=None, tbmove=.1,
@@ -46,6 +47,7 @@ class SelectDots(object):
                   edge_visible=True):
         """
         :frame: - frame within we are placed
+        :image_hash: file image access
         :display_game: display game updates default: True
                        False - skip display updates, where possible
         :nrows: number of rows of squares default: 10
@@ -71,6 +73,7 @@ class SelectDots(object):
         """
         self.display_game = display_game
         self.frame = frame
+        self.image_hash = image_hash
         self.canvas = None
         self.mw = mw
         self.nrows = nrows
@@ -109,7 +112,6 @@ class SelectDots(object):
         self.stroke_checking = stroke_checking
         self.area = None        # Set non None when created
         self.display_tracking = DisplayTracking(self)
-        SelectPart.clear_image_cache()      # In case images need reload/rescalling
         self.setup_area()
 
 
@@ -138,6 +140,7 @@ class SelectDots(object):
         
         self.area = SelectArea(self.canvas, mw=self.mw,
                                board=self,
+                               image_hash=self.image_hash,
                                display_game=self.display_game,
                                tbmove=self.tbmove,
                                stroke_checking=self.stroke_checking,
@@ -602,6 +605,7 @@ if __name__ == "__main__":
     
     #creation of an instance
     sD = SelectDots(frame, mw,
+                    image_hash=image_hash,
                     width=width, height=height,     # REQUIRED, if window not expanded
                     nrows=5, ncols=8,
                     do_edges=True,

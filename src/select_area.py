@@ -3,6 +3,7 @@ Created on Aug 23, 2018
 
 @author: raysm
 """
+import re
 from datetime import datetime
 from cmath import rect
 import copy
@@ -19,6 +20,7 @@ from select_edge import SelectEdge
 from select_region import SelectRegion
 from select_mover import SelectMover, SelectMoveDisplay
 from select_stroke import SelectStroke                    
+from image_hash import ImageHash
 from _ast import Or
                      
 class SelectArea(object):
@@ -37,6 +39,7 @@ class SelectArea(object):
     def __init__(self, canvas, mw=None,
                 board=None,
                 display_game=True,
+                image_hash=None,
                 image=None, rects=None,
                 region_width=0,
                 show_moved=False, show_id=False,
@@ -56,6 +59,8 @@ class SelectArea(object):
                     default: True
         :highlighting: True highlight parts if mouse over
                         default: True
+        :image_hash: file image access / hash
+                if not present, create our own
         :image: displayed in frame    Not necessary/used
         :rects: single, or list of Rectangles (upper left x,y), (lower right x,y)
                 each being a region
@@ -82,6 +87,9 @@ class SelectArea(object):
             loc: (pt), (x,y)
                  (pt1 (upper right), pt2 (lower right)
         """
+        if image_hash is None:
+            image_hash = ImageHash()
+        self.image_hash = image_hash
         self.image = image
         self.region_width = region_width
         if mw is None:
@@ -509,6 +517,32 @@ class SelectArea(object):
         tag = self.canvas.create_text(position, **kwargs)
         return tag
 
+    def clear_image_cache(self):
+        """ Clear image cache to force reload/scaling of images
+        """
+        self.image_hash.clear_cache()
+
+    def get_image(self, key):
+        """ Get image based on key, if available
+        :key: image key e.g. image file base name without extension
+        :returns: image, None if not stored raises SelectError if loading failure
+        """
+        return self.image_hash.get_image(key)
+
+    def get_load_image(self, key):
+        """ Get file image based on key, if available
+        :key: image key e.g. image file base name without extension
+        :returns: file image, None if not found, raises SelectError if loading failure
+        """
+        return self.image_hash.get_load_image(key)
+
+    def add_image(self, key, image):
+        """ Store image in immage hash
+        :key: image hash key
+        :image: image to store
+        """
+        self.image_hash.add_image(key, image)
+            
     def get_parts(self, pt_type=None):
         """ Get parts in figure
         :pt_type: part type, default: all parts

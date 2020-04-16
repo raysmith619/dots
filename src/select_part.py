@@ -1,9 +1,7 @@
 # select_part.py
 
-import os        
 from tkinter import font,NW
 import copy
-import re
 from PIL import ImageTk, Image
 
 
@@ -18,7 +16,6 @@ from select_size import SelectSize
 from select_velocity import SelectVelocity
 from select_rotation import SelectRotation
 from canvas_tracked import CanvasTracked    # For debugging
-from image_hash import ImageHash
 
 
 def color_to_fill(color):
@@ -74,10 +71,8 @@ class SelectPart(object):
     region_fill_highlight = "lightgray"   # Default edge highlight color
     region_on_color = None
     region_off_color = None
-    file_pattern = re.compile(r'<file:(.*)>$')  # in centered text string
     part_id = 0          # Unique handle ID
     player_control = None       # Player access        
-    image_hash = ImageHash()    # Keep hash of processed file images
             
     @staticmethod
     def is_point_equal(pt1, pt2):
@@ -106,12 +101,6 @@ class SelectPart(object):
             
             part1 = SelectPart(part.sel_area, part_type="edge", rect=olap_rect)
         return olap_rect
-
-    @classmethod
-    def clear_image_cache(cls):
-        """ Clear image cache to force reload/scaling of images
-        """
-        cls.image_hash.clear_cache()
             
     @classmethod
     def get_player_control(cls):
@@ -735,7 +724,7 @@ class SelectPart(object):
         """ Do one centered image file
         :file_path:    file path if no .ext ".jpg" is assumed
                 if not absolute path ../images directory is assumed
-                Used directly as a key for stored image and reused directly
+                Used directly(unmodified) as a key for stored image and reused directly
                 to check for image existence to eliminate duplicated file
                 and image processing. Note image\<name>, image/<name>.ext, and
                 os.path.abspath(image\<name>.ext will store image in separate
@@ -746,24 +735,15 @@ class SelectPart(object):
         
         """
         image_key = file_path        # Used to store/retrieve processed image
-        image = self.image_hash.get_image(image_key)
+        image = self.sel_area.get_image(image_key)
         if image is None:
-            if not re.match(r'.*\.[^.]*$', file_path):
-                file_path += ".jpg"
-            if not os.path.isabs(file_path):
-                file_path = os.path.join("..", "images", file_path)
-                if not os.path.isabs(file_path):
-                    file_path = os.path.abspath(file_path)
-            if not os.path.exists(file_path):
+            load_image = self.sel_area.get_load_image(image_key)
+            if load_image is None:
                 msg = f"No file found: {file_path}"
                 SlTrace.lg(msg)
                 ct.text = msg
                 return self.do_a_centered_text(ct)
-            try:
-                load_image = Image.open(file_path)
-            except:
-                raise SelectError(f"Can't open image file {file_path}")
-        
+
             height = ct.height
             width = ct.width
             if text is None:
@@ -787,7 +767,7 @@ class SelectPart(object):
                 width = 2*ctoright - margin*2
             load_image = load_image.resize((int(width), int(height)), Image.ANTIALIAS)
             image = ImageTk.PhotoImage(load_image)
-            self.image_hash.add_image(image_key, image)
+            self.sel_area.add_image(image_key, image)
             load_image.close()      # Release resources
         c1x,c1y,_,_ = self.get_rect()
         image_tag = self.sel_area.canvas.create_image(c1x, c1y, image=image, anchor=NW)
@@ -797,7 +777,7 @@ class SelectPart(object):
         """ Do one centered text
         """
         text = ct.text
-        match = self.file_pattern.match(text)
+        match = self.sel_area.image_hash.file_pattern.match(text)
         if match is not None:
             file_path = match.group(1)
             return self.do_a_centered_file(file_path, ct)

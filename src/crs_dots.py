@@ -39,6 +39,7 @@ from select_game_control import SelectGameControl
 from sc_player_control import PlayerControl
 from sc_score_window import ScoreWindow
 from dots_game_file import DotsGameFile
+from image_hash import ImageHash
 
 history = "shadow_get_legal_moves"       # History of program
 history += ", MoveList"                 # Use of MoveList object 
@@ -107,7 +108,7 @@ height = width      # Window height
 board_change = True # True iff board needs redrawing
 setup_before_game = False       # True -> setup before next game
                 
-
+image_hash = ImageHash()        # Shared file image access
 
 
 
@@ -538,6 +539,7 @@ def set_dots_button():
         board_change = False
     if sqs is None:
         sqs = SelectDots(board_frame, mw=mw,
+                        image_hash=image_hash,
                         display_game=display_game,
                         nrows=ny, ncols=nx,
                         width=width, height=height,
@@ -566,9 +568,9 @@ def set_dots_button():
         ###if command_stream is not None:
         ###    command_stream.set_play_control(sp)
         ###    command_stream.set_cmd_stream_proc(sp.cmd_stream_proc)
-        
-        player_control.set_play_control(sp)
-        score_window.set_play_control(sp)
+        if player_control is not None:
+            player_control.set_play_control(sp)
+            score_window.set_play_control(sp)
     sp.set_stroke_move(stroke_move)
     if first_set_app:
         if run_resets:
@@ -653,7 +655,9 @@ def show_players_window(display=True):
 
     SlTrace.lg("PlayerControl")
     if player_control is None:
-        player_control = PlayerControl(title="Player Control", display=display)
+        player_control = PlayerControl(title="Player Control",
+                                        image_hash=None,        # Keep own hash (image size)
+                                         display=display)
     else:
         if display:
             player_control.show_window()
@@ -829,7 +833,8 @@ if playing is not None:
     player_control.set_playing(playing)
 show_score_window()    
 
-player_control.set_set_cmd(player_control_set)      # Link local command to player_control Set Button
+if player_control is not None:
+    player_control.set_set_cmd(player_control_set)      # Link local command to player_control Set Button
 game_control.set_set_cmd(game_control_set)      # Link local command to game_control Set Button
 set_dots_button()
 if sp is None:

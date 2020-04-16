@@ -280,6 +280,9 @@ class SelectPlayer:
         color = self.color
         if color is None:
             color = "color:None"    
-        return (name
+        string = (name
                  + " %s" % label
                  + " %s" % color)
+        if self.playing:
+            string += f" playing"
+        return string

@@ -1,5 +1,15 @@
 crs_dots_TODO.txt
 
+Better integrate window show/hide for sc_player_control - use SelectControlWindow.arrange_window
+as done in sc_score_window.py
+Label control:
+	Better size/position control for SelectList
+	  1. place selection list window on/near upper left corner of label to change
+	  2. display a couple of choices to better indicate it is a selection list
+	  3. both for list initial placement and size remember size from previous instanciation
+	  4. More visible text entry choice e.g. Entry field border
+	  5. Add OK/CANCEL buttons to better indicate selection completion choices
+	  
 More program testing
 More strategy testing.
 verification
@@ -8,7 +18,7 @@ How best to test/verify game strategies?
 Commands / Menus:
 snapshot / save state in loadable form (dots_commands.py)
 
-step - run  game one move(micro-move)
+step - run  game one move(micro-move) DONE
 unstep - backup game  one move(micro-move)
 
 	Should Undo/ReDo act this way on running programs?

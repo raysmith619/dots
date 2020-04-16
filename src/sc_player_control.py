@@ -28,6 +28,8 @@ from select_trace import SlTrace
 from select_player import SelectPlayer
 from select_control_window import SelectControlWindow, content_var
 from player_props import PlayerProps
+from image_hash import ImageHash
+from label_button_control import LabelButtonControl
 
         
 class ColumnInfo:
@@ -46,7 +48,7 @@ class ColumnInfo:
         self.heading = hd
         self.val = val
         self.player_field_by_widget = {}  # 2-tuple (player, field) by widget
-
+        
         
 class PlayerControl(SelectControlWindow):
     CONTROL_NAME_PREFIX = "player_control"
@@ -63,11 +65,17 @@ class PlayerControl(SelectControlWindow):
                      "auto", "level", "steven", "delete"]
             
     def __init__(self, *args, title=None, control_prefix=None,
-              play_control=None, **kwargs):
-        """ Initialize subclassed SelectControlWindow singleton
+                  image_hash=None, select_list_hash=None, **kwargs):
+        """ Control players
         """
         self.max_color_len = len("#80ffff")  # For fields which have to contain hex color representation
 
+        if image_hash is None:
+            image_hash = ImageHash()    # Create our own
+        self.image_hash = image_hash
+        if select_list_hash is None:
+            select_list_hash = ImageHash()
+        self.select_list_hash = select_list_hash
                                         # Protect against early checking
         self.players = {}  # Dictionary of SelectPlayer
         self.playing = []  # Playing, in playing order
@@ -80,12 +88,10 @@ class PlayerControl(SelectControlWindow):
             title = "Player Control"
         if control_prefix is None:
             control_prefix = PlayerControl.CONTROL_NAME_PREFIX
-        self.play_control = play_control
         super().__init__(*args,
                       title=title, control_prefix=control_prefix,
                       **kwargs)
         SlTrace.set_mw(self.mw)  # Setup for reporting    
-        self.score_control = None
         super().control_display()  # Do base work
         self.player_props = PlayerProps(self)        
         self.control_display_base()
@@ -93,7 +99,8 @@ class PlayerControl(SelectControlWindow):
         self.selected_widget = None  # Last applicable field clicked
         self.mw.bind ("<Button-1>", self.button_click)
         self.mw.bind ("<Double-Button-1>", self.double_click)
-
+        self.player_changed = True                  # Tested regularly by game play
+        self.score_changed = True                   # Tested regularly by game play
     def report(self, msg):
         """ Report message with popup
         identifying us as the area
@@ -104,7 +111,13 @@ class PlayerControl(SelectControlWindow):
         SlTrace.report(msg_display)
         
     def delete_window(self):
+        if self.mw is None:
+            return
+        
         SlTrace.lg("Closing Player Control Window")
+        self.mw.withdraw()      # For now just hide window
+        return
+    
         self.player_props.save_player_info()
         super().delete_window()
         super().destroy()
@@ -518,7 +531,10 @@ class PlayerControl(SelectControlWindow):
             if isinstance(val, bool):
                 pwidth = 1
             else:
-                pwidth = len(str(val))
+                val_str = str(val)
+                if val_str.startswith("<file:"):
+                    val_str = "file_image_hack"
+                pwidth = len(val_str)
             if pwidth > width:
                 width = pwidth
         return int(width)
@@ -618,14 +634,14 @@ class PlayerControl(SelectControlWindow):
         player.ctls_vars["name"] = content
 
     def set_player_frame_label(self, frame, player, value, width=None):
+        
         field = "label"
-        content = StringVar()
-        content.set(value)
-        val_entry = Entry(frame, textvariable=content, width=width)
-        val_entry.pack(side="left", fill="none", expand=True)
-        player.ctls[field] = val_entry
-        player.ctls_vars[field] = content
-        self.player_field_by_widget[val_entry] = (player, field)
+        label_button_frame = Frame(frame)       # Dedicated to button
+        label_button_frame.pack(side="left", fill="none", expand=False)
+        lbc = LabelButtonControl(self.select_list_hash, label_button_frame,
+                                   player=player, label_text=value, width=width)
+        label_button = lbc.get_button()     # player .ctls, ctls_vars setup in LabelButtonControl
+        self.player_field_by_widget[label_button] = (player, field)
 
     def set_player_frame_playing(self, frame, player, value, width=None):
         content = BooleanVar()
@@ -742,15 +758,17 @@ class PlayerControl(SelectControlWindow):
             for field in player.ctls:  # Setup form display attributes
                 field_ctl = player.ctls[field]
                 player_cfg = {"fg" : player.color, "bg" : player.color_bg}
-                if player.playing:
-                    player_cfg["font"] = "bold"
-                    field_ctl.config(player_cfg)
-                else:
-                    player_cfg["font"] = "system"
-                    field_ctl.config(player_cfg)
-        if self.play_control is not None:
-            self.play_control.setup_scores_frame()
-
+                try:
+                    if player.playing:
+                        player_cfg["font"] = "bold"
+                        field_ctl.config(player_cfg)
+                    else:
+                        player_cfg["font"] = "system"
+                        field_ctl.config(player_cfg)
+                except:
+                    SlTrace.lg(f"Problem in set_vals field:{field} with {player}")
+        self.player_changed = True                  # Action is up to others
+        
     def delete_player(self, player):
         """ Delete player for database
         :player: player to be deleted
@@ -866,13 +884,6 @@ class PlayerControl(SelectControlWindow):
             if only_playing and not player.playing:
                 continue  # Not playing - leave alone
             player.set_wins(wins)
-       
-    def delete_window(self):
-        """ Process Trace Control window close
-        """
-        if self.mw is not None:
-            self.mw.destroy()
-            self.mw = None
 
     def destroy(self):
         """ relinquish resources
@@ -908,6 +919,27 @@ class PlayerControl(SelectControlWindow):
         """
         self.player_props.redo()
 
+    def is_player_changed(self):
+        """ Tested to check for player changes
+        cleared after test
+        """
+        if self.player_changed:
+            self.player_changed = False
+            return True
+        
+        return False
+
+    def is_score_changed(self):
+        """ Tested to check for player changes
+        cleared after test
+        """
+        if self.score_changed:
+            self.score_changed = False
+            return True
+        
+        return False
+    
+    
         
 if __name__ == '__main__':
         

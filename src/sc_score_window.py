@@ -144,6 +144,10 @@ class ScoreWindow(SelectControlWindow):
     def setup_scores_frame(self):
         """ Set/Reset players' scores frame
         """
+        if self.player_control is None:
+            SlTrace.lg("player control not yet set")
+            return
+        
         if self.scores_frame is not None:
             self.scores_frame.pack_forget()
             self.scores_frame.destroy()
@@ -360,6 +364,9 @@ class ScoreWindow(SelectControlWindow):
             else:
                 move_no_str = "Move: %d" % scmd.move_no
                 self.move_no_label.config(text=move_no_str)
+        if self.player_control is None:
+            return
+        
         players = self.player_control.get_players()
         for player in players:
             if player.id not in self.players:

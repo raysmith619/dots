@@ -22,14 +22,12 @@ from select_play_cmd import SelectPlayCommand
 from select_command_manager import SelectCommandManager
 from select_part import SelectPart
 from select_player import SelectPlayer
+from sc_player_control import PlayerControl
 from select_message import SelectMessage
 from active_check import ActiveCheck        
 from select_blinker_state import BlinkerMultiState
 from select_kbd_cmd import SelectKbdCmd
 from canvas_tracked import CanvasTracked
-
-from psutil._psutil_windows import proc_cmdline
-from docutils.nodes import Part
         
 class SelectPlay:
     current_play = None             # Most recent - used for debugging
@@ -143,8 +141,8 @@ class SelectPlay:
         if board.area.down_click_call is None:
             board.add_down_click_call(self.down_click)
             SlTrace.lg("board.area.down_click_call: %s" % board.area.down_click_call)
-        if self.board.area.down_click_call is None:
-            raise SelectError("board.area.down_click_call is not set")
+        ###if self.board.area.down_click_call is None:
+        ###    raise SelectError("board.area.down_click_call is not set")
         
         board.add_new_edge_call(self.new_edge)
         self.cur_message = None         # Currently displaying message, if any
@@ -174,7 +172,9 @@ class SelectPlay:
         if self.profile_running:
             self.pr = cProfile.Profile()
             self.pr.enable()
-        
+        if player_control is None:
+            player_control = PlayerControl(title="Player Control", display=display_game)
+        self.player_control = player_control
         
     def running_loop(self, run_check_ms=None):
         """ Run game (loop) untill self.running set false
@@ -2113,6 +2113,9 @@ class SelectPlay:
         """ Get players
         :all: all players default: just currently playing
         """
+        if self.player_control is None:
+            return []
+        
         return self.player_control.get_players(all=all)
 
 
@@ -2229,6 +2232,9 @@ class SelectPlay:
     def reset_score(self):
         """ Reset multigame scores/stats
         """
+        if self.player_control is None:
+            return
+        
         SlTrace.lg("reset_score")
         for player in self.get_players():
             player.set_wins(0)
