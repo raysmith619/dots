@@ -915,8 +915,10 @@ class SelectPart(object):
         """
         if CanvasTracked.tag_track_delete is not None:
             SlTrace.lg(f"display_clear: tracking: {CanvasTracked.tag_track_delete} in {self}")
-        self.board.display_clear(self, display=display)
+        if self.board is not None:
+            self.board.display_clear(self, display=display)
 
+    
     def display_clear_OBSOLETE_REWPLACED(self):
         """ Clear display of this part
         """
@@ -1703,13 +1705,15 @@ class SelectPart(object):
         """ Add newly displayed objects on canvas
         :objects: objects, or lists of objects, or lists of...
         """
-        self.board.add_display_objects(self, objects)
+        if self.board is not None:
+            self.board.add_display_objects(self, objects)
 
     def add_display_tags(self, tags):
         """ Add tags of newly displayed canvas objects
         :tags: tag, or lists of tags, or lists of...
         """
-        self.board.add_display_tags(self, tags)
+        if self.board is not None:
+            self.board.add_display_tags(self, tags)
     
     def is_adjacent(self, part):
         """ Test if part already adjacent to us
@@ -1804,7 +1808,8 @@ class SelectPart(object):
         self.move_no = move_no
         if self.check_mod is not None:
             self.check_mod(self, mod_type=SelectPart.MOD_AFTER, desc="turn_off")
-        self.sel_area.board.shadow.turn_off(part=self)
+        if self.sel_area.board is not None:
+            self.sel_area.board.shadow.turn_off(part=self)
         if display:
             self.display()
  
@@ -1822,7 +1827,8 @@ class SelectPart(object):
             player = self.get_player()
         self.player = player
         self.move_no = move_no
-        self.sel_area.board.shadow.turn_on(part=self, player=player, move_no=move_no)
+        if self.sel_area.board is not None:
+            self.sel_area.board.shadow.turn_on(part=self, player=player, move_no=move_no)
         if display:
             ###self.sel_area.move_announce()
             self.display()

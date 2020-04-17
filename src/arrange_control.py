@@ -168,6 +168,7 @@ class ArrangeControl(Toplevel):
         
         if title is None:
             title = "Arrange"
+        self.title = title
         self.change_control = change_call
         win_width =  500
         win_height = 700
@@ -301,6 +302,10 @@ class ArrangeControl(Toplevel):
         step_button.pack(side="left", expand=True)
         SlTrace.lg("End of TraceControl __init__")
 
+    def __str__(self):
+        """ String rep to avoid _w problem...
+        """
+        return self.title
 
     def add_change_ctl(self, master=None, ctl_name=None, text=None, value=None,
                        width=5, min_value=None, max_value=None):

@@ -207,6 +207,8 @@ class SelectRegion(SelectPart):
             if fill is None:
                 fill = 'PeachPuff3'
             try:
+                if type(fill) != str:
+                    fill = f"#{fill:06x}"
                 tag = self.sel_area.canvas.create_rectangle(
                                     c1x, c1y, c3x, c3y,
                                     width=self.region_width,
@@ -215,6 +217,7 @@ class SelectRegion(SelectPart):
                 self.display_tag = tag
             except:
                 SlTrace.lg("Possible bad fill: %s for region %d" % (fill, self.partno))
+                raise
         
         if self.centered_text:
             self.do_centered_text()

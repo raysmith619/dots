@@ -70,11 +70,7 @@ class SelectArea(object):
         :region_width: region boundary width
         :stroke_checking:  True-> check for stroking mouse/hand Default: False
         :check_mod: called, if present, before and after part is modified
-        :down_click_call: processes down clicks if present'
-                default: no remote processing
-        :tbmove: minimum time (seconds) between move recognition
-        :max_select: maximum number of simultaneous selections
-                    allowed
+        :down_click_call: processes down c
                     default = 1
         """
         self.board = board

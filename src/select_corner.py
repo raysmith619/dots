@@ -73,7 +73,7 @@ class SelectCorner(SelectPart):
                         c1x, c1y, c3x, c3y, fill=self.color)
                     tags.append(tag)
                     cc_x, cc_y, cc_sx, cc_sy = self.get_center_size()
-                    SlTrace.lg("cc_x,y=%d,%d  cc_sx,y=%d,%d" % (cc_x,cc_y, cc_sx,cc_sy), "part_info")
+                    SlTrace.lg(f"cc_x,y={cc_x},{cc_y}  cc_sx,y={cc_sx},{cc_sy}", "part_info")
                     tag = self.sel_area.canvas.create_line(cc_x,cc_y, cc_x,cc_y-cc_sy,
                                                         cc_x,cc_y, cc_x-cc_sx, cc_y,
                                                         cc_x,cc_y, cc_x+cc_sx, cc_y,

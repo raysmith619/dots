@@ -40,8 +40,8 @@ height = width      # Window height
 base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 SlTrace.setLogName(base_name)
 SlTrace.lg("%s %s\n" % (os.path.basename(sys.argv[0]), " ".join(sys.argv[1:])))
-###SlTrace.setTraceFlag("get_next_val", 1)
-SlTrace.setTraceFlag("part_info", 1)
+###SlTrace.setTraceFlag("get_next_val", True)
+###SlTrace.setTraceFlag("part_info", False)
 """ Flags for setup """
 app = None                  # Application window ref
 frame = None
@@ -55,9 +55,9 @@ app = SelectWindow(mw,
 sar = None                                  # select arrangement control
 arc = app.arrange_control()                 # Start up control, currently required
 
-ew_display = 3
-ew_select = 5
-ew_standoff = 5
+ew_display = 0
+ew_select = 0
+ew_standoff = 0
 
 width = app.get_current_val("window_width", width)
 width = int(width)
@@ -194,7 +194,8 @@ def set_figure_button():
         return int(round(val))
     
     min_side = min(xlen, ylen)
-    corner_width = max(min_side/15., 4)               
+    ###corner_width = max(min_side/15., 4)               
+    corner_width = 0               
     for i in range(int(nx)):
         col = i+1
         x1 = xmin + i*xlen
@@ -234,8 +235,9 @@ def set_figure_button():
         row = rects_rows[i]
         col = rects_cols[i]
         col_rect = reg_cc.get_color()
-        sr.add_rect(rect, color=col_rect, row=row, col=col)
-    s_width = 20
+        sr.add_rect(rect, color=col_rect, row=row, col=col,
+                    region_width=ew_display, edge_width=ew_display)
+    s_width = ew_display
     for part in sr.get_parts():
         if part.is_corner():
             part.set(display_shape="circle",
@@ -244,6 +246,7 @@ def set_figure_button():
                     edge_width_display=corner_width,
                     edge_width_select=corner_width,
                     edge_width_enlarge=corner_width*.1,
+                    invisible=True
                     )
         elif part.is_edge():
             part.set(
