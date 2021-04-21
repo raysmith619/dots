@@ -14,7 +14,6 @@ from select_error import SelectError
 
 from player_prop import PlayerProp
 from player_info import PlayerInfo
-from pandas._libs.writers import max_len_string_array
 
 class PlayerProps:
     

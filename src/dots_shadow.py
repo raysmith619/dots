@@ -2,15 +2,13 @@
 """
 Support for shadow dots game board - logical function of the game without display
 """
+import random    
 import numpy as np
 
 from select_trace import SlTrace
 from select_error import SelectError
 from select_edge import SelectEdge
 from select_region import SelectRegion
-from matplotlib.mlab import dist
-import random    
-from docutils.nodes import row
 from move_list import MoveList, MVP
 """
 Dots Square / Edge numbering

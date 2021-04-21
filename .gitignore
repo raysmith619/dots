@@ -1,0 +1,4 @@
+#.gitignore (dots_proj)
+*.pyc
+gmres/
+log/

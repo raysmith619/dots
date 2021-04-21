@@ -2,14 +2,12 @@
 """
 Support for MoveList an iterable list of move specfications (row,col,hv)
 """
+import random
 import numpy as np
 
 from select_error import SelectError
 from select_edge import SelectEdge
 from select_region import SelectRegion
-from matplotlib.mlab import dist
-import random    
-from docutils.nodes import row
 
 """
 Dots Square / Edge numbering

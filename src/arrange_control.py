@@ -5,9 +5,6 @@ import random
 from select_error import SelectError
 from select_trace import SlTrace
 from select_dd_choice import SelectDDChoice
-from builtins import str
-
-from _ast import Str
 """
 Arrangement control window layout
             ___  min____ max___ inc___ end (loop) reverse

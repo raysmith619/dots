@@ -9,7 +9,6 @@ from tkinter import *
 
 from select_trace import SlTrace
 from select_error import SelectError
-from _ast import Num
 
 
 class SelectKbdCmd:
