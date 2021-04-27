@@ -518,12 +518,13 @@ class SelectArea(object):
         """
         self.image_hash.clear_cache()
 
-    def get_image(self, key):
+    def get_image(self, key, size=None, photoimage=True):
         """ Get image based on key, if available
         :key: image key e.g. image file base name without extension
         :returns: image, None if not stored raises SelectError if loading failure
         """
-        return self.image_hash.get_image(key)
+        return self.image_hash.get_image(key=key,
+                                         size=size, photoimage=photoimage)
 
     def get_load_image(self, key):
         """ Get file image based on key, if available

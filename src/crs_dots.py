@@ -5,6 +5,7 @@ Created on October 30, 2018
 """
 import os
 import sys
+#print('\n'.join(sorted(sys.path)))
 import time
 import traceback
 from tkinter import *    
@@ -18,7 +19,6 @@ import tracemalloc
 ###gc.set_debug(gc.DEBUG_LEAK)
 snapshot1 = None
 snapshot2 = None
-
 mw = Tk()       # MUST preceed users of SelectControl for tkinter vars ...Var()
                 # e.g. SelectPlay -> ScoreWindow -> SelectControl
 from crs_funs import str2bool

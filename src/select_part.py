@@ -735,41 +735,27 @@ class SelectPart(object):
         
         """
         image_key = file_path        # Used to store/retrieve processed image
-        image = self.sel_area.get_image(image_key)
-        if image is None:
-            load_image = self.sel_area.get_load_image(image_key)
-            if load_image is None:
-                msg = f"No file found: {file_path}"
-                SlTrace.lg(msg)
-                ct.text = msg
-                return self.do_a_centered_text(ct)
-
-            height = ct.height
-            width = ct.width
-            if text is None:
-                text = "?"
-            x = ct.x 
-            y = ct.y
-            margin = 1             # boundary margin
-            cx, cy, ctoright, ctotop = self.get_center_size()
-            if x is None:
-                x = cx
-            else:
-                x += cx
-            if y is None:
-                y = cy
-            else:
-                y += cy
-            if height is None:
-                height = 2*ctotop - margin*2
-            
-            if width is None:
-                width = 2*ctoright - margin*2
-            load_image = load_image.resize((int(width), int(height)), Image.ANTIALIAS)
-            image = ImageTk.PhotoImage(load_image)
-            self.sel_area.add_image(image_key, image)
-            load_image.close()      # Release resources
+        height = ct.height
+        width = ct.width
+        margin = 1             # boundary margin
+        cx, cy, ctoright, ctotop = self.get_center_size()
+        if height is None:
+            height = 2*ctotop - margin*2
+        
+        if width is None:
+            width = 2*ctoright - margin*2
         c1x,c1y,_,_ = self.get_rect()
+        
+        
+        image = self.sel_area.get_image(image_key, size=(width,height))
+        if image is None:
+            msg = f"No file found: {file_path}"
+            SlTrace.lg(msg)
+            ct.text = msg
+            return self.do_a_centered_text(ct)
+
+        if text is None:
+            text = "?"
         image_tag = self.sel_area.canvas.create_image(c1x, c1y, image=image, anchor=NW)
         self.add_display_tags(image_tag)
         

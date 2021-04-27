@@ -3,7 +3,7 @@
 	<name>dots_proj</name>
 	<comment></comment>
 	<projects>
-		<project>resource_lib</project>
+		<project>resource_lib_proj</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -63,21 +63,10 @@ class LabelButtonControl:
         
         if fm is not None:
             image_key = file_name = fm.group(1)
-            image = self.image_hash.get_image(file_name)
-            if image is None:
-                load_image = self.image_hash.get_load_image(file_name)
-                if load_image is None:
-                    SlTrace.report(f"Can't load image {file_name}")
-                    return
-                
-                iwidth, iheight = self.get_label_size(width=width)
-                load_image = load_image.resize((iwidth, iheight), Image.ANTIALIAS)
-                image = ImageTk.PhotoImage(load_image)
-                self.image_hash.add_image(image_key, image)
-                load_image.close()      # Release resources
-            i_width, i_height = self.get_label_size(width)
-            btn = Button(frame, image=image, width=i_width,
-                               height=i_height, command=lambda : self.do_label(label_text))
+            size = self.get_label_size(width=width)
+            image = self.image_hash.get_image(file_name, size=size)
+            btn = Button(frame, image=image, width=size[0],
+                               height=size[1], command=lambda : self.do_label(label_text))
         else:
             btn = Button(frame, text=label_text, width=width,
                               command=lambda : self.do_label(label_text))
