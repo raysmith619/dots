@@ -339,7 +339,7 @@ class PlayerControl(SelectControlWindow):
         self.cur_player = player
 
     def set_play_level(self, play_level=None):
-        """ Set players' level via
+        """ Set all players' level via
         comma separated string
         :play_level: comma separated string of playing player's Labels
         """
@@ -364,7 +364,7 @@ class PlayerControl(SelectControlWindow):
 
     def set_playing(self, playing=None):
         """ Set players playing via
-        comma separated string
+        comma separated string" name[:play_level],...
         :playing: comma separated string of playing player's Labels
         """
         players = self.get_players(all=True)  # Get playing
@@ -376,10 +376,22 @@ class PlayerControl(SelectControlWindow):
                 player_str += player.label
         playing = playing.lower()
         play_list = [x.strip() for x in playing.split(',')]
+        play_level_by_name = {}
+        for pl_str in play_list:
+            plvals = pl_str.split(":")
+            pname = plvals[0]
+            plevel = None if len(plvals) < 2 else plvals[1]
+            play_level_by_name[pname] = plevel
         for player in players:
             playing_var = player.ctls_vars["playing"]
-            if player.label.lower() in play_list:
+            pnl = player.name.lower()
+            if pnl in play_level_by_name:
+                plevel = play_level_by_name[pnl]
                 player.playing = True
+                if plevel is not None:
+                    level_var = player.ctls_vars["level"]
+                    player.level = int(plevel)
+                    level_var.set(player.level)
             else:
                 player.playing = False
             playing_var.set(player.playing)
