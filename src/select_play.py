@@ -94,6 +94,8 @@ class SelectPlay:
         self.numgame = numgame
         self.profile_running = profile_running
         self.playing = True     # Hack to suppress activity on exit event
+        self.stepping = False   # Show stepping state (True == doing a step)
+
         self.score_window = score_window
         if game_control is None:
             raise SelectError("SelectPlay: manditory game_control is missing")
@@ -176,12 +178,16 @@ class SelectPlay:
             player_control = PlayerControl(title="Player Control", display=display_game)
         self.player_control = player_control
         
-    def running_loop(self, run_check_ms=None):
+    def running_loop(self, run_check_ms=None,
+                     run=True):
         """ Run game (loop) untill self.running set false
         :run_check_ms: loop checking time default: current checking time
+        :run: True - running not paused
+            default: running - progressing (not paused)
         """
         if self.board.area.down_click_call is None:
             raise SelectError("board.area.down_click_call is not set")
+        self.run = run
         if self.numgame is not None and self.ngame >= self.numgame:
             SlTrace.lg(f"running_loop: ngame={self.ngame} > numgame {self.numgame}")
             self.running = False
@@ -189,7 +195,6 @@ class SelectPlay:
             return
  
         self.running = True     # Still in game
-        self.run = True         # progressing (not paused)
         self.first_time = True 
         self.game_start_ts = SlTrace.getTs(6)
         self.game_control_updates()
@@ -308,6 +313,7 @@ class SelectPlay:
         if self.to_pause:
             self.pause_cmd()
             self.to_pause = False
+            self.stepping = False       # End of step
         return True
 
     def add_event_queue(self, proc):
@@ -449,6 +455,7 @@ class SelectPlay:
     def step_cmd(self):
         """ Make next move
         """
+        self.stepping = True
         self.run = True
         self.to_pause = True
 
@@ -1359,17 +1366,17 @@ class SelectPlay:
             self.end_game("No more moves!")
             return False
         
-        SlTrace.lg("auto_play player: %s" % self.get_player(), "player_trace")
+        SlTrace.lg(f"auto_play player: {self.get_player()}", "player_trace")
         
         level = self.adjust_level_to_stay_even(player)
-        SlTrace.lg("auto_play player: %s" % self.get_player(), "player_trace")
+        SlTrace.lg(f"auto_play level: {level}", "player_trace")
         if level > 0:
             self.auto_play_positive(player)
         elif level < 0:
             self.auto_play_negative(player)
         else:
             self.auto_play_random(player)
-        SlTrace.lg("auto_play player END: %s" % self.get_player(), "player_trace")
+        SlTrace.lg(f"auto_play player END: {self.get_player()}", "player_trace")
         return True                         # Next move number
 
 
@@ -1529,7 +1536,8 @@ class SelectPlay:
         """ Anounce move and check if move possible
         :returns: False if no move possible
         """
-        
+        if self.stepping:
+            SlTrace.lg("stepping")
         if not self.run:
             return False
         
@@ -1543,6 +1551,8 @@ class SelectPlay:
                 self.list_selected("After start_move")
             self.new_move = False
         player = self.get_player()
+        if self.stepping:
+            SlTrace.lg(f"player to move:{player}")
         if player is None:
             return False
         
@@ -1757,7 +1767,7 @@ class SelectPlay:
             msg = "new game"
         SlTrace.lg(msg)
         self.stop_game(msg)
-        self.restart_game = True        # Signal to restart
+        ###self.restart_game = True        # Signal to restart
 
     def stop_game(self, msg=None):
         """ Stop the game - orderly but no stats/saving

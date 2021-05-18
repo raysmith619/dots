@@ -1,4 +1,4 @@
-# command_file.py
+# sc_game_control.py
 """
 Game Control - parameters and such
 Facilitates setting and display of game controls

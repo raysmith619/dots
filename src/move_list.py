@@ -61,7 +61,7 @@ class MoveListIterator:
 class MoveList:
     """ List of moves (edge specifications) which can be efficiently manipulated
     """
-    def __init__(self, shadow, max_move=None, moves=None):
+    def __init__(self, shadow, max_move=None, moves=None, avails=None):
         """ Setup list
         :shadow:  Playing shadow data control
             shadow must support:
@@ -70,10 +70,14 @@ class MoveList:
 
         :max_move: Maximum number of moves
         :moves: if present, initialize list
+        :avails: if present, ndarray of irow, icol, hv tupples
         """
         self.shadow = shadow
         if max_move is None:
-            if moves is not None:
+            if avails is not None:
+                max_move = len(avails)
+                
+            elif moves is not None:
                 max_move = len(moves)
             else:
                 max_move = 10
@@ -83,6 +87,10 @@ class MoveList:
         if moves is not None:
             for move in moves:
                 self.add_move(move)
+        if avails is not None:
+            for mvd in avails:
+                mvp = MVP(row=mvd[0]+1, col=mvd[1]+1, hv=mvd[2])
+                self.add_move(mvp)
  
     def __iter__(self):
         """ Returns the Iterator object MoveListIterator

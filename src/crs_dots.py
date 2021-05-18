@@ -318,6 +318,7 @@ def setup_app():
         app.add_menu_command("CmdFile", cmd_file)
         app.add_menu_separator()
         app.add_menu_command("NewGame", new_game)
+        app.add_menu_command("ClearGame", clear_game)
         app.add_menu_separator()
         app.add_menu_command("Run", run_cmd)
         app.add_menu_command("Pause", pause_cmd)
@@ -462,7 +463,12 @@ def end_game():
         
     
 ###@profile    
-def set_dots_button():
+def set_dots_button(do_run=None):
+    """ Set game
+    :do_run: run after setup
+            default: global run_game
+    """
+    
     global loop_no
     global first_set_app
     global app
@@ -475,6 +481,8 @@ def set_dots_button():
     global board_change
     global run_game
     
+    if do_run is None:
+        do_run = run_game
     loop_no += 1 
     SlTrace.lg("\nLoop %d" % loop_no)
     SlTrace.lg("Memory Used: %.0f MB, Change: %.2f MB"
@@ -629,7 +637,7 @@ def set_dots_button():
         Setup for next game
         """
     sp.reset()
-    if run_game:
+    if do_run:
         run_game = False            # Clear after running
         mw.after(0, sp.running_loop)
 
@@ -723,8 +731,9 @@ def step_cmd():
     global sp
     global run_game
     if sp is not None:
-        if sp.running:
-            sp.step_cmd()
+        if not sp.running:
+            clear_game()
+        sp.step_cmd()
 
 def run_cmd():
     """ Run / continue game
@@ -738,24 +747,43 @@ def run_cmd():
             return              # Currently running (paused?)
     
         mw.after(0, sp.running_loop)   # One call from mainloop
+
+def reset_game(do_run=None):
+    """ Setup with cleared board
+    ready run depends on do_run/run_game
+    :do_run: True run game after reset
+            default: global run_game
+    """
+    global setup_before_game 
+    
+    if do_run is None:
+        do_run = run_game
+    game_control_set(game_control)
+    if setup_before_game:
+        score_window.setup_scores_frame()
+        set_dots_button(do_run=do_run)
+        setup_before_game = False
+               
+
+def clear_game():
+    """ Setup with cleared board
+    ready but not running
+    """
+    reset_game(do_run=False)
+    if sp is not None:
+        sp.reset()
+        mw.after(0, lambda : sp.running_loop(run=False))
+        
     
 def new_game():
     """ Start new game
     """
-    global setup_before_game
-    
-    if setup_before_game:
-        score_window.setup_scores_frame()
-        set_dots_button()
-        setup_before_game = False
-        
-                
-
-    SlTrace.lg("Starting New Game")
+    reset_game(do_run=run_game)
+    '''
     if sp is not None:
-        sp.reset()
+        SlTrace.lg("Starting New Game")
         run_cmd()
-        ###mw.after(0, sp.running_loop)   # One call from mainloop
+    '''
     
 
 def run_cmd_file(src_file=None):
@@ -793,7 +821,7 @@ def game_control_set(gcw):
 
 
 def player_control_set(pcw):
-    """ game_control_set button cmd
+    """ player control button cmd
     Must changes must wait till next game ?
     Missing players?
     :gcw: game control window object

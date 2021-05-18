@@ -31,7 +31,7 @@ class PlayMove:
         :move_type: type of move e.g. SELECT_EDGE,...
         :row: game board row
         :col: game board col
-        :hg: vertical/horizontal
+        :hv: vertical/horizontal
         :player: player making move
         :playing: list of players' labels/names
         :label_name: player's label/Name or None - every player

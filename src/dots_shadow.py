@@ -48,20 +48,34 @@ class DotsShadow:
 
         self.squares_obj =  np.zeros([nrows, ncols], dtype=SelectRegion)
         self.lines_obj = np.zeros([nrows+1, ncols+1, 2], dtype=SelectEdge)     # row, col, [horiz=0, vert=1]
+                                                    # completion counts
+        self.comp_before_counts = np.zeros([nrows+1, ncols+1, 2])
+        self.comp_after_counts = np.zeros([nrows+1, ncols+1, 2])
+        
         ###self.lines_obj = np.zeros([nrows+1+1, ncols+1+1, 2], dtype=SelectEdge)     # row, col, [horiz=0, vert=1]
         self.nopen_line = 2*nrows*ncols + nrows + ncols
 
 
+    def get_avail_lines(self):
+        """ Get ndarray of available line (indices)
+        """
+        avails = np.argwhere(self.lines==0)
+        return avails
+    
     def get_legal_list(self):
         """ Return MoveList of legal moves
         :returns: list(MoveList) of moves(MoveList)
         """
-        legals = MoveList(self)
+        avails = self.get_avail_lines()
+        
+        legals = MoveList(self, avails=avails)
+        '''
         for ir in range(0, self.nrows+1):
             for ic in range(0, self.ncols+1):
                 for hv in [MVP.HV_H, MVP.HV_V]:
                     if self.lines[ir, ic, hv] == 0:
                         legals.add_move(MVP(row=ir+1, col=ic+1, hv=hv))    # unused
+        '''
         return legals
 
 
@@ -374,8 +388,8 @@ class DotsShadow:
         
         
     def turn_off(self, part=None):
-        """ Shadow part turn on operation to facilitate speed when display is not required
-        :part: part to turn on
+        """ Shadow part turn off operation to facilitate speed when display is not required
+        :part: part to turn off
         :player: who made operation
         :move_no: current move number
         """

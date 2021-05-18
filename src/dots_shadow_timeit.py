@@ -7,7 +7,6 @@ import random
 import numpy as np
 
 from dots_shadow import DotsShadow, MoveList
-from docutils.nodes import row
 
 # test numpy array against list
 rn = 1000000
@@ -68,4 +67,4 @@ test1(1000, 5000)
 test1(1000, 50000)
 test1(1000, 500000)
 test1(1000, 5000000)
-test1(1000, 50000000)
+###test1(1000, 50000000)
